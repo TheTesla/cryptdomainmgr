@@ -5,7 +5,7 @@
     name: dovecot
     question: dovecot-core/create-ssl-cert
     value: true
-    vtype: bolean
+    vtype: boolean
 
 - name: set dovecot cert-name
   debconf:
@@ -23,7 +23,7 @@
     - dovecot-imapd
     - dovecot-mysql
     - dovecot-lmtpd
-    - dovecot-pop3
+    - dovecot-pop3d
     - dovecot-sieve
     - dovecot-managesieved
     - dovecot-antispam

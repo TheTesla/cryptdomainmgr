@@ -6,6 +6,11 @@
   #  gather_facts: True
   vars_files:
     - vars/common.yml
+    - vars/database.yml
+    - vars/mail.yml
+    - vars/lists.yml
+    - vars/tine.yml
+    - vars/cert.yml
   roles:
     - common
     - crm

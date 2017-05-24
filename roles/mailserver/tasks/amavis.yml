@@ -6,8 +6,9 @@
     dest: "/root/amavisd-milter"
 
 - name: build amavisd-milter
-  command: "./configure && make -j8 && make install"
+  shell: "./configure && make -j8 && make install"
   args:
+    executable: "/bin/bash"
     chdir: "/root/amavisd-milter"
 
 - name: install amavis

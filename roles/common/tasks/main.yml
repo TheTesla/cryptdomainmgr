@@ -31,5 +31,8 @@
   with_items:
     - unzip
     - make
-
+    - git
+    - g++
+    - make
+    - cmake
 
