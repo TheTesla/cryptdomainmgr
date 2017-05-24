@@ -5,6 +5,12 @@
     name: "{{ deliver_user_name }}"
     comment: user for mailserver
 
+- name: copy sieve and spampipe templates
+  template:
+    src: "{{ item }}"
+    dest: "/{{ item }}"
+  with_fileglob:
+    - "../templates/*"
 
 - include: postfix.yml
 

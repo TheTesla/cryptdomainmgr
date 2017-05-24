@@ -24,3 +24,17 @@
     - mysql-utilities
     - libdbi-perl
     - libdbd-mysql-perl
+
+- name: sql template
+  template:
+    src: ../templates/init-dbs.sql
+    dest: /tmp/init-dbs.sql
+
+- name: init db
+  mysql_db:
+    state: import
+    login_user: root
+    login_password: "{{ mysql_root_passwd }}"
+    name: all
+    target: /tmp/init-dbs.sql
+

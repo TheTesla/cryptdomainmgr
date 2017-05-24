@@ -9,3 +9,6 @@
   roles:
     - common
     - crm
+    - mailserver
+    - mailinglist
+    - database

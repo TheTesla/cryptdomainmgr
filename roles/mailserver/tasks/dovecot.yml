@@ -28,12 +28,6 @@
     - dovecot-managesieved
     - dovecot-antispam
  
-- name: copy sieve and spampipe templates
-  template:
-    src: "{{ item }}"
-    dest: "/{{ item }}"
-  with_fileglob:
-    - "../templates/*"
 
 
 
