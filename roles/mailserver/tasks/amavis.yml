@@ -1,0 +1,21 @@
+---
+
+- name: clone amavisd-milter
+  git:
+    repo: "https://github.com/ThomasLeister/amavisd-milter.git"
+    dest: "/root/amavisd-milter"
+
+- name: build amavisd-milter
+  command: "./configure && make -j8 && make install"
+  args:
+    chdir: "/root/amavisd-milter"
+
+- name: install amavis
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - amavisd-new
+    - libmilter-dev
+
+

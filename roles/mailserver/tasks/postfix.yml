@@ -1,0 +1,27 @@
+---
+
+- name: configure postfix mailname
+  debconf:
+    name: postfix
+    question: postfix/mailname
+    value: "{{ mailname }}"
+    vtype: string
+
+- name: configure postfix main mailer type
+  debconf:
+    name: postfix
+    question: postfix/main_mailer_type
+    value: "Internet Site"
+    vtype: string
+
+- name: install postfix
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - postfix
+    - postfix-mysql
+
+
+
+

@@ -1,0 +1,13 @@
+---
+
+hostname: "testsystem"
+tld: "smartrns.net"
+name: "testserver"
+domain: "{{ name }}.{{ tld }}"
+secondarydomains: "testserver.entroserv.de"
+public_interface: "eth0"
+myip: "{{ ansible_default_ipv4.address }}"  
+#myextip: $(curl -4 icanhazip.com)
+#myextip6: $(curl -6 icanhazip.com)
+
+

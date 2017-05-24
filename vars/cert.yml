@@ -1,0 +1,11 @@
+---
+
+certemail: "stefan.helmert@t-online.de"
+
+certextra: "--staging"
+
+certbaselocation: "\\/etc\\/letsencrypt\\/live\\/{{ domain }}"
+
+
+
+

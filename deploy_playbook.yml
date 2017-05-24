@@ -1,0 +1,11 @@
+---
+
+- hosts: crm-server
+  user: root
+  #  sudo: True
+  #  gather_facts: True
+  vars_files:
+    - vars/common.yml
+  roles:
+    - common
+    - crm

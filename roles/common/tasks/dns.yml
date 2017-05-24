@@ -1,0 +1,25 @@
+---
+
+
+- name: install unbound
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - unbound
+    - dnsutils
+
+- name: start unbound
+  command: unbound-anchor
+
+- name: set /etc/unbound owner
+  file:
+    name: /etc/unbound
+    owner: unbound
+
+- name: start unbound
+  service:
+    name: unbound
+    state: started
+
+

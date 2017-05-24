@@ -1,0 +1,12 @@
+---
+
+- name: clone certbot
+  git:
+    repo: "https://github.com/certbot/certbot"
+    dest: "/root/certbot"
+
+- name: new certificate
+  command: "./certbot-auto certonly --email {{ certemail }} {{ certextra }} --agree-tos --non-interactive --standalone --rsa-key-size 4096 -d {{ domain }}"
+  args:
+    chdir: /root/certbot
+

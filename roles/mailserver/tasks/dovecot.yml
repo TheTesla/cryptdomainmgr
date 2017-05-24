@@ -1,0 +1,40 @@
+---
+
+- name: generate dovecot ssl-cert
+  debconf:
+    name: dovecot
+    question: dovecot-core/create-ssl-cert
+    value: true
+    vtype: bolean
+
+- name: set dovecot cert-name
+  debconf:
+    name: postfix
+    question: postfix/main_mailer_type
+    value: "{{ domain }}"
+    vtype: string
+
+- name: install dovecot
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - dovecot-core
+    - dovecot-imapd
+    - dovecot-mysql
+    - dovecot-lmtpd
+    - dovecot-pop3
+    - dovecot-sieve
+    - dovecot-managesieved
+    - dovecot-antispam
+ 
+- name: copy sieve and spampipe templates
+  template:
+    src: "{{ item }}"
+    dest: "/{{ item }}"
+  with_fileglob:
+    - "../templates/*"
+
+
+
+

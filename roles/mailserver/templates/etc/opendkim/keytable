@@ -1,0 +1,2 @@
+default    %:key1:/etc/opendkim/keys/{{ opendkim_keyname }}.private
+

@@ -1,0 +1,27 @@
+---
+
+- name: configure mailman create site list
+  debconf:
+    name: mailman
+    question: mailman/create_site_list
+    # value: 
+    vtype: note
+
+- name: configure mailman site language
+  debconf:
+    name: mailman
+    question: mailman/site_languages
+    value: de
+    vtype: multiselect
+
+- name: install mailman
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - mailman
+  become: true
+  become_method: sudo 
+
+
+

@@ -1,0 +1,46 @@
+---
+
+- name: install opendkim
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - opendkim
+    - opendkim-tools
+
+- name: create opendkim keys directory
+  file: 
+    path: /etc/opendkim/keys
+    state: directory
+
+- name: generate opendkim keys
+  command: "opendkim-genkey --selector={{ opendkim_keyname }} --bits=2048 --directory=keys"
+  args:
+    chdir: "/etc/opendkim"
+
+- name: get opendkim key
+  command: "sed ':a;N;$!ba;s/\\n//g' /etc/opendkim/keys/{{ opendkimkeyname }}.txt | awk -F\"\\\"\" '{printf(\"\\\"%s\\\" \\\"%s\\\"\", $2, $4)}')"
+  register: get_opendkim_key
+
+- name: set dkimkey var
+  set_fact:
+    dkimkey: "{{ get_opendkim_key.stdout }}"
+
+- name: add user postfix to group opendkim
+  user:
+    name: postfix
+    group: opendkim
+    append: yes
+
+- name: make opendkim owner of the openkdim private key
+  file:
+    name: "/etc/opendkim/keys/{{ opendkimkeyname }}.private"
+    owner: opendkim
+
+- name: show dkimkey var
+  debug: "{{ dkimkey }}"
+
+
+
+
+

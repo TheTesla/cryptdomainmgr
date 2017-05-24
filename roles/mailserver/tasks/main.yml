@@ -1,0 +1,19 @@
+---
+
+- name: create deliver user
+  user:
+    name: "{{ deliver_user_name }}"
+    comment: user for mailserver
+
+
+- include: postfix.yml
+
+- include: dovecot.yml
+
+- include: amavis.yml
+
+- include: opendkim.yml
+
+- include: razor.yml
+
+

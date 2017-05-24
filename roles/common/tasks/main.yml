@@ -1,0 +1,35 @@
+---
+
+- name: get ipv4
+  uri:
+    url: "http://icanhazip.com"
+    return_content: yes
+  register: get_ipv4_res
+  
+- name: set ipv4 var
+  set_fact: 
+    myextip: "{{ get_ipv4_res.content }}"
+
+- name: set hostname persistant
+  copy:
+    content: "{{ hostname }}"
+    dest: "/etc/hostname"
+  become: yes
+  become_method: sudo
+
+- name: force ipv4 for apt
+  copy:
+    content: "Acquire::ForceIPv4 \"true\";"
+    dest: "/etc/apt/apt.conf.d/99force-ipv4"
+  become: yes
+  become_method: sudo
+
+- name: install common packages
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - unzip
+    - make
+
+

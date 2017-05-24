@@ -1,0 +1,26 @@
+---
+
+- name: configure mysql-server root password
+  debconf:
+    name: mysql-server
+    question: mysql-server/root_password
+    value: "{{ mysql_root_password }}"
+    vtype: password
+
+- name: repeate mysql-server root password
+  debconf:
+    name: mysql-server
+    question: mysql-server/root_password_again
+    value: "{{ mysql_root_password }}"
+    vtype: password
+
+- name: install mysql and libs
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - mysql-server
+    - mysql-client
+    - mysql-utilities
+    - libdbi-perl
+    - libdbd-mysql-perl
