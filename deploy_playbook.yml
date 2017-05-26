@@ -13,7 +13,8 @@
     - vars/cert.yml
   roles:
     - common
-    - crm
+    - webserver
     - mailserver
     - mailinglist
     - database
+    - crm

@@ -30,17 +30,24 @@
     - "/etc/dovecot"
     - "/etc/dovecot/conf.d"
     - "/etc/postfix"
-    - "/etc/postfix/sql"
     - "/etc/opendkim"
-    - "/var/mail"
-    - "/var/mail/sieve"
-    - "/var/mail/sieve/global"
     - "/etc/mail"
     - "/etc/mail/spamassassin"
     - "/etc/mailman"
     - "/etc/unbound"
     - "/etc/unbound/unbound.conf.d"
 
+- name: Create /var directories 
+  file:
+    path: "{{ item }}"
+    owner: "{{ deliver_user_name }}"
+    group: "{{ deliver_user_name }}"
+    mode: 0770
+    state: directory
+  with_items:
+    - "/var/mail"
+    - "/var/mail/sieve"
+    - "/var/mail/sieve/global"
 
 - name: copy sieve and spampipe templates
   template:

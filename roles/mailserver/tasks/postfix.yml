@@ -22,6 +22,24 @@
     - postfix
     - postfix-mysql
 
+- name: postmap without_ptr
+  shell: "postmap /etc/postfix/without_ptr"
+  args:
+    executable: "/bin/bash"
 
+- name: postmap transport
+  shell: "postmap /etc/postfix/transport"
+  args:
+    executable: "/bin/bash"
+
+
+- name: Permissions /etc/postfix/sql
+  file:
+    path: /etc/postfix/sql
+    #owner: "{{ deliver_user_name }}"
+    #group: "{{ deliver_user_name }}"
+    mode: 660
+    state: directory
+    recurse: yes
 
 

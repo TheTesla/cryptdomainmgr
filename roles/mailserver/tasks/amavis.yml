@@ -12,11 +12,92 @@
   with_items:
     - amavisd-new
     - libmilter-dev
+    - spamassassin
+    - acl
+    - python-pylibacl
 
 - name: build amavisd-milter
   shell: "touch * && ./configure && make && make install"
   args:
     executable: "/bin/bash"
     chdir: "/root/amavisd-milter"
+     
+# ---- spamassassin ----
+
+#- name: Set other acl of local.cf
+#  acl:
+#    path: /etc/mail/spamassassin/local.cf
+#    entity: other
+    #etype: other
+    #    state: absent
+
+- name: Set deliver user acl of local.cf
+  acl:
+    path: /etc/mail/spamassassin/local.cf
+    etype: user
+    entity: "{{ deliver_user_name }}"
+    permissions: r
+    state: present
+
+- name: Set amavis user acl of local.cf
+  acl:
+    path: /etc/mail/spamassassin/local.cf
+    etype: user
+    entity: "amavis"
+    permissions: r
+    state: present
+
+- name: remove db
+  mysql_db:
+    state: absent
+    login_user: root
+    login_password: "{{ mysql_root_passwd }}"
+    name: spamassassin
+
+- name: init db
+  mysql_db:
+    state: import
+    login_user: root
+    login_password: "{{ mysql_root_passwd }}"
+    name: spamassassin
+    target: /usr/share/doc/spamassassin/sql/bayes_mysql.sql
+
+- name: permissions of amavisd-milter init
+  file:
+    name: /etc/init.d/amavisd-milter
+    mode: 0755
+    state: file
+
+- name: Permissions of sa-care.sh
+  file:
+    name: /root/sa-care.sh
+    owner: root
+    group: root
+    mode: 0774
+    state: file
+
+- name: Permissions and owner /var/mail/sieve
+  file:
+    path: /var/mail/sieve
+    owner: "{{ deliver_user_name }}"
+    group: "{{ deliver_user_name }}"
+    state: directory
+    recurse: yes
+
+- name: Permissions and owner /var/mail/spampipe.sh
+  file:
+    path: /var/mail/spampipe.sh
+    owner: "{{ deliver_user_name }}"
+    group: "{{ deliver_user_name }}"
+    mode: 774
+    state: file
+
+- name: Permissions /etc/amavis/conf.d/50-user
+  file:
+    path: /etc/amavis/conf.d/50-user
+    #owner: "{{ deliver_user_name }}"
+    #group: "{{ deliver_user_name }}"
+    mode: 770
+    state: file
 
 

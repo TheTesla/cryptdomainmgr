@@ -1,5 +1,13 @@
 ---
 
+- name: Create myssl key directory
+  file:
+    path: "/etc/myssl"
+    owner: root
+    group: root
+    state: directory
+
+
 - name: install opendkim
   apt:
     name: "{{ item }}"
