@@ -19,7 +19,10 @@
     chdir: "/etc/opendkim"
 
 - name: get opendkim key
-  command: "sed ':a;N;$!ba;s/\\n//g' /etc/opendkim/keys/{{ opendkimkeyname }}.txt | awk -F\"\\\"\" '{printf(\"\\\"%s\\\" \\\"%s\\\"\", $2, $4)}')"
+  #command: "sed ':a;N;$!ba;s/\\n//g' /etc/opendkim/keys/{{ opendkim_keyname }}.txt | awk -F\"\\\"\" '{printf(\"\\\"%s\\\" \\\"%s\\\"\", $2, $4)}')"
+  shell: sed ':a;N;$!ba;s/\n//g' /etc/opendkim/keys/{{ opendkim_keyname }}.txt | awk -F"\"" '{printf("\"%s\" \"%s\"", $2, $4)}'
+  args:
+    executable: /bin/bash
   register: get_opendkim_key
 
 - name: set dkimkey var
@@ -34,7 +37,7 @@
 
 - name: make opendkim owner of the openkdim private key
   file:
-    name: "/etc/opendkim/keys/{{ opendkimkeyname }}.private"
+    name: "/etc/opendkim/keys/{{ opendkim_keyname }}.private"
     owner: opendkim
 
 - name: show dkimkey var

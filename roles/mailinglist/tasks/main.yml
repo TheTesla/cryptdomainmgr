@@ -4,7 +4,7 @@
   debconf:
     name: mailman
     question: mailman/create_site_list
-    # value: 
+    value: true 
     vtype: note
 
 - name: configure mailman site language

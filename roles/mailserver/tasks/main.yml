@@ -5,13 +5,6 @@
     name: "{{ deliver_user_name }}"
     comment: user for mailserver
 
-- name: copy sieve and spampipe templates
-  template:
-    src: "{{ item }}"
-    dest: "/{{ item }}"
-  with_fileglob:
-    - "../templates/*"
-
 - include: postfix.yml
 
 - include: dovecot.yml
@@ -22,4 +15,37 @@
 
 - include: razor.yml
 
+- name: create directories 
+  file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  with_items:
+    - "/etc/postfix"
+    - "/etc/amavis"
+    - "/etc/amavis/conf.d"
+    - "/etc/dhcp"
+    - "/etc/dovecot"
+    - "/etc/dovecot/conf.d"
+    - "/etc/postfix"
+    - "/etc/postfix/sql"
+    - "/etc/opendkim"
+    - "/var/mail"
+    - "/var/mail/sieve"
+    - "/var/mail/sieve/global"
+    - "/etc/mail"
+    - "/etc/mail/spamassassin"
+    - "/etc/mailman"
+    - "/etc/unbound"
+    - "/etc/unbound/unbound.conf.d"
+
+
+- name: copy sieve and spampipe templates
+  template:
+    src: "{{ item.src }}"
+    dest: "/{{ item.path }}"
+  with_filetree: "../templates/"
+  when: item.state == 'file'
 

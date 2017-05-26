@@ -5,12 +5,6 @@
     repo: "https://github.com/ThomasLeister/amavisd-milter.git"
     dest: "/root/amavisd-milter"
 
-- name: build amavisd-milter
-  shell: "./configure && make -j8 && make install"
-  args:
-    executable: "/bin/bash"
-    chdir: "/root/amavisd-milter"
-
 - name: install amavis
   apt:
     name: "{{ item }}"
@@ -18,5 +12,11 @@
   with_items:
     - amavisd-new
     - libmilter-dev
+
+- name: build amavisd-milter
+  shell: "touch * && ./configure && make && make install"
+  args:
+    executable: "/bin/bash"
+    chdir: "/root/amavisd-milter"
 
 
