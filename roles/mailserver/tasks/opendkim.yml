@@ -40,7 +40,7 @@
 - name: add user postfix to group opendkim
   user:
     name: postfix
-    group: opendkim
+    groups: opendkim
     append: yes
 
 - name: make opendkim owner of the openkdim private key

@@ -37,3 +37,9 @@
     - make
     - cmake
 
+- include: dns.yml
+
+- include: ssl.yml
+
+- include: certbot.yml
+

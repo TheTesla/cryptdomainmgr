@@ -17,6 +17,12 @@
     name: /etc/unbound
     owner: unbound
 
+- name: unbound anchor
+  shell: "unbound-anchor"
+  args:
+    executable: "/bin/bash"
+
+
 - name: start unbound
   service:
     name: unbound

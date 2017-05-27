@@ -6,6 +6,7 @@
     state: latest
   with_items:
     - apache2
+    - php5
     - php5-mysql
 
 - name: Create Maildir for www-data

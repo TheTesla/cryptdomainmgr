@@ -46,7 +46,7 @@
 - name: Add user postfix to group list
   user:
     name: postfix
-    group: list
+    groups: list
     append: yes  
 
   #- name: rmlist
