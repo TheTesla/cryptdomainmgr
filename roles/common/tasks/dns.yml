@@ -9,6 +9,24 @@
     - unbound
     - dnsutils
 
+- name: create directories 
+  file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  with_items:
+    - "/etc/unbound"
+    - "/etc/unbound/unbound.conf.d"
+
+- name: copy sieve and spampipe templates
+  template:
+    src: "{{ item.src }}"
+    dest: "/{{ item.path }}"
+  with_filetree: "../templates/"
+  when: item.state == 'file'
+
 - name: start unbound
   command: unbound-anchor
 
