@@ -7,8 +7,7 @@
     group: root
     state: directory
 
-
-- name: install opendkim
+- name: Install opendkim
   apt:
     name: "{{ item }}"
     state: latest
@@ -16,39 +15,56 @@
     - opendkim
     - opendkim-tools
 
-- name: create opendkim keys directory
-  file: 
-    path: /etc/opendkim/keys
+- name: Create opendkim directories 
+  file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
     state: directory
+  with_items:
+    - "/etc/opendkim"
+    - "/etc/opendkim/keys"
 
-- name: generate opendkim keys
+- name: Copy opendkim config file
+  copy:
+    src: "../templates/etc/opendkim.conf"
+    dest: "/etc/opendkim.conf"
+
+- name: Process opendkim templates
+  template:
+    src: "{{ item.src }}"
+    dest: "/etc/opendkim/{{ item.path }}"
+  with_filetree: "../templates/etc/opendkim/"
+  when: item.state == 'file'
+
+- name: Generate opendkim keys
   command: "opendkim-genkey --selector={{ opendkim_keyname }} --bits=2048 --directory=keys"
   args:
     chdir: "/etc/opendkim"
 
-- name: get opendkim key
-  #command: "sed ':a;N;$!ba;s/\\n//g' /etc/opendkim/keys/{{ opendkim_keyname }}.txt | awk -F\"\\\"\" '{printf(\"\\\"%s\\\" \\\"%s\\\"\", $2, $4)}')"
+- name: Get opendkim key
   shell: sed ':a;N;$!ba;s/\n//g' /etc/opendkim/keys/{{ opendkim_keyname }}.txt | awk -F"\"" '{printf("\"%s\" \"%s\"", $2, $4)}'
   args:
     executable: /bin/bash
   register: get_opendkim_key
 
-- name: set dkimkey var
+- name: Set dkimkey var
   set_fact:
     dkimkey: "{{ get_opendkim_key.stdout }}"
 
-- name: add user postfix to group opendkim
+- name: Add user postfix to group opendkim
   user:
     name: postfix
     groups: opendkim
     append: yes
 
-- name: make opendkim owner of the openkdim private key
+- name: Make opendkim owner of the openkdim private key
   file:
     name: "/etc/opendkim/keys/{{ opendkim_keyname }}.private"
     owner: opendkim
 
-- name: show dkimkey var
+- name: Show dkimkey var
   debug: "{{ dkimkey }}"
 
 

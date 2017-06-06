@@ -14,7 +14,7 @@
     value: de
     vtype: multiselect
 
-- name: install mailman
+- name: Install mailman
   apt:
     name: "{{ item }}"
     state: latest
@@ -22,6 +22,23 @@
     - mailman
   become: true
   become_method: sudo 
+
+- name: Create directories 
+  file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  with_items:
+    - "/etc/mailman"
+
+- name: Process mailman templates
+  template:
+    src: "{{ item.src }}"
+    dest: "/etc/mailman/{{ item.path }}"
+  with_filetree: "../templates/etc/mailman/"
+  when: item.state == 'file'
 
 - name: Add mailman to apache2
   shell: "cp /etc/mailman/apache.conf /etc/apache2/sites-available/mailman.conf"
@@ -37,11 +54,9 @@
   shell: "a2ensite mailman.conf"
   args:
     executable: "/bin/bash"
+  notify:
+    - Restart apache2
 
-- name: Set list creators password
-  shell: "mmsitepass {{ list_creators_passwd }}"
-  args:
-    executable: "/bin/bash"
 
 - name: Add user postfix to group list
   user:
@@ -54,8 +69,13 @@
   #  args:
   #    executable: /bin/bash
 
-- name: Newlist
-  shell: 'echo -e "\n" | /usr/sbin/newlist mailman {{ mailman_email }} {{ mailman_passwd }}'
+- name: Set list creators password
+  shell: "mmsitepass {{ list_creators_passwd }}"
   args:
-    executable: /bin/bash
-  ignore_errors: yes
+    executable: "/bin/bash"
+  notify:
+    - Newlist mailman
+
+
+
+

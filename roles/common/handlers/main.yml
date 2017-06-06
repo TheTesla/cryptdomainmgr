@@ -1,0 +1,20 @@
+---
+
+- name: Unbound anchor
+  shell: "/usr/sbin/unbound-anchor"
+  args:
+    executable: "/bin/bash"
+  ignore_errors: true
+
+- name: Restart unbound
+  service:
+    name: unbound
+    state: restarted
+
+- name: Generate openssl dh parameters
+  shell: "FILE=`mktemp` ; openssl dhparam 2048 -out $FILE && mv -f $FILE /etc/myssl/dh2048.pem &"
+  args:
+    executable: '/bin/bash'
+
+
+

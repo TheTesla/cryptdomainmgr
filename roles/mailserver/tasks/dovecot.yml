@@ -1,20 +1,20 @@
 ---
 
-- name: generate dovecot ssl-cert
+- name: Do not generate dovecot ssl-cert during install
   debconf:
-    name: dovecot
+    name: dovecot-core
     question: dovecot-core/create-ssl-cert
-    value: true
+    value: false
     vtype: boolean
 
-- name: set dovecot cert-name
-  debconf:
-    name: postfix
-    question: postfix/main_mailer_type
-    value: "{{ domain }}"
-    vtype: string
+  #- name: Set dovecot cert-name
+  #  debconf:
+  #    name: dovecot-core
+  #    question: dovecot-core/ssl-cert-name
+  #    value: "{{ domain }}"
+  #    vtype: string
 
-- name: install dovecot
+- name: Install dovecot and components
   apt:
     name: "{{ item }}"
     state: latest
@@ -27,7 +27,44 @@
     - dovecot-sieve
     - dovecot-managesieved
     - dovecot-antispam
- 
+
+- name: Copy dovecot SQL file
+  copy:
+    dest: /tmp/dovecot.sql
+    src: ../files/dovecot.sql
+
+- name: Create dovecot database
+  mysql_db:
+    name: dovecot
+    state: present
+    login_password: '{{ mysql_root_passwd }}'
+  notify:
+    - Init dovecot db
+
+- name: Create directories 
+  file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  with_items:
+    - "/etc/dovecot"
+    - "/etc/dovecot/conf.d"
+
+- name: Remove example ssl config 
+  file:
+    path: "/etc/dovecot/conf.d/10-ssl.conf"
+    state: absent
+
+- name: Process dovecot templates
+  template:
+    src: "{{ item.src }}"
+    dest: "/etc/dovecot/{{ item.path }}"
+  with_filetree: "../templates/etc/dovecot/"
+  when: item.state == 'file'
+  notify:
+    - Restart dovecot
 
 
 

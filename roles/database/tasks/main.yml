@@ -1,20 +1,20 @@
 ---
 
-- name: configure mysql-server root password
+- name: Configure mysql-server root password
   debconf:
     name: mysql-server
     question: mysql-server/root_password
     value: "{{ mysql_root_passwd }}"
     vtype: password
 
-- name: repeate mysql-server root password
+- name: Repeate mysql-server root password
   debconf:
     name: mysql-server
     question: mysql-server/root_password_again
     value: "{{ mysql_root_passwd }}"
     vtype: password
 
-- name: install mysql and libs
+- name: Install mysql and libs
   apt:
     name: "{{ item }}"
     state: latest
@@ -26,17 +26,13 @@
     - libdbd-mysql-perl
     - python-mysqldb
 
-- name: sql template
-  template:
-    src: ../templates/init-dbs.sql
-    dest: /tmp/init-dbs.sql
+      # for debugging
 
+  #- name: SQL template
+  #  template:
+  #    src: ../templates/init-dbs.sql
+  #    dest: /tmp/init-dbs.sql
+  #  notify:
+  #    - Init mailserver db
 
-- name: init db
-  mysql_db:
-    state: import
-    login_user: root
-    login_password: "{{ mysql_root_passwd }}"
-    name: all
-    target: /tmp/init-dbs.sql
 

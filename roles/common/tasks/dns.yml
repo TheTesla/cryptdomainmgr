@@ -1,7 +1,7 @@
 ---
 
 
-- name: install unbound
+- name: Install unbound
   apt:
     name: "{{ item }}"
     state: latest
@@ -9,7 +9,7 @@
     - unbound
     - dnsutils
 
-- name: create directories 
+- name: Create unbound directories (incl. dhcp) 
   file:
     path: "{{ item }}"
     owner: root
@@ -17,33 +17,32 @@
     mode: 0755
     state: directory
   with_items:
+    - "/etc/dhcp"
     - "/etc/unbound"
     - "/etc/unbound/unbound.conf.d"
 
-- name: copy sieve and spampipe templates
-  template:
-    src: "{{ item.src }}"
-    dest: "/{{ item.path }}"
-  with_filetree: "../templates/"
-  when: item.state == 'file'
+- name: Copy unbound config
+  copy:
+    src: "../files/etc/unbound/"
+    dest: "/etc/unbound/"
 
-- name: start unbound
-  command: unbound-anchor
+- name: Copy dhcp config
+  copy:
+    src: "../files/etc/dhcp/"
+    dest: "/etc/dhcp/"
+
+- name: Process /etc/hosts template
+  template:
+    src: "../templates/etc/hosts"
+    dest: "/etc/hosts"
 
 - name: set /etc/unbound owner
   file:
     name: /etc/unbound
     owner: unbound
+  notify:
+    - Unbound anchor
+    - Restart unbound
 
-- name: unbound anchor
-  shell: "unbound-anchor"
-  args:
-    executable: "/bin/bash"
-
-
-- name: start unbound
-  service:
-    name: unbound
-    state: started
 
 

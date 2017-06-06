@@ -1,0 +1,14 @@
+---
+
+- include: amavis.yml
+  static: yes 
+
+- include: dovecot.yml
+  static: yes 
+
+- include: postfix.yml
+  static: yes 
+
+- include: spamassassin.yml
+  static: yes 
+

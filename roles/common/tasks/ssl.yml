@@ -13,4 +13,6 @@
     state: directory
     owner: root
     group: root
+  notify:
+    - Generate openssl dh parameters
 

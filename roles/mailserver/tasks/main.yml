@@ -1,6 +1,6 @@
 ---
 
-- name: create deliver user
+- name: Create deliver user
   user:
     name: "{{ deliver_user_name }}"
     comment: user for mailserver
@@ -9,50 +9,20 @@
 
 - include: dovecot.yml
 
+- name: Create database user for mailserver
+  mysql_user:
+    name: '{{ mailserver_db_user_name }}'  
+    password: '{{ mailserver_db_user_passwd }}'
+    priv: '*.*:USAGE/dovecot.*:ALL/postfix.*:ALL'
+    state: present
+    login_user: root
+    login_password: '{{ mysql_root_passwd }}'
+
 - include: amavis.yml
+
+- include: spamassassin.yml
 
 - include: opendkim.yml
 
 - include: razor.yml
-
-- name: create directories 
-  file:
-    path: "{{ item }}"
-    owner: root
-    group: root
-    mode: 0755
-    state: directory
-  with_items:
-    - "/etc/postfix"
-    - "/etc/amavis"
-    - "/etc/amavis/conf.d"
-    - "/etc/dhcp"
-    - "/etc/dovecot"
-    - "/etc/dovecot/conf.d"
-    - "/etc/postfix"
-    - "/etc/opendkim"
-    - "/etc/mail"
-    - "/etc/mail/spamassassin"
-    - "/etc/mailman"
-    - "/etc/unbound"
-    - "/etc/unbound/unbound.conf.d"
-
-- name: Create /var directories 
-  file:
-    path: "{{ item }}"
-    owner: "{{ deliver_user_name }}"
-    group: "{{ deliver_user_name }}"
-    mode: 0770
-    state: directory
-  with_items:
-    - "/var/mail"
-    - "/var/mail/sieve"
-    - "/var/mail/sieve/global"
-
-- name: copy sieve and spampipe templates
-  template:
-    src: "{{ item.src }}"
-    dest: "/{{ item.path }}"
-  with_filetree: "../templates/"
-  when: item.state == 'file'
 

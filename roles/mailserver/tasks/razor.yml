@@ -1,6 +1,6 @@
 ---
 
-- name: install razor
+- name: Install razor
   apt:
     name: "{{ item }}"
     state: latest
@@ -8,7 +8,7 @@
     - razor
     - pyzor
 
-- name: configure razor and pyzor
+- name: Configure razor and pyzor
   command: "razor-admin -create && razor-admin -register && pyzor discover"  
   become: true
   become_user: amavis

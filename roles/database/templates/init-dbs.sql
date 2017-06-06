@@ -1,8 +1,8 @@
 
 
--- CREATE USER IF NOT EXISTS `dbuser`@`localhost`;
+-- CREATE USER IF NOT EXISTS `{{ mailserver_db_user_name }}`@`{{ dbhost }}`;
 
--- SET PASSWORD FOR `dbuser`@`localhost` = PASSWORD(`0`);
+-- SET PASSWORD FOR `{{ mailserver_db_user_name }}`@`{{ dbhost }}` = PASSWORD(`{{ mailserver_db_user_passwd }}`);
 
 CREATE DATABASE IF NOT EXISTS `dovecot`;
 

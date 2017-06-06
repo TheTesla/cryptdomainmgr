@@ -1,0 +1,11 @@
+---
+
+
+- name: Newlist mailman
+  shell: 'echo -e "\n" | /usr/sbin/newlist mailman {{ mailman_email }} {{ mailman_passwd }}'
+  args:
+    executable: /bin/bash
+  #  ignore_errors: yes
+
+
+

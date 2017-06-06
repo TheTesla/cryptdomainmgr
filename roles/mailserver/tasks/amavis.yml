@@ -1,11 +1,11 @@
 ---
 
-- name: clone amavisd-milter
+- name: Clone amavisd-milter
   git:
     repo: "https://github.com/ThomasLeister/amavisd-milter.git"
     dest: "/root/amavisd-milter"
 
-- name: install amavis
+- name: Install amavis
   apt:
     name: "{{ item }}"
     state: latest
@@ -16,65 +16,70 @@
     - acl
     - python-pylibacl
 
-- name: build amavisd-milter
+- name: Build amavisd-milter
   shell: "touch * && ./configure && make && make install"
   args:
     executable: "/bin/bash"
     chdir: "/root/amavisd-milter"
-     
-# ---- spamassassin ----
 
-#- name: Set other acl of local.cf
-#  acl:
-#    path: /etc/mail/spamassassin/local.cf
-#    entity: other
-    #etype: other
-    #    state: absent
+- name: Copy /etc/init.d/amavisd-milter
+  copy:
+    dest: /etc/init.d/amavisd-milter
+    src: ../files/etc/init.d/amavisd-milter
 
-- name: Set deliver user acl of local.cf
-  acl:
-    path: /etc/mail/spamassassin/local.cf
-    etype: user
-    entity: "{{ deliver_user_name }}"
-    permissions: r
-    state: present
+- name: Copy /etc/systemd/amavisd-milter.service
+  copy:
+    dest: /etc/systemd/amavisd-milter.service
+    src: ../files/etc/systemd/amavisd-milter.service
 
-- name: Set amavis user acl of local.cf
-  acl:
-    path: /etc/mail/spamassassin/local.cf
-    etype: user
-    entity: "amavis"
-    permissions: r
-    state: present
-
-- name: remove db
-  mysql_db:
-    state: absent
-    login_user: root
-    login_password: "{{ mysql_root_passwd }}"
-    name: spamassassin
-
-- name: init db
-  mysql_db:
-    state: import
-    login_user: root
-    login_password: "{{ mysql_root_passwd }}"
-    name: spamassassin
-    target: /usr/share/doc/spamassassin/sql/bayes_mysql.sql
-
-- name: permissions of amavisd-milter init
+- name: Permissions of amavisd-milter init
   file:
     name: /etc/init.d/amavisd-milter
     mode: 0755
     state: file
 
-- name: Permissions of sa-care.sh
+- name: Create directories 
   file:
-    name: /root/sa-care.sh
+    path: "{{ item }}"
     owner: root
     group: root
-    mode: 0774
+    mode: 0755
+    state: directory
+  with_items:
+    - "/etc/amavis"
+    - "/etc/amavis/conf.d"
+
+- name: Process amavis templates
+  template:
+    src: "{{ item.src }}"
+    dest: "/etc/amavis/{{ item.path }}"
+  with_filetree: "../templates/etc/amavis/"
+  when: item.state == 'file'
+
+- name: Permissions /etc/amavis/conf.d/50-user
+  file:
+    path: /etc/amavis/conf.d/50-user
+    owner: root
+    group: root
+    mode: 770
     state: file
+
+- name: Create /var directories 
+  file:
+    path: "{{ item }}"
+    owner: "{{ deliver_user_name }}"
+    group: "{{ deliver_user_name }}"
+    mode: 0770
+    state: directory
+  with_items:
+    - "/var/mail"
+    - "/var/mail/sieve"
+    - "/var/mail/sieve/global"
+
+- name: Copy /var/mail files
+  copy:
+    dest: /var/mail/
+    src: ../files/var/mail/
 
 - name: Permissions and owner /var/mail/sieve
   file:
@@ -92,12 +97,5 @@
     mode: 774
     state: file
 
-- name: Permissions /etc/amavis/conf.d/50-user
-  file:
-    path: /etc/amavis/conf.d/50-user
-    #owner: "{{ deliver_user_name }}"
-    #group: "{{ deliver_user_name }}"
-    mode: 770
-    state: file
 
 

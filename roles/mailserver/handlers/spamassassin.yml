@@ -1,0 +1,17 @@
+---
+
+- name: Spamassassin care
+  shell: '/root/sa-care.sh'
+  args:
+    executable: '/bin/bash' 
+
+- name: Import spamassassin db
+  mysql_db:
+    state: import
+    login_user: root
+    login_password: "{{ mysql_root_passwd }}"
+    name: spamassassin
+    target: /usr/share/doc/spamassassin/sql/bayes_mysql.sql
+  ignore_errors: yes
+
+

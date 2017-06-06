@@ -8,5 +8,5 @@ relay_domains: "{{ mailman_domain }}"
 
 opendkim_keyname: "key1"
 spamass_passwd: "spamasspassword"
-mailname: "{{ domain }}"
+mailname: "{{ name }}" #  "{{ domain }}"
 

@@ -1,20 +1,20 @@
 ---
 
-- name: configure postfix mailname
+- name: Configure postfix mailname
   debconf:
     name: postfix
     question: postfix/mailname
     value: "{{ mailname }}"
     vtype: string
 
-- name: configure postfix main mailer type
+- name: Configure postfix main mailer type
   debconf:
     name: postfix
     question: postfix/main_mailer_type
     value: "Internet Site"
     vtype: string
 
-- name: install postfix
+- name: Install postfix
   apt:
     name: "{{ item }}"
     state: latest
@@ -22,24 +22,62 @@
     - postfix
     - postfix-mysql
 
-- name: postmap without_ptr
+- name: Copy postfix SQL file
+  copy:
+    dest: /tmp/postfix.sql
+    src: ../files/postfix.sql
+
+- name: Create postfix database
+  mysql_db:
+    name: postfix
+    state: present
+    login_password: '{{ mysql_root_passwd }}'
+  notify:
+    - Init postfix db
+
+- name: Create directory /etc/postfix/sql
+  file:
+    path: /etc/postfix/sql
+    owner: root 
+    group: root
+    mode: 0660
+    state: directory
+    recurse: yes
+
+- name: Process postfix templates
+  template:
+    src: "{{ item.src }}"
+    dest: "/etc/postfix/{{ item.path }}"
+  with_filetree: "../templates/etc/postfix"
+  when: item.state == 'file'
+  notify:
+    - Restart postfix
+
+- name: Directory /etc/postfix
+  file:
+    path: /etc/postfix
+    owner: root 
+    group: root
+    mode: 0755
+    state: directory
+    recurse: yes
+
+- name: Update permissions for /etc/postfix/sql
+  file:
+    path: /etc/postfix/sql
+    owner: root 
+    group: root
+    mode: 0660
+    state: directory
+    recurse: yes
+
+- name: Postmap without_ptr
   shell: "postmap /etc/postfix/without_ptr"
   args:
     executable: "/bin/bash"
 
-- name: postmap transport
+- name: Postmap transport
   shell: "postmap /etc/postfix/transport"
   args:
     executable: "/bin/bash"
-
-
-- name: Permissions /etc/postfix/sql
-  file:
-    path: /etc/postfix/sql
-    #owner: "{{ deliver_user_name }}"
-    #group: "{{ deliver_user_name }}"
-    mode: 660
-    state: directory
-    recurse: yes
-
 

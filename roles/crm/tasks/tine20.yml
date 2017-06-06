@@ -1,12 +1,12 @@
 ---
 
-- name: install apt-transport-https 
+- name: Install apt-transport-https 
   apt: 
     name: apt-transport-https
     state: present
     update_cache: yes
 
-- name: add tine20 repo
+- name: Add tine20 repo
   apt_repository:
     repo: "deb https://packages.tine20.org/{{ ansible_distribution|lower }} {{ ansible_distribution_release }} stable"
     state: present
@@ -24,8 +24,15 @@
     state: latest
     force: yes
 
+- name: Run all handlers before installing tine20
+  meta: flush_handlers
+
 - name: Install tine20
   shell: 'php /usr/share/tine20/setup.php -c /etc/tine20 --install -- adminLoginName="{{ tine20_admin_name }}" adminPassword="{{ tine20_admin_passwd }}" acceptedTermsVersion=1000 adminEmailAddress="{{ tine20_admin_name }}@{{ domain }}" imap="host:{{ tine20_mailhost }},port:143,useSystemAccount:1,ssl:tls,domain:{{ domain }},backend:dovecot_imap,dovecot_host:{{ dbhost }},dovecot_dbname:dovecot,dovecot_username:{{ mailserver_db_user_name }},dovecot_password:{{ mailserver_db_user_passwd }},dovecot_uid:{{ deliver_user_name }},dovecot_gid:{{ deliver_user_name }},dovecot_home:/var/spool/mail/%d/%n,dovecot_scheme:SSHA512" smtp="backend:postfix,hostname:{{ tine20_mailhost }},port:587,ssl:tls,auth:login,primarydomain:{{ domain }},secondarydomains:{{ secondarydomains }},username:tine20@{{ domain }},password:tine20,from:tine20@{{ domain }},postfix_host:{{ dbhost }},postfix_dbname:postfix,postfix_username:{{ mailserver_db_user_name }},postfix_password:{{ mailserver_db_user_passwd }}" sieve="hostname:{{ tine20_mailhost }},port:4190,ssl:tls"'
   args:
     executable: "/bin/bash"
+  notify:
+    - Restart apache2
+
+
 

@@ -1,5 +1,0 @@
----
-
-- name: generate openssl dh paramters
-  command: "FILE=`mktemp` ; openssl dhparam 2048 -out $FILE && mv -f $FILE /etc/myssl/dh2048.pem &"
-
