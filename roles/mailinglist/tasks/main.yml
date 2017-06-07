@@ -1,13 +1,13 @@
 ---
 
-- name: configure mailman create site list
+- name: Configure mailman create_site_list
   debconf:
     name: mailman
     question: mailman/create_site_list
     value: true 
     vtype: note
 
-- name: configure mailman site language
+- name: Configure mailman site_language
   debconf:
     name: mailman
     question: mailman/site_languages
@@ -20,8 +20,8 @@
     state: latest
   with_items:
     - mailman
-  become: true
-  become_method: sudo 
+  notify:
+    - Newlist mailman
 
 - name: Create directories 
   file:
@@ -39,6 +39,16 @@
     dest: "/etc/mailman/{{ item.path }}"
   with_filetree: "../templates/etc/mailman/"
   when: item.state == 'file'
+
+- name: Permissions for /var/lib/mailman/data/aliases.db
+  file:
+    name: /var/lib/mailman/data/aliases.db
+    mode: 0660
+
+- name: Permissions for /var/lib/mailman/data/virtual-mailman.db
+  file:
+    name: /var/lib/mailman/data/virtual-mailman.db
+    mode: 0660
 
 - name: Add mailman to apache2
   shell: "cp /etc/mailman/apache.conf /etc/apache2/sites-available/mailman.conf"
@@ -73,8 +83,6 @@
   shell: "mmsitepass {{ list_creators_passwd }}"
   args:
     executable: "/bin/bash"
-  notify:
-    - Newlist mailman
 
 
 

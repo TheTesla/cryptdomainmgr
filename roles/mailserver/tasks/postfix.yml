@@ -53,6 +53,11 @@
   notify:
     - Restart postfix
 
+- name: Copy rc.local
+  copy:
+    dest: "/etc/rc.local"
+    src: "../files/etc/rc.local"
+
 - name: Directory /etc/postfix
   file:
     path: /etc/postfix
