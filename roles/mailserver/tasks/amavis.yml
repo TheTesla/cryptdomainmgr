@@ -38,16 +38,6 @@
     mode: 0755
     state: file
 
-- name: Create directories 
-  file:
-    path: "{{ item }}"
-    owner: root
-    group: root
-    mode: 0755
-    state: directory
-  with_items:
-    - "/etc/amavis/conf.d"
-
 - name: Process amavis templates
   template:
     src: "{{ item.src }}"
@@ -57,7 +47,6 @@
   notify:
     - Restart amavis
     - Restart amavisd-milter
-
 
 - name: Permissions /etc/amavis/conf.d/50-user
   file:

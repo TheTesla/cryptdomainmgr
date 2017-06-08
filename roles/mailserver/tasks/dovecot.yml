@@ -35,25 +35,21 @@
   notify:
     - Init dovecot db
 
-  #- name: Remove example ssl config 
-  #  file:
-  #    path: "/etc/dovecot/conf.d/10-ssl.conf"
-  #    state: absent
-
-
-
-- name: Clear /etc/dovecot/conf.d/
+- name: Clear /etc/dovecot/
   file:
-    name: "/etc/dovecot/conf.d"
+    name: "/etc/dovecot/"
     state: absent
 
 - name: Recreate directory /etc/dovecot/conf.d/
   file:
-    name: "/etc/dovecot/conf.d"
+    name: "{{ item }}"
     mode: 0755
     owner: root
     group: root
     state: directory
+  with_items:
+    - /etc/dovecot
+    - /etc/dovecot/conf.d
 
 - name: Process dovecot templates
   template:
@@ -64,6 +60,14 @@
   notify:
     - Restart dovecot
 
-
+- name: Set permissions of conf files containing password
+  file:
+    path: "{{ item }}"
+    mode: 0640
+    owner: root
+    group: dovecot
+  with_items:
+    - /etc/dovecot/dovecot-sql.conf
+    - /etc/dovecot/dovecot-dict-sql.conf
 
 
