@@ -38,6 +38,8 @@
     dest: "/etc/opendkim/{{ item.path }}"
   with_filetree: "../templates/etc/opendkim/"
   when: item.state == 'file'
+  notify:
+    - Restart opendkim
 
 - name: Add user postfix to group opendkim
   user:

@@ -40,6 +40,8 @@
     state: present
     login_user: root
     login_password: "{{ mysql_root_passwd }}"
+  notify:
+    - Restart spamassassin
 
 - name: Copy /root/sa_care.sh
   copy:

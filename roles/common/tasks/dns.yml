@@ -31,8 +31,8 @@
     name: /etc/unbound
     owner: unbound
   notify:
-    - Unbound anchor
     - Restart unbound
+    - Unbound anchor
 
 
 

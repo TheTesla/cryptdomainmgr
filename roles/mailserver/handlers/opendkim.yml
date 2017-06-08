@@ -29,6 +29,11 @@
     msg: "{{ dkimkey }}"
   listen: "opendkim keys"
 
+- name: Restart opendkim
+  service:
+    name: opendkim
+    state: restarted
+
 
 
 

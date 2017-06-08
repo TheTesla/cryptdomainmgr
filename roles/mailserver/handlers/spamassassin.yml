@@ -15,4 +15,8 @@
     target: /usr/share/doc/spamassassin/sql/bayes_mysql.sql
   ignore_errors: yes
 
+- name: Restart spamassassin
+  service:
+    name: spamassassin
+    state: restarted
 
