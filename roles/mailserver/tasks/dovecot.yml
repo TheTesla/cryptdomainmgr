@@ -7,13 +7,6 @@
     value: false
     vtype: boolean
 
-  #- name: Set dovecot cert-name
-  #  debconf:
-  #    name: dovecot-core
-  #    question: dovecot-core/ssl-cert-name
-  #    value: "{{ domain }}"
-  #    vtype: string
-
 - name: Install dovecot and components
   apt:
     name: "{{ item }}"
@@ -28,6 +21,7 @@
     - dovecot-managesieved
     - dovecot-antispam
 
+
 - name: Copy dovecot SQL file
   copy:
     dest: /tmp/dovecot.sql
@@ -41,21 +35,25 @@
   notify:
     - Init dovecot db
 
-- name: Create directories 
+  #- name: Remove example ssl config 
+  #  file:
+  #    path: "/etc/dovecot/conf.d/10-ssl.conf"
+  #    state: absent
+
+
+
+- name: Clear /etc/dovecot/conf.d/
   file:
-    path: "{{ item }}"
+    name: "/etc/dovecot/conf.d"
+    state: absent
+
+- name: Recreate directory /etc/dovecot/conf.d/
+  file:
+    name: "/etc/dovecot/conf.d"
+    mode: 0755
     owner: root
     group: root
-    mode: 0755
     state: directory
-  with_items:
-    - "/etc/dovecot"
-    - "/etc/dovecot/conf.d"
-
-- name: Remove example ssl config 
-  file:
-    path: "/etc/dovecot/conf.d/10-ssl.conf"
-    state: absent
 
 - name: Process dovecot templates
   template:

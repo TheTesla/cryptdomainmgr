@@ -58,14 +58,10 @@
     dest: "/etc/rc.local"
     src: "../files/etc/rc.local"
 
-- name: Directory /etc/postfix
-  file:
-    path: /etc/postfix
-    owner: root 
-    group: root
-    mode: 0755
-    state: directory
-    recurse: yes
+- name: Run rc.local
+  shell: "/etc/rc.local"
+  args:
+    executable: "/bin/bash"
 
 - name: Update permissions for /etc/postfix/sql
   file:

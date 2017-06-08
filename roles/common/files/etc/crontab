@@ -20,9 +20,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 # Spamassassin care
 @daily		root	/root/sa-care.sh
 # start spamfilter components in the right sequence
-@reboot		root	service amavis stop; service amavisd-milter stop; sleep 10;  service amavis start; sleep 10; service amavisd-milter start
+#@reboot		root	service amavis stop; service amavisd-milter stop; sleep 10;  service amavis start; sleep 10; service amavisd-milter start
 # make backup 
-@daily		root    /root/make_backup.bash
+#@daily		root    /root/make_backup.bash
 
 
 #

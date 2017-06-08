@@ -22,6 +22,12 @@
     - mailman
   notify:
     - Newlist mailman
+    - mailman db files
+
+  #- name: Newlist mailman
+  #  shell: 'echo -e "\n" | /usr/sbin/newlist mailman {{ mailman_email }} {{ mailman_passwd }}'
+  #  args:
+  #    executable: /bin/bash
 
 - name: Create directories 
   file:
@@ -39,16 +45,20 @@
     dest: "/etc/mailman/{{ item.path }}"
   with_filetree: "../templates/etc/mailman/"
   when: item.state == 'file'
+  notify:
+    - Restart mailman
 
-- name: Permissions for /var/lib/mailman/data/aliases.db
-  file:
-    name: /var/lib/mailman/data/aliases.db
-    mode: 0660
-
-- name: Permissions for /var/lib/mailman/data/virtual-mailman.db
-  file:
-    name: /var/lib/mailman/data/virtual-mailman.db
-    mode: 0660
+  #- name: Permissions for /var/lib/mailman/data/aliases.db
+  #  file:
+  #    name: /var/lib/mailman/data/aliases.db
+  #    state: touch
+  #    mode: 0660
+  #
+  #- name: Permissions for /var/lib/mailman/data/virtual-mailman.db
+  #  file:
+  #    name: /var/lib/mailman/data/virtual-mailman.db
+  #    state: touch
+  #    mode: 0660
 
 - name: Add mailman to apache2
   shell: "cp /etc/mailman/apache.conf /etc/apache2/sites-available/mailman.conf"

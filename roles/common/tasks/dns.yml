@@ -9,18 +9,6 @@
     - unbound
     - dnsutils
 
-- name: Create unbound directories (incl. dhcp) 
-  file:
-    path: "{{ item }}"
-    owner: root
-    group: root
-    mode: 0755
-    state: directory
-  with_items:
-    - "/etc/dhcp"
-    - "/etc/unbound"
-    - "/etc/unbound/unbound.conf.d"
-
 - name: Copy unbound config
   copy:
     src: "../files/etc/unbound/"
@@ -35,6 +23,8 @@
   template:
     src: "../templates/etc/hosts"
     dest: "/etc/hosts"
+  notify:
+    - Hostname
 
 - name: set /etc/unbound owner
   file:

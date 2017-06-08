@@ -46,7 +46,6 @@
     mode: 0755
     state: directory
   with_items:
-    - "/etc/amavis"
     - "/etc/amavis/conf.d"
 
 - name: Process amavis templates
@@ -55,6 +54,10 @@
     dest: "/etc/amavis/{{ item.path }}"
   with_filetree: "../templates/etc/amavis/"
   when: item.state == 'file'
+  notify:
+    - Restart amavis
+    - Restart amavisd-milter
+
 
 - name: Permissions /etc/amavis/conf.d/50-user
   file:
@@ -96,6 +99,9 @@
     group: "{{ deliver_user_name }}"
     mode: 774
     state: file
+  notify:
+    - Restart amavis
+    - Restart amavisd-milter
 
 
 

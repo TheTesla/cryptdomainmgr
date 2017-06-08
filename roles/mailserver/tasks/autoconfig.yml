@@ -1,0 +1,14 @@
+---
+
+- name: Create Thunderbird autoconfig directory
+  file:
+    path: /var/www/autoconfig
+    state: directory
+
+- name: Copy Thunderbird autoconfig file
+  copy:
+    dest: '/var/www/autoconfig/{{ domain }}'
+    src: ../files/thunderbirdAutoconfig.xml
+
+
+

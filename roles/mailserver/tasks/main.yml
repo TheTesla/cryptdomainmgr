@@ -26,3 +26,5 @@
 
 - include: razor.yml
 
+- include: autoconfig.yml
+

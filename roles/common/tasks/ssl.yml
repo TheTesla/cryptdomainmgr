@@ -1,18 +1,18 @@
 ---
 
-- name: set ssl-cert hostname
+- name: Set ssl-cert hostname (domain)
   debconf:
     name: ssl-cert
     question: make-ssl-cert/hostname
     value: "{{ domain }}"
     vtype: string
 
-- name: create /etc/myssl
+- name: Create /etc/myssl
   file:
     name: "/etc/myssl"
     state: directory
     owner: root
     group: root
-  notify:
-    - Generate openssl dh parameters
+  #  notify:
+  #    - Generate openssl dh parameters
 

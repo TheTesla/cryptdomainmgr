@@ -9,6 +9,9 @@
 - include: postfix.yml
   static: yes 
 
+- include: opendkim.yml
+  static: yes
+
 - include: spamassassin.yml
   static: yes 
 

@@ -16,5 +16,12 @@
   args:
     executable: '/bin/bash'
 
+# This does NOT set /etc/hostname as hostname --fqdn, it uses first entry in /etc/hosts !
+# This is important for amavis, it reads histname --fqdn
+- name: Hostname 
+  shell: "hostname -F /etc/hostname"
+  args:
+    executable: '/bin/bash'
+
 
 
