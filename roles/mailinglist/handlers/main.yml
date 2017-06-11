@@ -1,11 +1,6 @@
 ---
 
 
-- name: Newlist mailman
-  shell: 'echo -e "\n" | /usr/sbin/newlist mailman {{ mailman_email }} {{ mailman_passwd }}'
-  args:
-    executable: /bin/bash
-
 - name: Restart mailman
   service:
     name: mailman
@@ -30,5 +25,10 @@
     state: touch
     mode: 0660
   listen: mailman db files
+
+- name: Newlist mailman
+  shell: 'echo -e "\n" | /usr/sbin/newlist mailman {{ mailman_email }} {{ mailman_passwd }}'
+  args:
+    executable: /bin/bash
 
 

@@ -1,0 +1,8 @@
+<VirtualHost *:443>
+SSLEngine on
+SSLCertificateFile /etc/letsencrypt/live/testserver.smartrns.net/cert.pem
+SSLCertificateKeyFile /etc/letsencrypt/keys/0000_key-certbot.pem
+DocumentRoot /usr/share/tine20
+ServerName   testserver.smartrns.net
+</VirtualHost>
+

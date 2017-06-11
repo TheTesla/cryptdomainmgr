@@ -9,11 +9,4 @@
     - php5
     - php5-mysql
 
-- name: Create Maildir for www-data
-  file:
-    path: /var/www/Maildir
-    owner: www-data
-    group: www-data
-    state: directory
-
 

@@ -22,5 +22,9 @@
   args:
     executable: '/bin/bash'
 
+- name: New certificate
+  command: "./certbot-auto certonly --email {{ certemail }} {{ certextra }} --agree-tos --non-interactive --standalone --rsa-key-size 4096 -d {{ domain }}"
+  args:
+    chdir: /root/certbot
 
 

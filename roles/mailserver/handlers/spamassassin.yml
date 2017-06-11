@@ -1,11 +1,5 @@
 ---
 
-- name: Spamassassin care
-  shell: '/root/sa-care.sh'
-  args:
-    executable: '/bin/bash' 
-  ignore_errors: yes
-
 - name: Import spamassassin db
   mysql_db:
     state: import
@@ -19,4 +13,10 @@
   service:
     name: spamassassin
     state: restarted
+
+- name: Spamassassin care
+  shell: '/root/sa-care.sh'
+  args:
+    executable: '/bin/bash' 
+  ignore_errors: yes
 

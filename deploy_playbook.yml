@@ -11,11 +11,12 @@
     - vars/lists.yml
     - vars/tine.yml
     - vars/cert.yml
+    - vars/passwords.yml
   roles:
     - common
     - database
-    - webserver
-    - mailserver
     - mailinglist
+    - mailserver
     - crm
+    - webserver
 
