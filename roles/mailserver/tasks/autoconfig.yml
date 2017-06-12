@@ -10,5 +10,17 @@
     dest: '/var/www/autoconfig/{{ domain }}'
     src: ../files/thunderbirdAutoconfig.xml
 
+- name: Process autoconfig template 
+  template:
+    src: "../templates/etc/apache2/sites-available/autoconfig.conf" 
+    dest: "/etc/apache2/sites-available/autoconfig.conf"
+
+- name: Enable thunderbird autoconfig
+  shell: "a2ensite autoconfig.conf"
+  args:
+    executable: "/bin/bash"
+  notify:
+    - Restart postfix
+
 
 

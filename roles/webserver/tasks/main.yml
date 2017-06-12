@@ -9,4 +9,11 @@
     - php5
     - php5-mysql
 
+- name: Enable https
+  apache2_module:
+    state: present
+    name: ssl
+    ignore_configcheck: True
+  notify:
+    - Restart apache2
 

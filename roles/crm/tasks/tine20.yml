@@ -24,6 +24,14 @@
     state: latest
     force: yes
 
+- name: Enable https
+  apache2_module:
+    state: present
+    name: ssl
+    ignore_configcheck: True
+  notify:
+    - Restart apache2
+
 - name: Run all handlers before installing tine20
   meta: flush_handlers
 
@@ -33,6 +41,31 @@
     executable: "/bin/bash"
   notify:
     - Restart apache2
+
+- name: TLS required
+  blockinfile:
+    path: /etc/tine20/apache.conf
+    marker: "# {mark} Ansible crm/tine https config"
+    content: | 
+      <VirtualHost *:80>
+        ServerName   {{ domain }}
+        Redirect permanent /tine20 https://{{ domain }}/tine20
+      </VirtualHost>
+
+      <VirtualHost *:443>
+        SSLEngine on
+        SSLCertificateFile {{ certbaselocation }}/cert.pem
+        SSLCertificateKeyFile /etc/letsencrypt/keys/0000_key-certbot.pem
+        DocumentRoot /usr/share/tine20
+        ServerName   {{ domain }}
+      </VirtualHost>
+      
+  notify:
+    - Restart apache2
+
+
+
+
 
 
 

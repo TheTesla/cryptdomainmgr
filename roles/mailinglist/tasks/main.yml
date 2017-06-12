@@ -24,11 +24,6 @@
     - Newlist mailman
     - mailman db files
 
-  #- name: Newlist mailman
-  #  shell: 'echo -e "\n" | /usr/sbin/newlist mailman {{ mailman_email }} {{ mailman_passwd }}'
-  #  args:
-  #    executable: /bin/bash
-
 - name: Create directories 
   file:
     path: "{{ item }}"
@@ -48,18 +43,6 @@
   notify:
     - Restart mailman
 
-  #- name: Permissions for /var/lib/mailman/data/aliases.db
-  #  file:
-  #    name: /var/lib/mailman/data/aliases.db
-  #    state: touch
-  #    mode: 0660
-  #
-  #- name: Permissions for /var/lib/mailman/data/virtual-mailman.db
-  #  file:
-  #    name: /var/lib/mailman/data/virtual-mailman.db
-  #    state: touch
-  #    mode: 0660
-
 - name: Add mailman to apache2
   shell: "cp /etc/mailman/apache.conf /etc/apache2/sites-available/mailman.conf"
   args:
@@ -69,6 +52,7 @@
   apache2_module:
     state: present
     name: cgid
+    ignore_configcheck: True
 
 - name: Activate mailman in apache2
   shell: "a2ensite mailman.conf"
@@ -83,11 +67,6 @@
     name: postfix
     groups: list
     append: yes  
-
-  #- name: rmlist
-  #  shell: '/usr/sbin/rmlist mailman'
-  #  args:
-  #    executable: /bin/bash
 
 - name: Set list creators password
   shell: "mmsitepass {{ list_creators_passwd }}"

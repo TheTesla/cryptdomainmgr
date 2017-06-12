@@ -15,8 +15,8 @@
   roles:
     - common
     - database
-    - mailinglist
-    - mailserver
-    - crm
     - webserver
+    - mailserver
+    - mailinglist
+    - crm
 
