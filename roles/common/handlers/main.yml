@@ -1,11 +1,21 @@
 ---
 
 # This does NOT set /etc/hostname as hostname --fqdn, it uses first entry in /etc/hosts !
-# This is important for amavis, it reads histname --fqdn
+# This is important for amavis, it reads hostname --fqdn
 - name: Hostname 
   shell: "hostname -F /etc/hostname"
   args:
     executable: '/bin/bash'
+
+- name: Reboot system
+  shell: reboot
+  async: 0
+  poll: 0
+  ignore_errors: true
+  listen: "Reboot"
+- name: Waiting for startup
+  local_action: wait_for host={{ ansible_ssh_host | default(inventory_hostname) }} state=started port=22 delay=30 
+  listen: "Reboot"
 
 - name: Restart unbound
   service:
@@ -22,9 +32,22 @@
   args:
     executable: '/bin/bash'
 
-- name: New certificate
+- name: Release port 443 needed for certbot
+  service:
+    name: apache2
+    state: stopped
+  listen: "New certificate"
+
+- name: New LE certificate
   command: "./certbot-auto certonly --email {{ certemail }} {{ certextra }} --agree-tos --non-interactive --standalone --rsa-key-size 4096 -d {{ domain }}"
   args:
     chdir: /root/certbot
+  listen: "New certificate"
+
+- name: Port 443 can now be used again
+  service:
+    name: apache2
+    state: started
+  listen: "New certificate"
 
 

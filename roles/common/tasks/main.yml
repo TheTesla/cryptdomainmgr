@@ -18,6 +18,11 @@
   become_method: sudo
   notify: 
     - Hostname
+    - Reboot
+
+- meta: flush_handlers
+
+  #- include: reboot.yml
 
 - name: Force ipv4 for apt
   copy:

@@ -15,7 +15,7 @@
 - name: apt-key
   apt_key:
     keyserver: keys.gnupg.net
-    id: 7F6F6895
+    id: 8825FD82
     state: present
 
 - name: Get tine20
