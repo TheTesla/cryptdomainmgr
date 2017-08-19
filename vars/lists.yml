@@ -2,7 +2,7 @@
 
 mailman_domain: "lists.{{ domain }}"
 mailman_passwd: "mailman_password"
-mailman_email: "admin@testserver.smartrns.net"
+mailman_email: "admin@{{ domain }}"
 list_creators_passwd: "list_password"
 
 
