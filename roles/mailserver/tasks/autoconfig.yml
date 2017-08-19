@@ -2,12 +2,12 @@
 
 - name: Create Thunderbird autoconfig directory
   file:
-    path: /var/www/autoconfig
+    path: /var/www/autoconfig/mail/
     state: directory
 
 - name: Copy Thunderbird autoconfig file
   copy:
-    dest: '/var/www/autoconfig/{{ domain }}'
+    dest: '/var/www/autoconfig/mail/config-v1.1.xml'
     src: ../files/thunderbirdAutoconfig.xml
 
 - name: Process autoconfig template 

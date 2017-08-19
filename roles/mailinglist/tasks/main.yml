@@ -52,7 +52,8 @@
   apache2_module:
     state: present
     name: cgid
-    ignore_configcheck: True
+    ignore_configcheck: true
+  ignore_errors: true
 
 - name: Activate mailman in apache2
   shell: "a2ensite mailman.conf"

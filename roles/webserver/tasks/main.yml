@@ -14,7 +14,7 @@
   apache2_module:
     state: present
     name: ssl
-    ignore_configcheck: True
+    ignore_configcheck: true
   notify:
     - Restart apache2
-
+  ignore_errors: true 
