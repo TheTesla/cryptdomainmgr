@@ -44,8 +44,8 @@ smtpd_tls_ciphers = high
 smtpd_tls_dh1024_param_file = /etc/myssl/dh2048.pem
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
 
-smtpd_tls_cert_file = {{ certbaselocation }}/fullchain.pem
-smtpd_tls_key_file = {{ certbaselocation }}/privkey.pem
+smtpd_tls_cert_file = {{ certbaselocation }}/{{ domain }}/fullchain.pem
+smtpd_tls_key_file = {{ certbaselocation }}/{{ domain }}/privkey.pem
 
 #### local mail transport via dovecot
 virtual_transport = dovecot 

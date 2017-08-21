@@ -9,6 +9,7 @@
     - opendkim-tools
   notify: 
     - opendkim keys
+    - domain update
 
 - name: Create opendkim directories 
   file:

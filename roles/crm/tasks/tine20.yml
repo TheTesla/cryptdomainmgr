@@ -55,10 +55,8 @@
 
       <VirtualHost *:443>
         SSLEngine on
-        #SSLCertificateFile {{ certbaselocation }}/cert.pem
-        #SSLCertificateKeyFile /etc/letsencrypt/keys/0000_key-certbot.pem
-        SSLCertificateFile {{ certbaselocation }}/fullchain.pem
-        SSLCertificateKeyFile {{ certbaselocation }}/privkey.pem
+        SSLCertificateFile {{ certbaselocation }}/{{ domain }}/fullchain.pem
+        SSLCertificateKeyFile {{ certbaselocation }}/{ domain }}/privkey.pem
         DocumentRoot /usr/share/tine20
         ServerName   {{ domain }}
       </VirtualHost>

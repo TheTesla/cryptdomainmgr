@@ -1,0 +1,12 @@
+---
+
+- name: Clone inwx client
+  git:
+    repo: "https://github.com/TheTesla/python2.7-client.git"
+    dest: "/root/inwx-client"
+
+- name: Copy update bash script
+  copy:
+    src: "../files/root/inwxupdate.bash"
+    dest: "/root/inwxupdate.bash"
+    mode: 0744

@@ -1,14 +1,24 @@
 ---
 
-- name: Get ipv4
+- name: Get IPv4
   uri:
-    url: "http://icanhazip.com"
+    url: "http://ipv4.icanhazip.com"
     return_content: yes
   register: get_ipv4_res
   
-- name: Set ipv4 var
+- name: Set IPv4 var
   set_fact: 
     myextip: "{{ get_ipv4_res.content }}"
+
+- name: Get IPv6
+  uri:
+    url: "http://ipv6.icanhazip.com"
+    return_content: yes
+  register: get_ipv6_res
+  
+- name: Set IPv6 var
+  set_fact: 
+    myextip6: "{{ get_ipv6_res.content }}"
 
 - name: Set hostname persistant
   copy:

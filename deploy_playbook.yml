@@ -12,11 +12,14 @@
     - vars/tine.yml
     - vars/cert.yml
     - vars/passwords.yml
+    - vars/inwx.yml
+    - vars/inwxpasswd.yml
   roles:
     - common
     - database
     - webserver
     - mailserver
     - mailinglist
+    - domain
     - crm
 

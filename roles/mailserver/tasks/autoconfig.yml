@@ -6,9 +6,9 @@
     state: directory
 
 - name: Copy Thunderbird autoconfig file
-  copy:
+  template:
+    src: ../templates/var/www/autoconfig/mail/config-v1.1.xml
     dest: '/var/www/autoconfig/mail/config-v1.1.xml'
-    src: ../files/thunderbirdAutoconfig.xml
 
 - name: Process autoconfig template 
   template:

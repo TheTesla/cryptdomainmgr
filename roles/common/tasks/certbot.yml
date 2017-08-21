@@ -6,3 +6,4 @@
     dest: "/root/certbot"
   notify:
     - New certificate
+

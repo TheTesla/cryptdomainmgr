@@ -1,0 +1,23 @@
+---
+
+- name: Escape dkimkey
+  set_fact:
+    dkimkeyescaped: "{{ dkimkey|replace('\"','\\\"') }}"
+  listen: "domain update"
+
+   #dkimkeyescaped: "{{ dkimkey|replace(\"\\\", \"\\\\\")|replace(\"\\\"\",\"\\\\\\\"\") }}"
+   #
+   # dkimkeyescaped: "{{ dkimkey|replace(\"\\\\\", \"\\\\\\\\\")|replace(\"\\\"\",\"\\\\\\\"\") }}"
+   #
+- debug: 
+    msg: "{{ dkimkeyescaped }}"
+  listen: "domain update"
+
+- name: Update domain on inwx
+  shell: "/root/inwxupdate.bash \"{{ inwxapi }}\" \"{{ inwxlogin }}\" \"{{ inwxpasswd }}\" \"{{ secondarydomains.split('.',1)[0] }}\" \"{{ secondarydomains.split('.',1)[1] }}\" \"{{ myextip }}\" \"{{ myextip6 }}\" \"{{ dkimkeyescaped }}\" 600" 
+  args:
+    executable: "/bin/bash"
+  listen: "domain update"
+
+
+  #shell: "/root/inwxupdate.bash {{ inwxapi }} {{ inwxlogin }} {{ inwxpasswd }} {{ name }} {{ tld }} {{ myextip }} {{ myextip6 }} {{ dkimkey }} 600" 
