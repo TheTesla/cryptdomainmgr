@@ -2,7 +2,7 @@
 
 certemail: "stefan.helmert@t-online.de"
 
-certextra: "" #"--staging"
+certextra: "--staging"
 
 certbaselocation: "/etc/letsencrypt/live"
 

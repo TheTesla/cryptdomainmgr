@@ -38,8 +38,14 @@
     state: stopped
   listen: "New certificate"
 
-- name: New LE certificate
+- name: New LE certificate for primary domain
   command: "./certbot-auto certonly --email {{ certemail }} {{ certextra }} --agree-tos --non-interactive --standalone --rsa-key-size 4096 -d {{ domain }}"
+  args:
+    chdir: /root/certbot
+  listen: "New certificate"
+
+- name: New LE certificate for secondary domain
+  command: "./certbot-auto certonly --email {{ certemail }} {{ certextra }} --agree-tos --non-interactive --standalone --rsa-key-size 4096 -d {{ secondarydomains }}"
   args:
     chdir: /root/certbot
   listen: "New certificate"

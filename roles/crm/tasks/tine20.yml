@@ -56,7 +56,7 @@
       <VirtualHost *:443>
         SSLEngine on
         SSLCertificateFile {{ certbaselocation }}/{{ domain }}/fullchain.pem
-        SSLCertificateKeyFile {{ certbaselocation }}/{ domain }}/privkey.pem
+        SSLCertificateKeyFile {{ certbaselocation }}/{{ domain }}/privkey.pem
         DocumentRoot /usr/share/tine20
         ServerName   {{ domain }}
       </VirtualHost>
