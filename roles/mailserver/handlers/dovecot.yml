@@ -13,3 +13,9 @@
     name: dovecot
     state: restarted
 
+- name: Clear /etc/dovecot
+  file:
+    name: "/etc/dovecot/"
+    state: "absent"
+  listen: "clear dovecot"
+

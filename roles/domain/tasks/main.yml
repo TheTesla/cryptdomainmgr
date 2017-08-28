@@ -1,4 +1,6 @@
 ---
 
+- include: dane.yml
+
 - include: inwx.yml
 

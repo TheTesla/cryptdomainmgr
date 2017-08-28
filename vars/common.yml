@@ -4,7 +4,10 @@ hostname: "testsystem"
 tld: "smartrns.net"
 name: "testserver"
 domain: "{{ name }}.{{ tld }}"
-secondarydomains: "testserver.entroserv.de"
+secondarydomains:
+  - "testserver.entroserv.de"
+ #  - "a.b.c"
+ #  - "example.de"
 public_interface: "eth0"
 myip: "{{ ansible_default_ipv4.address }}"  
 #myextip: $(curl -4 icanhazip.com)

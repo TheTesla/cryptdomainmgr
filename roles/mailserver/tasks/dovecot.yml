@@ -20,7 +20,8 @@
     - dovecot-sieve
     - dovecot-managesieved
     - dovecot-antispam
-
+  notify:
+    - clear dovecot
 
 - name: Copy dovecot SQL file
   copy:
@@ -35,10 +36,7 @@
   notify:
     - Init dovecot db
 
-- name: Clear /etc/dovecot/
-  file:
-    name: "/etc/dovecot/"
-    state: absent
+- meta: flush_handlers
 
 - name: Recreate directory /etc/dovecot/conf.d/
   file:
@@ -59,6 +57,18 @@
   when: item.state == 'file'
   notify:
     - Restart dovecot
+
+- name: Add secondary domain certificates to dovecot
+  blockinfile:
+    path: /etc/dovecot/conf.d/95-mailstack.conf
+    block: | 
+      local_name {{ item }} {% raw -%}{{%- endraw %}  
+        ssl_cert = < {{ certbaselocation }}{% raw -%}/{%- endraw %}{{ item }}/fullchain.pem
+        ssl_key = < {{ certbaselocation }}{% raw -%}/{%- endraw %}{{ item }}/privkey.pem
+       {% raw -%}}{%- endraw %}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item }}"
+  with_items:
+    - "{{ secondarydomains }}"
 
 - name: Set permissions of conf files containing password
   file:

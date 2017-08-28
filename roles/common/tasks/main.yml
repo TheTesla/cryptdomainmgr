@@ -1,5 +1,17 @@
 ---
 
+- name: Secondary domains as csv
+  set_fact:
+    secondary_domains_csv: "{% if secondarydomains %}{% for d in secondarydomains %}{{ d }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" 
+
+- name: All domains as csv
+  set_fact:
+    domains_csv: "{{ domain }}{% if secondary_domains_csv %},{% endif %}{{ secondary_domains_csv }}" 
+ 
+- name: All domains as ssv
+  set_fact:
+    domains_ssv: "{{ domain }}{% if secondary_domains_csv %} {% endif %}{{ secondary_domains_csv }}" 
+ 
 - name: Get IPv4
   uri:
     url: "http://ipv4.icanhazip.com"
@@ -72,5 +84,7 @@
 
 - include: ssl.yml
 
-- include: certbot.yml
+- include: domain_mgr.yml
+
+  #- include: certbot.yml
 
