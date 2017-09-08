@@ -1,0 +1,9 @@
+---
+
+- name: Delete default /etc/rspamd 
+  file:
+    dest: "/etc/rspamd/"
+    state: absent
+  listen: delete rspamd config
+
+

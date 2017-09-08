@@ -1,6 +1,7 @@
 ---
 
 - hosts: crm-server
+  gather_facts: False
   user: root
   #  sudo: True
   #  gather_facts: True
@@ -15,11 +16,12 @@
     - vars/inwx.yml
     - vars/inwxpasswd.yml
   roles:
+    - up
     - common
     - database
     - webserver
     - mailserver
     - mailinglist
-    - domain
+      # - domain
     - crm
 

@@ -1,0 +1,64 @@
+---
+
+- name: Add apt key for rspamd
+  apt_key:
+    url: https://rspamd.com/apt-stable/gpg.key
+    state: present
+
+- name: Add repo for rspamd     
+  apt_repository:
+    repo: "deb http://rspamd.com/apt-stable/ {{ ansible_distribution_release }} main"
+    state: present
+
+- name: Add source repo for rspamd     
+  apt_repository:
+    repo: "deb-src http://rspamd.com/apt-stable/ {{ ansible_distribution_release }} main"
+    state: present
+
+- name: Install rspamd
+  apt:
+    name: rspamd
+    update_cache: True
+    state: latest 
+  notify:
+    - delete rspamd config
+
+- name: Stop rspamd
+  systemd:
+    name: rspamd
+    state: stopped
+
+- name: Create rspamd password hash
+  shell: "rspamadm pw -p {{ rspamd_pw }}"
+  register: rspamd_pw_result
+
+- name: Debug output of rspamd password set
+  debug:
+    msg: "{{ rspamd_pw_result }}"
+
+- name: Set rspamd hash value
+  set_fact:
+    rspamd_pw_hash: "{{ rspamd_pw_result.stdout }}"
+
+- name: Templates for rspamd
+  template:
+    dest: "/etc/rspamd/{{ item.path }}"
+    src: "{{ item.src }}"
+  with_filetree: "../templates/etc/rspamd" 
+  when: item.state == 'file'
+
+
+- name: Create directory for dkim key
+  file:
+    dest: "/var/lib/rspamd/dkim"
+    state: directory
+    owner: _rspamd
+    group: _rspamd
+
+- name: Create symlink for arc module
+  file:
+    dest: /etc/rspamd/local.d/arc.conf 
+    src: /etc/rspamd/local.d/dkim_signing.conf
+    state: link
+
+

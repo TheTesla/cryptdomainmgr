@@ -50,11 +50,19 @@ smtpd_tls_key_file = {{ certbaselocation }}/{{ domain }}/privkey.pem
 #### local mail transport via dovecot
 virtual_transport = dovecot 
 
-# milter
+##
+## Spamfilter and DKIM signature via rspamd
+##
+
+#smtpd_milters = unix:/var/run/amavis/amavisd-milter.sock, unix:/var/run/opendkim/opendkim.sock
+smtpd_milters = inet:localhost:11332
+#non_smtpd_milters = unix:/var/run/opendkim/opendkim.sock
+non_smtpd_milters = inet:localhost:11332
+#milter_protocol = 2
+milter_protocol = 6
+milter_mail_macros =  i {mail_addr} {client_addr} {client_name} {auth_authen}
 milter_default_action = accept
-milter_protocol = 2
-smtpd_milters = unix:/var/run/amavis/amavisd-milter.sock, unix:/var/run/opendkim/opendkim.sock
-non_smtpd_milters = unix:/var/run/opendkim/opendkim.sock
+
 
 # restrictions for client, receipient and relaying
 

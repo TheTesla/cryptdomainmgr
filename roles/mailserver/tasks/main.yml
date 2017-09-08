@@ -5,6 +5,8 @@
     name: "{{ deliver_user_name }}"
     comment: user for mailserver
 
+- include: rspamd.yml
+
 - include: postfix.yml
 
 - include: dovecot.yml
@@ -18,13 +20,14 @@
     login_user: root
     login_password: '{{ mysql_root_passwd }}'
 
-- include: amavis.yml
 
-- include: spamassassin.yml
+  #- include: amavis.yml
 
-- include: opendkim.yml
+  #- include: spamassassin.yml
 
-- include: razor.yml
+  #- include: opendkim.yml
+
+  #- include: razor.yml
 
 - include: autoconfig.yml
 

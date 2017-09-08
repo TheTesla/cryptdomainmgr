@@ -9,12 +9,23 @@
 
 - name: Reboot system
   shell: reboot
-  async: 0
+  async: 1
   poll: 0
   ignore_errors: true
   listen: "Reboot"
+
+- name: Dummy 
+  shell: "sleep 1"
+  delegate_to: localhost
+  listen: "Reboot"
+
 - name: Waiting for startup
-  local_action: wait_for host={{ ansible_ssh_host | default(inventory_hostname) }} state=started port=22 delay=30 
+  wait_for:
+    host: "{{ inventory_hostname }}"
+    state: started
+    port: 22
+    delay: 10
+  delegate_to: localhost 
   listen: "Reboot"
 
 - name: Restart unbound

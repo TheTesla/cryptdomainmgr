@@ -66,5 +66,6 @@
   shell: 'cd /root/domain_mgr && ./rollover.bash'
   args:
     executable: '/bin/bash'
+  ignore_errors: True
 
 

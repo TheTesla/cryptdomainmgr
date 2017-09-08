@@ -1,5 +1,8 @@
 ---
 
+- include: rspamd.yml
+  static: yes
+
 - include: spamassassin.yml
   static: yes 
 

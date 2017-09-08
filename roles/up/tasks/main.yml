@@ -1,0 +1,16 @@
+---
+
+- name: Debug host
+  debug:
+    msg: "{{ inventory_hostname }}"
+  delegate_to: localhost
+
+- name: Waiting for startup
+  local_action:
+    module: wait_for
+    host: "{{ inventory_hostname }}"
+    state: started
+    port: 22
+    delay: 1
+  #delegate_to: localhost 
+

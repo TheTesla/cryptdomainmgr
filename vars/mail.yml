@@ -7,6 +7,9 @@ mailserver_db_user_passwd: "dbuserpassword"
 relay_domains: "{{ mailman_domain }}"
 
 opendkim_keyname: "key1"
+
+rspamd_pw: "rspamdpassword"
+
 spamass_passwd: "spamasspassword"
 mailname: "{{ name }}" #  "{{ domain }}"
 
