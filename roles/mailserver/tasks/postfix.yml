@@ -82,3 +82,8 @@
   args:
     executable: "/bin/bash"
 
+- name: Newaliases needed
+  shell: "newaliases"
+  args:
+    executable: "/bin/bash"
+

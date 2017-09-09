@@ -15,18 +15,24 @@
     repo: "deb-src http://rspamd.com/apt-stable/ {{ ansible_distribution_release }} main"
     state: present
 
-- name: Install rspamd
+- name: Install rspamd and redis
   apt:
-    name: rspamd
+    name: "{{ item }}"
     update_cache: True
     state: latest 
+  with_items:
+    - rspamd
+    - redis-server
   notify:
     - delete rspamd config
 
-- name: Stop rspamd
-  systemd:
-    name: rspamd
-    state: stopped
+- name: Run handler to initially delete rspamd config     
+  meta: flush_handlers
+
+  #- name: Stop rspamd
+  #  systemd:
+  #    name: rspamd
+  #    state: stopped
 
 - name: Create rspamd password hash
   shell: "rspamadm pw -p {{ rspamd_pw }}"
@@ -40,13 +46,18 @@
   set_fact:
     rspamd_pw_hash: "{{ rspamd_pw_result.stdout }}"
 
+- name: Recreate /etc/rspamd/local.d/
+  file:
+    dest: "/etc/rspamd/local.d/"
+    state: directory
+    recurse: True
+
 - name: Templates for rspamd
   template:
     dest: "/etc/rspamd/{{ item.path }}"
     src: "{{ item.src }}"
   with_filetree: "../templates/etc/rspamd" 
   when: item.state == 'file'
-
 
 - name: Create directory for dkim key
   file:
@@ -61,4 +72,38 @@
     src: /etc/rspamd/local.d/dkim_signing.conf
     state: link
 
+- name: Create /var directories 
+  file:
+    path: "{{ item }}"
+    owner: "{{ deliver_user_name }}"
+    group: "{{ deliver_user_name }}"
+    mode: 0770
+    state: directory
+  with_items:
+    - "/var/mail"
+    - "/var/mail/sieve"
+    - "/var/mail/sieve/global"
+
+- name: Copy /var/mail files
+  copy:
+    dest: /var/mail/
+    src: ../files/var/mail/
+
+- name: Permissions and owner /var/mail/sieve
+  file:
+    path: /var/mail/sieve
+    owner: "{{ deliver_user_name }}"
+    group: "{{ deliver_user_name }}"
+    state: directory
+    recurse: yes
+
+- name: Permissions and owner /var/mail/spampipe.sh
+  file:
+    path: /var/mail/spampipe.sh
+    owner: "{{ deliver_user_name }}"
+    group: "{{ deliver_user_name }}"
+    mode: 774
+    state: file
+
+- include: rspamd_gui.yml     
 

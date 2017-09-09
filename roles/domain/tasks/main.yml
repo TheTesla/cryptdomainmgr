@@ -1,6 +1,8 @@
 ---
 
-- include: dane.yml
+- include: domain_mgr.yml
 
-- include: inwx.yml
+  #- include: dane.yml
+
+  #- include: inwx.yml
 

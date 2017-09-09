@@ -7,12 +7,16 @@
   args:
     executable: '/bin/bash'
 
+  #- name: Reboot system
+  #  shell: reboot
+  #  async: 1
+  #  poll: 0
+  #  ignore_errors: true
+  #  listen: "Reboot"
+
 - name: Reboot system
-  shell: reboot
-  async: 1
-  poll: 0
-  ignore_errors: true
-  listen: "Reboot"
+  shell: "ssh -t root@{{ inventory_hostname }} reboot"
+  delegate_to: localhost
 
 - name: Dummy 
   shell: "sleep 1"

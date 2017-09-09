@@ -1,0 +1,42 @@
+---
+
+- name: Stop apache2 to allow nginx install with startup
+  systemd:
+    name: apache2
+    state: stopped
+
+- name: Install nginx proxy
+  apt:
+    name: nginx
+    update_cache: True
+
+- name: Choose domain for rspamd gui
+  set_fact:
+    rspamd_gui_domain: "{{ domain }}"
+
+- name: Process nginx proxy template
+  template:
+    dest: "/etc/nginx/sites-available/{{ domain }}"
+    src: "../templates/etc/nginx/sites-available/domain.template"
+
+- name: Enable rspamd config site
+  file:
+    dest: "/etc/nginx/sites-enabled/{{ domain }}"
+    src: "/etc/nginx/sites-available/{{ domain }}"
+    state: link
+
+- name: Disable nginx default site
+  file:
+    dest: "/etc/nginx/sites-enabled/default"
+    state: absent
+
+- name: Reload nginx for new config
+  systemd:
+    name: nginx
+    state: reloaded
+
+- name: Start apache2 again
+  systemd:
+    name: apache2
+    state: started
+

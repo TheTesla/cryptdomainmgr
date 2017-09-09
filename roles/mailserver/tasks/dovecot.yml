@@ -49,6 +49,16 @@
     - /etc/dovecot
     - /etc/dovecot/conf.d
 
+- name: Set /var/mail deliver user (contains all mailboxes)
+  file:
+    path: "{{ item }}"
+    owner: "{{ deliver_user_name }}"
+    group: "{{ deliver_user_name }}"
+    mode: 0770
+    state: directory
+  with_items:
+    - "/var/mail"
+
 - name: Process dovecot templates
   template:
     src: "{{ item.src }}"
@@ -67,8 +77,8 @@
         ssl_key = < {{ certbaselocation }}{% raw -%}/{%- endraw %}{{ item }}/privkey.pem
        {% raw -%}}{%- endraw %}
     marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item }}"
-  with_items:
-    - "{{ secondarydomains }}"
+  when: item != ""
+  with_items: "{{ secondarydomains | default([]) }}"
 
 - name: Set permissions of conf files containing password
   file:

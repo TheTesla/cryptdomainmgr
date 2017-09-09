@@ -22,6 +22,6 @@
     - webserver
     - mailserver
     - mailinglist
-      # - domain
+    - domain
     - crm
 

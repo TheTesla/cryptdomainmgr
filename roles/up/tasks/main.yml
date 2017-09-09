@@ -12,5 +12,7 @@
     state: started
     port: 22
     delay: 1
-  #delegate_to: localhost 
+
+- name: Gather facts after startup
+  setup:
 
