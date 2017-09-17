@@ -54,21 +54,23 @@
 - name: TLS required
   blockinfile:
     path: /etc/tine20/apache.conf
-    marker: "# {mark} Ansible crm/tine https config"
+    marker: "# {mark} Ansible crm/tine https config for {{ item }}"
     content: | 
       <VirtualHost *:80>
-        ServerName   {{ domain }}
-        Redirect permanent /tine20 https://{{ domain }}/tine20
+        ServerName   {{ item }}
+        Redirect permanent /tine20 https://{{ item }}/tine20
       </VirtualHost>
 
       <VirtualHost *:443>
         SSLEngine on
-        SSLCertificateFile {{ certbaselocation }}/{{ domain }}/fullchain.pem
-        SSLCertificateKeyFile {{ certbaselocation }}/{{ domain }}/privkey.pem
+        SSLCertificateFile {{ certbaselocation }}/{{ item }}/fullchain.pem
+        SSLCertificateKeyFile {{ certbaselocation }}/{{ item }}/privkey.pem
         DocumentRoot /usr/share/tine20
-        ServerName   {{ domain }}
+        ServerName   {{ item }}
       </VirtualHost>
-      
+  with_items:
+    - "{{ domain }}"
+    - "{{ secondarydomains }}"
   notify:
     - Restart apache2
 

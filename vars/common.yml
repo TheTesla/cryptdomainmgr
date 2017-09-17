@@ -1,12 +1,12 @@
 ---
 
 hostname: "testsystem"
-#tld: "smartrns.net"
-tld: "entroserv.de"
+tld: "smartrns.net"
+#tld: "entroserv.de"
 name: "testserver"
 domain: "{{ name }}.{{ tld }}"
 secondarydomains:
- #  - "testserver.entroserv.de"
+  - "testserver.entroserv.de"
  #  - "a.b.c"
  #  - "example.de"
 public_interface: "eth0"

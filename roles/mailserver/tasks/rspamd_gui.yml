@@ -34,6 +34,7 @@
   systemd:
     name: nginx
     state: reloaded
+  ignore_errors: True
 
 - name: Start apache2 again
   systemd:
