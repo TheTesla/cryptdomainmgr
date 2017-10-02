@@ -27,6 +27,7 @@
     url: "http://ipv6.icanhazip.com"
     return_content: yes
   register: get_ipv6_res
+  ignore_errors: True
   
 - name: Set IPv6 var
   set_fact: 
@@ -66,19 +67,20 @@
     - make
     - cmake
 
-- name: Install cronjobs
-  blockinfile:
-    path: /etc/crontab
-    marker: "# {mark} -- Ansible mailserver/tine config"
-    state: present
-    create: yes
-    block: |
-      # DH parameter re-generation
-      @daily		root	FILE=`mktemp` ; openssl dhparam 2048 -out $FILE && mv -f $FILE /etc/myssl/dh2048.pem
-      # certificate renewal every month
-      @monthly	root	/opt/certbot-auto renew --quiet --no-self-upgrade
-      # Spamassassin care
-      @daily		root	/root/sa-care.sh
+  #- name: Install cronjobs
+  #  blockinfile:
+  #    path: /etc/crontab
+  #    marker: "# {mark} -- Ansible mailserver/tine config"
+  #    state: present
+  #    create: yes
+  #    block: |
+  #      # DH parameter re-generation
+  #      @daily		root	FILE=`mktemp` ; openssl dhparam 2048 -out $FILE && mv -f $FILE /etc/myssl/dh2048.pem
+  #      # certificate renewal every month
+  #      @monthly	root	/opt/certbot-auto renew --quiet --no-self-upgrade
+  #      # Spamassassin care
+  #      @daily		root	/root/sa-care.sh
+
 
 - include: dns.yml
 

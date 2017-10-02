@@ -18,11 +18,6 @@
   shell: "ssh -t root@{{ inventory_hostname }} reboot"
   delegate_to: localhost
 
-- name: Dummy 
-  shell: "sleep 1"
-  delegate_to: localhost
-  listen: "Reboot"
-
 - name: Waiting for startup
   wait_for:
     host: "{{ inventory_hostname }}"

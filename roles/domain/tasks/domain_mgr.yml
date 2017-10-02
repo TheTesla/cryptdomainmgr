@@ -68,4 +68,17 @@
     executable: '/bin/bash'
   ignore_errors: True
 
+- name: Immediatelly cleanup
+  shell: 'cd /root/domain_mgr && ./cleanup.bash'
+  args:
+    executable: '/bin/bash'
+  ignore_errors: True
+
+- name: Copy cron file
+  copy:
+    dest: "/etc/cron.d/domain"
+    src: "../files/etc/cron.d/domain"
+    mode: 0644
+    owner: root
+    group: root
 
