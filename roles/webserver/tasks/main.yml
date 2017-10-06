@@ -19,13 +19,13 @@
     - Restart apache2
   ignore_errors: true 
 
-- name: Set www-data Maildir 
-  file:
-    path: "{{ item }}"
-    owner: "www-data"
-    group: "www-data"
-    mode: 0770
-    state: directory
-  with_items:
-    - "/var/www/Maildir"
+  #- name: Set www-data Maildir 
+  #  file:
+  #    path: "{{ item }}"
+  #    owner: "www-data"
+  #    group: "www-data"
+  #    mode: 0770
+  #    state: directory
+  #  with_items:
+  #    - "/var/www/Maildir"
 

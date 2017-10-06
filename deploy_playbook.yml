@@ -9,8 +9,8 @@
     - vars/common.yml
     - vars/database.yml
     - vars/mail.yml
-    - vars/lists.yml
     - vars/tine.yml
+    - vars/lists.yml
     - vars/cert.yml
     - vars/passwords.yml
     - vars/inwx.yml

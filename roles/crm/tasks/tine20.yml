@@ -58,6 +58,13 @@
   notify:
     - Restart apache2
 
+- name: Set log file permissions
+  file:
+    name: "/var/log/tine20/tine20.log"
+    state: file
+    mode: 0644
+    owner: www-data
+    group: www-data
 
 - name: TLS required
   blockinfile:

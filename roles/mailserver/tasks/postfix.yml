@@ -53,6 +53,11 @@
   notify:
     - Restart postfix
 
+- name: Process /etc/aliases template
+  template:
+    src: "../templates/etc/aliases"
+    dest: "/etc/aliases"
+
 - name: Copy rc.local
   copy:
     dest: "/etc/rc.local"
