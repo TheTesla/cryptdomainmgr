@@ -45,14 +45,10 @@
 
 - meta: flush_handlers
 
-  #- include: reboot.yml
-
 - name: Force ipv4 for apt
   copy:
     content: "Acquire::ForceIPv4 \"true\";"
     dest: "/etc/apt/apt.conf.d/99force-ipv4"
-  #  become: yes
-  #  become_method: sudo
 
 - name: Install common packages
   apt:
@@ -67,26 +63,8 @@
     - make
     - cmake
 
-  #- name: Install cronjobs
-  #  blockinfile:
-  #    path: /etc/crontab
-  #    marker: "# {mark} -- Ansible mailserver/tine config"
-  #    state: present
-  #    create: yes
-  #    block: |
-  #      # DH parameter re-generation
-  #      @daily		root	FILE=`mktemp` ; openssl dhparam 2048 -out $FILE && mv -f $FILE /etc/myssl/dh2048.pem
-  #      # certificate renewal every month
-  #      @monthly	root	/opt/certbot-auto renew --quiet --no-self-upgrade
-  #      # Spamassassin care
-  #      @daily		root	/root/sa-care.sh
-
-
 - include: dns.yml
 
 - include: ssl.yml
 
-  #- include: domain_mgr.yml
-
-  #- include: certbot.yml
 
