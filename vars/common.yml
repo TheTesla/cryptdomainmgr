@@ -1,6 +1,6 @@
 ---
 
-hostname: "testsystem"
+hostname: "test"
 tld: "smartrns.net"
 #tld: "entroserv.de"
 name: "testserver"

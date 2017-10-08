@@ -34,11 +34,13 @@
     myextip6: "{{ get_ipv6_res.content }}"
 
 - name: Set hostname persistant
-  copy:
-    content: "{{ hostname }}"
-    dest: "/etc/hostname"
-  become: yes
-  become_method: sudo
+  hostname:
+    name: "{{ hostname }}"
+  #  copy:
+  #    content: "{{ hostname }}"
+  #    dest: "/etc/hostname"
+  #  become: yes
+  #  become_method: sudo
   notify: 
     - Hostname
     - Reboot
