@@ -22,7 +22,6 @@
     - mailman
   notify:
     - Newlist mailman
-    - mailman db files
 
 - name: Create directories 
   file:
@@ -62,7 +61,6 @@
   notify:
     - Restart apache2
 
-
 - name: Add user postfix to group list
   user:
     name: postfix
@@ -74,6 +72,21 @@
   args:
     executable: "/bin/bash"
 
+- name: Mailman genaliases
+  shell: '/var/lib/mailman/bin/genaliases'
+  args:
+    executable: /bin/bash
 
+- name: Permissions for /var/lib/mailman/data/aliases.db
+  file:
+    name: /var/lib/mailman/data/aliases.db
+    state: touch
+    mode: 0660
+
+- name: Permissions for /var/lib/mailman/data/virtual-mailman.db
+  file:
+    name: /var/lib/mailman/data/virtual-mailman.db
+    state: touch
+    mode: 0660
 
 

@@ -6,25 +6,25 @@
     name: mailman
     state: restarted
 
-- name: Mailman genaliases
-  shell: '/var/lib/mailman/bin/genaliases'
-  args:
-    executable: /bin/bash
-  listen: mailman db files
-
-- name: Permissions for /var/lib/mailman/data/aliases.db
-  file:
-    name: /var/lib/mailman/data/aliases.db
-    state: touch
-    mode: 0660
-  listen: mailman db files
-
-- name: Permissions for /var/lib/mailman/data/virtual-mailman.db
-  file:
-    name: /var/lib/mailman/data/virtual-mailman.db
-    state: touch
-    mode: 0660
-  listen: mailman db files
+  #- name: Mailman genaliases
+  #  shell: '/var/lib/mailman/bin/genaliases'
+  #  args:
+  #    executable: /bin/bash
+  #  listen: mailman db files
+  #
+  #- name: Permissions for /var/lib/mailman/data/aliases.db
+  #  file:
+  #    name: /var/lib/mailman/data/aliases.db
+  #    state: touch
+  #    mode: 0660
+  #  listen: mailman db files
+  #
+  #- name: Permissions for /var/lib/mailman/data/virtual-mailman.db
+  #  file:
+  #    name: /var/lib/mailman/data/virtual-mailman.db
+  #    state: touch
+  #    mode: 0660
+  #  listen: mailman db files
 
 - name: Newlist mailman
   shell: 'echo -e "\n" | /usr/sbin/newlist mailman {{ mailman_email }} {{ mailman_passwd }}'
