@@ -1,5 +1,21 @@
 ---
 
+- name: Secondary domains with mailman prefix as csv
+  set_fact:
+    secondary_mailman_domains_csv: "{% if secondarydomains %}{% for d in secondarydomains %}{{ mailman_prefix }}.{{ d }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}" 
+
+- name: All domains with mailman prefix as csv
+  set_fact:
+    mailman_domains_csv: "{{ mailman_prefix }}.{{ domain }}{% if secondary_mailman_domains_csv %}, {% endif %}{{ secondary_mailman_domains_csv }}" 
+ 
+- name: Secondary domains with mailman prefix as python list
+  set_fact:
+    secondary_mailman_domains_pylist: "{% if secondarydomains %}{% for d in secondarydomains %}'{{ mailman_prefix }}.{{ d }}'{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}" 
+
+- name: All domains with mailman prefix as python list
+  set_fact:
+    mailman_domains_pylist: "'{{ mailman_prefix }}.{{ domain }}'{% if secondary_mailman_domains_pylist %}, {% endif %}{{ secondary_mailman_domains_pylist }}" 
+
 - name: Configure mailman create_site_list
   debconf:
     name: mailman
@@ -42,10 +58,79 @@
   notify:
     - Restart mailman
 
+  #- name: Connect mailman to postfix - main.cf
+  #  blockinfile:
+  #    dest: "/etc/postfix/main.cf"
+  #    marker: "# {mark} ANSIBLE MANAGED BLOCK for mailman"
+  #    content: |
+  #      relay_recipient_maps = hash:/var/lib/mailman/data/virtual-mailman
+  #      mailman_destination_recipient_limit = 1
+  #
+  #- name: Connect mailman to postfix - transport
+  #  blockinfile:
+  #    dest: "/etc/postfix/transport"
+  #    create: True
+  #    marker: "# {mark} ANSIBLE MANAGED BLOCK for mailman - {{ mailman_prefix }}.{{ item }}"
+  #    content: |
+  #      {{ mailman_prefix }}.{{ item }} mailman:
+  #  with_items:
+  #    - "{{ domain }}"
+  #    - "{{ secondarydomains }}"
+  #
+  #- name: Connect mailman to postfix - relaydomains
+  #  blockinfile:
+  #    dest: "/etc/postfix/relaydomains"
+  #    create: True
+  #    marker: "# {mark} ANSIBLE MANAGED BLOCK for mailman - {{ mailman_prefix }}.{{ item }}"
+  #    content: |
+  #      {{ mailman_prefix }}.{{ item }}
+  #  with_items:
+  #    - "{{ domain }}"
+  #    - "{{ secondarydomains }}"
+  #
+  #- name: Postmap transport
+  #  shell: "postmap /etc/postfix/transport"
+  #
+  #- name: Postmap relaydomains
+  #  shell: "postmap /etc/postfix/relaydomains"
+  #
+  #
+  #- name: Connect mailman to postfix - master.cf
+  #  blockinfile:
+  #    dest: "/etc/postfix/master.cf"
+  #    marker: "# {mark} ANSIBLE MANAGED BLOCK for mailman"
+  #    content: |
+  #      mailman   unix  -       n       n       -       -       pipe
+  #        flags=FR user=list argv=/usr/lib/mailman/bin/postfix-to-mailman.py ${nexthop} ${recipient}
+
+- name: Configure mailman
+  blockinfile:
+    dest: "/etc/mailman/mm_cfg.py"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ mailman_prefix }}.{{ item }}"
+    content: |
+      add_virtualhost( '{{ mailman_prefix }}.{{ item }}', '{{ mailman_prefix }}.{{ item }}' )
+  with_items:
+    - "{{ domain }}"
+    - "{{ secondarydomains }}"
+
 - name: Add mailman to apache2
-  shell: "cp /etc/mailman/apache.conf /etc/apache2/sites-available/mailman.conf"
-  args:
-    executable: "/bin/bash"
+  template:
+    dest: "/etc/apache2/sites-available/mailman.conf"
+    src: "../templates/etc/apache2/sites-available/mailman.conf"
+
+- name: Add mailman domains to apache2
+  blockinfile:
+    dest: "/etc/apache2/sites-available/mailman.conf"
+    insertbefore: "^# Ansible block position"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ mailman_prefix }}.{{ item }}"
+    content: |
+      <VirtualHost *:80>
+          ServerName {{ mailman_prefix }}.{{ item }}
+          Redirect / https://{{ mailman_prefix }}.{{ item }}/
+      </VirtualHost>
+  with_items:
+    - "{{ domain }}"
+    - "{{ secondarydomains }}"
 
 - name: Activate cgid in apache2
   apache2_module:
@@ -77,16 +162,16 @@
   args:
     executable: /bin/bash
 
-- name: Permissions for /var/lib/mailman/data/aliases.db
-  file:
-    name: /var/lib/mailman/data/aliases.db
-    state: touch
-    mode: 0660
+  #- name: Permissions for /var/lib/mailman/data/aliases.db
+  #  file:
+  #    name: /var/lib/mailman/data/aliases.db
+  #    state: touch
 
 - name: Permissions for /var/lib/mailman/data/virtual-mailman.db
   file:
     name: /var/lib/mailman/data/virtual-mailman.db
-    state: touch
-    mode: 0660
+    state: file
+    owner: www-data
+    group: list
 
 

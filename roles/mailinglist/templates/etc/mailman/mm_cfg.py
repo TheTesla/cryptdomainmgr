@@ -57,21 +57,21 @@ MAILMAN_SITE_LIST = 'mailman'
 #-------------------------------------------------------------
 # If you change these, you have to configure your http server
 # accordingly (Alias and ScriptAlias directives in most httpds)
-DEFAULT_URL_PATTERN = 'http://%s/cgi-bin/mailman/'
+DEFAULT_URL_PATTERN = 'https://%s/'
 IMAGE_LOGOS         = '/images/mailman/'
 
 #-------------------------------------------------------------
 # Default domain for email addresses of newly created MLs
-DEFAULT_EMAIL_HOST = '{{ mailman_domain }}'
+DEFAULT_EMAIL_HOST = '{{ mailman_prefix }}.{{ domain }}'
 #-------------------------------------------------------------
 # Default host for web interface of newly created MLs
-DEFAULT_URL_HOST   = '{{ mailman_domain }}'
+DEFAULT_URL_HOST   = '{{ mailman_prefix }}.{{ domain }}'
 #-------------------------------------------------------------
-POSTFIX_STYLE_VIRTUAL_DOMAINS = ['{{ mailman_domain }}']
+POSTFIX_STYLE_VIRTUAL_DOMAINS = [ {{ mailman_domains_pylist }} ]
+VIRTUAL_MAILMAN_LOCAL_DOMAIN = 'localhost'
 
 # Required when setting any of its arguments.
 add_virtualhost(DEFAULT_URL_HOST, DEFAULT_EMAIL_HOST)
-#add_virtualhost('{{ domain }}', '{{ domain }}')
 
 #-------------------------------------------------------------
 # The default language for this server.

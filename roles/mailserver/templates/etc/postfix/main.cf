@@ -167,15 +167,19 @@ readme_directory = no
 # See /usr/share/doc/postfix/TLS_README.gz in the postfix-doc package for
 # information on enabling SSL in the smtp client.
 
-alias_maps = hash:/etc/aliases
+alias_maps = hash:/etc/aliases,
+             hash:/var/lib/mailman/data/aliases
 alias_database = hash:/etc/aliases
 relayhost =
 
 # for mailman
-relay_domains = {{ relay_domains }}
-transport_maps = hash:/etc/postfix/transport
+#relay_domains = {{ relay_domains }}
+#transport_maps = hash:/etc/postfix/transport
 mailman_destination_recipient_limit = 1
  
+#relay_domains = hash:/etc/postfix/relaydomains
+#transport_maps = hash:/etc/postfix/transport
+
 #default_transport = error
 #relay_transport = error
 

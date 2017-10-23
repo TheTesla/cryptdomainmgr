@@ -82,10 +82,10 @@
   args:
     executable: "/bin/bash"
 
-- name: Postmap transport
-  shell: "postmap /etc/postfix/transport"
-  args:
-    executable: "/bin/bash"
+  #- name: Postmap transport
+  #  shell: "postmap /etc/postfix/transport"
+  #  args:
+  #    executable: "/bin/bash"
 
 - name: Newaliases needed
   shell: "newaliases"

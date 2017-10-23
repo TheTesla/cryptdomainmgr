@@ -1,10 +1,8 @@
 ---
 
 mailman_domain: "lists.{{ domain }}"
-mailman_passwd: "mailman_password"
 mailman_email: "{{ tine20_admin_name }}@{{ domain }}"
-list_creators_passwd: "list_password"
-
+mailman_prefix: "lists"
 
 
 

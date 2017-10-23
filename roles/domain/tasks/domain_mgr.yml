@@ -1,5 +1,13 @@
 ---
 
+- name: Secondary domains with mailman prefix as csv
+  set_fact:
+    secondary_mailman_domains_ssv: "{% if secondarydomains %}{% for d in secondarydomains %}{{ mailman_prefix }}.{{ d }}{% if not loop.last %} {% endif %}{% endfor %}{% endif %}" 
+
+- name: All domains with mailman prefix as csv
+  set_fact:
+    mailman_domains_ssv: "{{ mailman_prefix }}.{{ domain }}{% if secondary_mailman_domains_csv %} {% endif %}{{ secondary_mailman_domains_csv }}" 
+ 
 - name: Clone domain_mgr containing certbot and inwx update client
   git:
     repo: "https://github.com/TheTesla/domain_mgr.git"
@@ -31,7 +39,7 @@
   lineinfile:
     path: /root/domain_mgr/domain_config.bash
     regexp: '^domainlist'
-    line: 'domainlist="{{ domains_ssv }}"'
+    line: 'domainlist="{{ domains_ssv }} {{ mailman_domains_ssv }}"'
     create: yes
     
 - name: Set inwx domain update api

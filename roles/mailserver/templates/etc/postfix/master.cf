@@ -146,7 +146,7 @@ mailman   unix  -       n       n       -       -       pipe
 dovecot   unix  -       n       n       -       -       pipe 
   flags=DRhu user={{ deliver_user_name }}:{{ deliver_user_name }} argv=/usr/lib/dovecot/dovecot-lda -f ${sender} -d ${user}@${nexthop} -m ${extension}
 #  flags=DRhu user={{ deliver_user_name }}:{{ deliver_user_name }} argv=/usr/lib/dovecot/dovecot-lda -c /etc/dovecot/conf.d/01-mail-stack-delivery.conf -f ${sender} -d ${user}@${nexthop} -m ${extension}
-mailman   unix  -       n       n       -       -       pipe
-  flags=FR user=list argv=/usr/lib/mailman/bin/postfix-to-mailman.py
-  ${nexthop} ${user}
+#mailman   unix  -       n       n       -       -       pipe
+#  flags=FR user=list argv=/usr/lib/mailman/bin/postfix-to-mailman.py
+#  ${nexthop} ${user}
 
