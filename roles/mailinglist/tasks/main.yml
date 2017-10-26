@@ -36,8 +36,8 @@
     state: latest
   with_items:
     - mailman
-  notify:
-    - Newlist mailman
+  #notify:
+  #  - Newlist mailman
 
 - name: Create directories 
   file:
@@ -157,15 +157,26 @@
   args:
     executable: "/bin/bash"
 
-- name: Mailman genaliases
-  shell: '/var/lib/mailman/bin/genaliases'
+- name: Newlist mailman
+  shell: 'echo -e "\n" | /usr/sbin/newlist mailman {{ mailman_email }} {{ mailman_passwd }}'
   args:
     executable: /bin/bash
+  ignore_errors: True
 
-  #- name: Permissions for /var/lib/mailman/data/aliases.db
-  #  file:
-  #    name: /var/lib/mailman/data/aliases.db
-  #    state: touch
+  #- name: Initial list must be created to generate virtual-mailman
+  #  meta: flush_handlers
+
+  #- name: Mailman genaliases
+  #  shell: '/var/lib/mailman/bin/genaliases'
+  #  args:
+  #    executable: /bin/bash
+
+- name: Permissions for /var/lib/mailman/data/aliases.db
+  file:
+    name: /var/lib/mailman/data/aliases.db
+    state: file
+    owner: www-data
+    group: list
 
 - name: Permissions for /var/lib/mailman/data/virtual-mailman.db
   file:
