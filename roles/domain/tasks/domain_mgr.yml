@@ -1,12 +1,12 @@
 ---
 
-- name: Secondary domains with mailman prefix as csv
-  set_fact:
-    secondary_mailman_domains_ssv: "{% if secondarydomains %}{% for d in secondarydomains %}{{ mailman_prefix }}.{{ d }}{% if not loop.last %} {% endif %}{% endfor %}{% endif %}" 
-
-- name: All domains with mailman prefix as csv
-  set_fact:
-    mailman_domains_ssv: "{{ mailman_prefix }}.{{ domain }}{% if secondary_mailman_domains_csv %} {% endif %}{{ secondary_mailman_domains_csv }}" 
+#- name: Secondary domains with mailman prefix as ssv
+#  set_fact:
+#    secondary_mailman_domains_ssv: "{% if secondarydomains %}{% for d in secondarydomains %}{{ mailman_prefix }}.{{ d }}{% if not loop.last %} {% endif %}{% endfor %}{% endif %}" 
+#
+#- name: All domains with mailman prefix as ssv
+#  set_fact:
+#    mailman_domains_ssv: "{{ mailman_prefix }}.{{ domain }}{% if secondary_mailman_domains_ssv %} {% endif %}{{ secondary_mailman_domains_ssv }}" 
  
 - name: Clone domain_mgr containing certbot and inwx update client
   git:

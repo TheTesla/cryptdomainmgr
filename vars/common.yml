@@ -5,8 +5,14 @@ tld: "smartrns.net"
 #tld: "entroserv.de"
 name: "testserver"
 domain: "{{ name }}.{{ tld }}"
-secondarydomains:
-  - "testserver.entroserv.de"
+emaildomain: "mymail.{{ tld }}"
+emailmaps:
+  - { emaildomain: "mymail.entroserv.de", serverdomain: "testserver.entroserv.de" }
+  - { emaildomain: "extra.entroserv.de", serverdomain: "testserver.entroserv.de" }
+  - { emaildomain: "extra.smartrns.net", serverdomain: "testserver.smartrns.net" }
+secondarydomains: "{{ emailmaps | map(attribute='serverdomain') | unique | list }}"
+secondaryemaildomains: "{{ emailmaps | map(attribute='emaildomain') | unique | list }}"
+ # - "testserver.entroserv.de"
  #  - "a.b.c"
  #  - "example.de"
 public_interface: "eth0"

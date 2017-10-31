@@ -2,19 +2,39 @@
 
 - name: Secondary domains with mailman prefix as csv
   set_fact:
-    secondary_mailman_domains_csv: "{% if secondarydomains %}{% for d in secondarydomains %}{{ mailman_prefix }}.{{ d }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}" 
+   #secondary_mailman_domains_csv: "{% if secondarydomains %}{% for d in secondarydomains %}{{ mailman_prefix }}.{{ d }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}" 
+    secondary_mailman_domains_csv: "{% if secondarydomains %}{{ mailman_prefix+'.'+secondarydomains | join(', '+mailman_prefix+'.')}}{% endif %}" 
 
+- name: Secondary domains with mailman prefix as ssv
+  set_fact:
+   #secondary_mailman_domains_ssv: "{% if secondarydomains %}{% for d in secondarydomains %}{{ mailman_prefix }}.{{ d }}{% if not loop.last %} {% endif %}{% endfor %}{% endif %}" 
+    secondary_mailman_domains_ssv: "{% if secondarydomains %}{{ mailman_prefix+'.'+secondarydomains | join(' '+mailman_prefix+'.')}}{% endif %}" 
+
+  #- name: All domains with mailman prefix as csv
+  #  set_fact:
+  #    mailman_domains_csv: "{{ mailman_prefix }}.{{ domain }}{% if secondary_mailman_domains_csv %}, {% endif %}{{ secondary_mailman_domains_csv }}" 
+ 
 - name: All domains with mailman prefix as csv
   set_fact:
-    mailman_domains_csv: "{{ mailman_prefix }}.{{ domain }}{% if secondary_mailman_domains_csv %}, {% endif %}{{ secondary_mailman_domains_csv }}" 
+    mailman_domains_csv: "{{ mailman_prefix+'.'+alldomains | join(', '+mailman_prefix+'.')}}" 
+
+- name: All domains with mailman prefix as ssv
+  set_fact:
+    mailman_domains_ssv: "{{ mailman_prefix+'.'+alldomains | join(' '+mailman_prefix+'.')}}" 
+    #mailman_domains_ssv: "{{ mailman_prefix }}.{{ domain }}{% if secondary_mailman_domains_ssv %} {% endif %}{{ secondary_mailman_domains_ssv }}" 
  
 - name: Secondary domains with mailman prefix as python list
   set_fact:
+   #secondary_mailman_domains_pylist: "{% if secondarydomains %}{% for d in secondarydomains %}'{{ mailman_prefix }}.{{ d }}'{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}" 
     secondary_mailman_domains_pylist: "{% if secondarydomains %}{% for d in secondarydomains %}'{{ mailman_prefix }}.{{ d }}'{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}" 
+   #secondary_mailman_domains_pylist: "{{ '\''+mailman_prefix+'.'+secondarydomains | join('\', '+mailman_prefix+'.')}}" 
+   #secondary_mailman_domains_pylist: "{{ '{% raw %}'{% endraw %}'+mailman_prefix+'.'+secondarydomains | join('{% raw %}'{% endraw %}, {% raw %}'{% endraw %}'+mailman_prefix+'.')}}" 
 
 - name: All domains with mailman prefix as python list
   set_fact:
-    mailman_domains_pylist: "'{{ mailman_prefix }}.{{ domain }}'{% if secondary_mailman_domains_pylist %}, {% endif %}{{ secondary_mailman_domains_pylist }}" 
+    mailman_domains_pylist: "{% if alldomains %}{% for d in alldomains %}'{{ mailman_prefix }}.{{ d }}'{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}" 
+   #mailman_domains_pylist: "'{{ mailman_prefix }}.{{ domain }}'{% if secondary_mailman_domains_pylist %}, {% endif %}{{ secondary_mailman_domains_pylist }}" 
+   # mailman_domains_pylist: "{{ '{% raw %}'{% endraw %}'+mailman_prefix+'.'+alldomains | join('{% raw %}'{% endraw %}, {% raw %}'{% endraw %}'+mailman_prefix+'.')}}" 
 
 - name: Configure mailman create_site_list
   debconf:

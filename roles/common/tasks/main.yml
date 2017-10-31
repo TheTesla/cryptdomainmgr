@@ -1,16 +1,60 @@
 ---
 
+- name: Concat domains
+  set_fact:
+    alldomains_not_unique: "{{ [ domain ] | list + secondarydomains | list }}"
+
+- name: Make domains unique
+  set_fact:
+    alldomains: "{{ alldomains_not_unique | unique }}"
+
+- name: Concat email domain
+  set_fact:
+    allemaildomains_not_unique: "{{ [ emaildomain ] | list + secondaryemaildomains | list }}"
+
+- name: Make emain domains unique
+  set_fact:
+    allemaildomains: "{{ allemaildomains_not_unique | unique }}"
+
 - name: Secondary domains as csv
   set_fact:
-    secondary_domains_csv: "{% if secondarydomains %}{% for d in secondarydomains %}{{ d }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" 
+   #secondary_domains_csv: "{% if secondarydomains %}{% for d in secondarydomains %}{{ d }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" 
+    secondary_domains_csv: "{{ secondarydomains | join(',') }}" 
+
+- name: Secondary email domains as csv
+  set_fact:
+   #secondary_email_domains_csv: "{% if secondaryemaildomains %}{% for d in secondaryemaildomains %}{{ d }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" 
+    secondary_email_domains_csv: "{{ secondaryemaildomains | join(',') }}" 
+
+- name: Secondary domains as ssv
+  set_fact:
+   #secondary_domains_ssv: "{% if secondarydomains %}{% for d in secondarydomains %}{{ d }}{% if not loop.last %} {% endif %}{% endfor %}{% endif %}" 
+    secondary_domains_ssv: "{{ secondarydomains | join(' ') }}" 
+
+- name: Secondary email domains as ssv
+  set_fact:
+   #secondary_email_domains_ssv: "{% if secondaryemaildomains %}{% for d in secondaryemaildomains %}{{ d }}{% if not loop.last %} {% endif %}{% endfor %}{% endif %}" 
+    secondary_email_domains_ssv: "{{ secondaryemaildomains | join(' ') }}" 
 
 - name: All domains as csv
   set_fact:
-    domains_csv: "{{ domain }}{% if secondary_domains_csv %},{% endif %}{{ secondary_domains_csv }}" 
+   #domains_csv: "{{ domain }}{% if secondary_domains_csv %},{% endif %}{{ secondary_domains_csv }}" 
+    domains_csv: "{{ alldomains | join(',') }}" 
+ 
+- name: All email domains as csv
+  set_fact:
+   #email_domains_csv: "{{ emaildomain }}{% if secondary_email_domains_csv %},{% endif %}{{ secondary_email_domains_csv }}" 
+    email_domains_csv: "{{ allemaildomains | join(',') }}" 
  
 - name: All domains as ssv
   set_fact:
-    domains_ssv: "{{ domain }}{% if secondary_domains_csv %} {% endif %}{{ secondary_domains_csv }}" 
+   #domains_ssv: "{{ domain }}{% if secondary_domains_ssv %} {% endif %}{{ secondary_domains_ssv }}" 
+    domains_ssv: "{{ alldomains | join(' ') }}" 
+ 
+- name: All email domains as ssv
+  set_fact:
+   #email_domains_ssv: "{{ emaildomain }}{% if secondary_email_domains_ssv %} {% endif %}{{ secondary_email_domains_ssv }}" 
+    email_domains_ssv: "{{ allemaildomains | join(' ') }}" 
  
 - name: Get IPv4
   uri:
