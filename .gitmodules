@@ -1,0 +1,6 @@
+[submodule "certbot"]
+	path = certbot
+	url = https://github.com/certbot/certbot.git
+[submodule "dnsupdate"]
+	path = dnsupdate
+	url = git@github.com:TheTesla/dnsupdate.git
