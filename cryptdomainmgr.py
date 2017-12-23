@@ -37,8 +37,8 @@ class ManagedDomain:
         self.dnsup = dnsuptools.DNSUpTools()
         self.confPar = configparser.ConfigParser()
         self.certconfig = {'generator': 'certbot', 'email': 'stefan.helmert@t-online.de', 'destination': '/etc/ssl', 'extraflags': '', 'source': '/etc/letsencrypt/live', 'certname': 'fullchain.pem', 'keysize': 4096}
-        self.domainconfig = {'myexamle.net': {'ip4': 'auto', 'ip6': 'auto', 'gencert': True, 'certlocation': '', 'tlsa': 'auto'}}
-
+        self.domainconfig = {'myexample.net': {'ip4': 'auto', 'ip6': 'auto', 'gencert': True, 'certlocation': '', 'tlsa': 'auto', 'mx': {'mail.myexample.net': 10}}}
+        self.webservers = ['apache2', 'nginx']
 
     def readConfig(self, confFile):
         if confFile is None:
@@ -49,10 +49,16 @@ class ManagedDomain:
         if 'certificate' in self.domainconfig:
             del self.domainconfig['certificate']
 
-
     def createCert(self):
         if 'certbot' == self.certconfig['generator']:
             createCert([k for k, v in self.domainconfig.items() if 'gencert' in v and True == v['gencert']], self.certconfig['email'], self.certconfig['keysize'], self.certconfig['extraflags'])
+
+    def findCert(self, name, content):
+        if 'certlocation' in content:
+            certlocation = content['certlocation']
+        else:
+            certlocation = None
+        return findCert(self.certconfig['source'], name, self.domainconfig.keys(), self.certconfig['certname'], certlocation)
 
     def setIPs(self): 
         for name, content in self.domainconfig.items():
@@ -61,39 +67,54 @@ class ManagedDomain:
             if 'ip6' in content:
                 self.dnsup.setAAAA(name, content['ip6']) 
 
+    def addMX(self, delete = False):
+        for name, content in self.domainconfig.items():
+            if 'mx' in content:
+                mx = content['mx']
+                if type(mx) is str:
+                    mx = {mx: 10}
+                for k, v in mx.items():
+                    self.dnsup.addMX(name, k, v)
+                if delete is True:
+                    self.dnsup.delMX(name, '*', mx.keys())
+            
+    def setMX(self):
+        self.addMX(True)
+
+
+
     def addTLSA(self):
         for name, content in self.domainconfig.items():
             if 'tlsa' in content:
-                if 'certlocation' in content:
-                    certlocation = content['certlocation']
-                else:
-                    certlocation = None
-                self.dnsup.addTLSAfromCert(findCert(self.certconfig['source'], name, self.domainconfig.keys(), self.certconfig['certname'], certlocation), content['tlsa'])
+                self.dnsup.addTLSAfromCert(self.findCert(name, content), content['tlsa'])
 
     def setTLSA(self):
         for name, content in self.domainconfig.items():
             if 'tlsa' in content:
-                if 'certlocation' in content:
-                    certlocation = content['certlocation']
-                else:
-                    certlocation = None
-                self.dnsup.setTLSAfromCert(findCert(self.certconfig['source'], name, self.domainconfig.keys(), self.certconfig['certname'], certlocation), content['tlsa'])
-
+                self.dnsup.setTLSAfromCert(self.findCert(name, content), content['tlsa'])
 
     def copyCert(self):
         for name, content in self.domainconfig.items():
-            if 'certlocation' in content:
-                certlocation = content['certlocation']
-            else:
-                certlocation = None
-            src = os.path.basename(findCert(self.certconfig['source'], name, self.domainconfig.keys(), self.certconfig['certname'], certlocation))
+            src = os.path.basename(self.findCert(name, content))
             rv = check_output(('cp', '-rfL', str(src), os.path.join(self.domainconfig['destination'], name)))
+
+
+    def stop80(self):
+        for server in self.webservers:
+            rv = check_output(('systemctl', 'stop', str(server)))
+
+    def start80(self):
+        for server in self.webservers:
+            rv = check_output(('systemctl', 'start', str(server)))
+
 
 
     def prepare(self, confFile = None):
         self.readConfig(confFile)
         self.setIPs()
+        self.stop80()
         self.createCert()
+        self.start80()
         self.addTLSA()
 
     def rollover(self, confFile = None):
