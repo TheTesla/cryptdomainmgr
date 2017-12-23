@@ -5,7 +5,7 @@ from dnsupdate import dnsuptools
 
 from subprocess import *
 import os.path
-
+import configparser
 
 def findCert(path, curName = None, nameList = [], filename = 'fullchain.pem', cert = None):
     path = os.path.expanduser(path)
@@ -35,11 +35,24 @@ def findCert(path, curName = None, nameList = [], filename = 'fullchain.pem', ce
 class ManagedDomain:
     def __init__(self):
         self.dnsup = dnsuptools.DNSUpTools()
-        self.certconfig = {'email': 'stefan.helmert@t-online.de', 'destination': '/etc/ssl', 'extraflags': '', 'source': '/etc/letsencrypt/live', 'certname': 'fullchain.pem', 'keysize': 4096}
-        self.domainconfig = {'myexamle.net': {'ip4': 'auto', 'ip6': 'auto', 'cert': 'auto', 'tlsa': 'auto'}}
-        
+        self.confPar = configparser.ConfigParser()
+        self.certconfig = {'generator': 'certbot', 'email': 'stefan.helmert@t-online.de', 'destination': '/etc/ssl', 'extraflags': '', 'source': '/etc/letsencrypt/live', 'certname': 'fullchain.pem', 'keysize': 4096}
+        self.domainconfig = {'myexamle.net': {'ip4': 'auto', 'ip6': 'auto', 'gencert': True, 'certlocation': '', 'tlsa': 'auto'}}
+
+
+    def readConfig(self, confFile):
+        if confFile is None:
+            return
+        self.confPar.read(os.path.expanduser(confFile))
+        self.certconfig = dict(self.confPar['certificate'])
+        self.domainconfig = dict(self.confPar)
+        if 'certificate' in self.domainconfig:
+            del self.domainconfig['certificate']
+
+
     def createCert(self):
-        createCert([k for k, v in self.domainconfig.items() if 'auto' == v['cert']], self.certconfig['email'], self.certconfig['keysize'], self.certconfig['extraflags'])
+        if 'certbot' == self.certconfig['generator']:
+            createCert([k for k, v in self.domainconfig.items() if 'gencert' in v and True == v['gencert']], self.certconfig['email'], self.certconfig['keysize'], self.certconfig['extraflags'])
 
     def setIPs(self): 
         for name, content in self.domainconfig.items():
@@ -50,14 +63,47 @@ class ManagedDomain:
 
     def addTLSA(self):
         for name, content in self.domainconfig.items():
-            if 'cert' in content:
-                self.dnsup.addTLSAfromCert(findCert(self.certconfig['source'], name, self.domainconfig.keys(), self.certconfig['certname'], content['cert']), content['tlsa'])
+            if 'tlsa' in content:
+                if 'certlocation' in content:
+                    certlocation = content['certlocation']
+                else:
+                    certlocation = None
+                self.dnsup.addTLSAfromCert(findCert(self.certconfig['source'], name, self.domainconfig.keys(), self.certconfig['certname'], certlocation), content['tlsa'])
+
+    def setTLSA(self):
+        for name, content in self.domainconfig.items():
+            if 'tlsa' in content:
+                if 'certlocation' in content:
+                    certlocation = content['certlocation']
+                else:
+                    certlocation = None
+                self.dnsup.setTLSAfromCert(findCert(self.certconfig['source'], name, self.domainconfig.keys(), self.certconfig['certname'], certlocation), content['tlsa'])
 
 
-    def prepare(self):
+    def copyCert(self):
+        for name, content in self.domainconfig.items():
+            if 'certlocation' in content:
+                certlocation = content['certlocation']
+            else:
+                certlocation = None
+            src = os.path.basename(findCert(self.certconfig['source'], name, self.domainconfig.keys(), self.certconfig['certname'], certlocation))
+            rv = check_output(('cp', '-rfL', str(src), os.path.join(self.domainconfig['destination'], name)))
+
+
+    def prepare(self, confFile = None):
+        self.readConfig(confFile)
         self.setIPs()
         self.createCert()
         self.addTLSA()
+
+    def rollover(self, confFile = None):
+        self.readConfig(confFile)
+        self.copyCert()
+
+    def cleanup(self, confFile = None):
+        self.readConfig(confFile)
+        self.setTLSA()
+        
 
 
 
