@@ -4,8 +4,11 @@
 from dnsupdate import dnsuptools 
 
 from subprocess import *
-import os.path
+import os
+from parse import parse
 import configparser
+import time
+from jinja2 import Template
 
 def findCert(path, curName = None, nameList = [], filename = 'fullchain.pem', cert = None):
     path = os.path.expanduser(path)
@@ -37,17 +40,23 @@ class ManagedDomain:
         self.dnsup = dnsuptools.DNSUpTools()
         self.confPar = configparser.ConfigParser()
         self.certconfig = {'generator': 'certbot', 'email': 'stefan.helmert@t-online.de', 'destination': '/etc/ssl', 'extraflags': '', 'source': '/etc/letsencrypt/live', 'certname': 'fullchain.pem', 'keysize': 4096}
-        self.domainconfig = {'myexample.net': {'ip4': 'auto', 'ip6': 'auto', 'gencert': True, 'certlocation': '', 'tlsa': 'auto', 'mx': {'mail.myexample.net': 10}}}
+        self.domainconfig = {'myexample.net': {'ip4': 'auto', 'ip6': 'auto', 'hasdkim': True, 'gencert': True, 'certlocation': '', 'tlsa': 'auto', 'mx': {'mail.myexample.net': 10}}}
+        self.dkimconfig = {'generator': 'rspamd', 'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingConfTemplateFile': './dkim_signing_template.conf', 'signingConfTemporaryFile': '/etc/rspamd/dkim_signing_new.conf', 'signingConfDestinationFile': '/etc/rspamd/local.d/dkim_signing.conf'}
         self.webservers = ['apache2', 'nginx']
 
     def readConfig(self, confFile):
         if confFile is None:
             return
         self.confPar.read(os.path.expanduser(confFile))
-        self.certconfig = dict(self.confPar['certificate'])
         self.domainconfig = dict(self.confPar)
+        self.certconfig = {}
         if 'certificate' in self.domainconfig:
+            self.certconfig = dict(self.confPar['certificate'])
             del self.domainconfig['certificate']
+        self.dkimconfig = {}
+        if 'dkimconfig' in self.domainconfig:
+            self.dkimconfig = dict(self.confPar['dkimconfig'])
+            del self.domainconfig['dkimconfig']
 
     def createCert(self):
         if 'certbot' == self.certconfig['generator']:
@@ -107,25 +116,101 @@ class ManagedDomain:
         for server in self.webservers:
             rv = check_output(('systemctl', 'start', str(server)))
 
+    def addDKIM(self):
+        keys = findDKIMkeyTXT(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'])
+        for name, content in self.domainconfig.items():
+            if content['hasdkim'] is True:
+                self.dnsup.addDKIMfromFile(name, keys)
 
+    def setDKIM(self):
+        keys = findDKIMkeyTXT(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'])
+        for name, content in self.domainconfig.items():
+            if content['hasdkim'] is True:
+                self.dnsup.setDKIMfromFile(name, keys)
 
-    def prepare(self, confFile = None):
-        self.readConfig(confFile)
-        self.setIPs()
+    def dkimPrepare(self):
+        if 'generator' in self.dkimconfig:
+            if 'rspamd' == self.dkimconfig['generator']
+                createDKIM(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'], self.dkimconfig['keysize'], self.dkimconfig['signingConfTemplateFile'], self.dkimconfig['signingConfTemporaryFile'])
+        self.addDKIM()
+
+    def dkimRollover(self):
+        if 'generator' in self.dkimconfig:
+            if 'rspamd' == self.dkimconfig['generator']
+                rv = check_output(('mv', self.dkimconfig['signingConfTemporaryFile'], self.dkimconfig['signingConfDestinationFile']))
+                rv = check_output(('systemctl', 'relaod', 'rspamd'))
+
+    def dkimCleanup(self):
+        keyFiles = findDKIMkey(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'])
+        keyFiles.sort()
+        if 2 > len(keyFiles):
+            return
+        del keyFiles[-1]
+        for keyFile in keyfiles:
+            rv = check_output(('rm', keyFile[1]))
+        self.setDKIM()
+
+    def certPrepare(self):
         self.stop80()
         self.createCert()
         self.start80()
         self.addTLSA()
 
+    def certRollover(self):
+        self.copyCert()
+
+    def certCleanup(self):
+        self.setTLSA()
+
+
+    def prepare(self, confFile = None):
+        self.readConfig(confFile)
+        self.setIPs()
+        self.certPrepare()
+        self.dkimPrepare()
+
     def rollover(self, confFile = None):
         self.readConfig(confFile)
-        self.copyCert()
+        self.certRollover()
+        self.dkimRollover()
 
     def cleanup(self, confFile = None):
         self.readConfig(confFile)
-        self.setTLSA()
-        
+        self.certCleanup()
+        self.dkimCleanup()
 
+
+
+
+def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signingConfDestFile):
+    keylocation = os.path.expanduser(keylocation)
+    newKeyname = str(keybasename) + '_{:10d}'.format(int(time.time())
+    keyTxt = check_output(('rspamd', 'dkim_keygen', '-b', str(int(keysize)), '-s', str(newKeyname), '-k', os.path.join(keylocation, newKeyname+'.key'))
+    f = open(os.path.join(keylocation, newKeyname+'.txt'), 'w')
+    f.write(f)
+    f.close()
+    rv = check_output(('chmod', '0440', os.path.join(keylocation, newKeyname) + '.*'))
+    rv = check_output(('chown', '_rspamd:_rspamd', os.path.join(keylocation, newKeyname) + '.*'))
+    f = open(os.path.expanduser(signingConfTemplateFile), 'r')
+    templateContent = f.read()
+    f.close()
+    template = Template(templateContent)
+    confDestContent = template.reander(keyname = newKeyname)
+    f = open(os.path.expanduser(signingConfDestFile), 'w')
+    f.write(confDestContent)
+    f.close()
+
+
+    
+
+def findDKIMkeyTXT(keylocation, keybasename, fileending = 'txt'):
+    findDKIMkey(keylocation, keybasename, fileending)
+
+def findDKIMkey(keylocation, keybasename, fileending = '{}'):
+    keylocation = os.path.expanduser(keylocation)
+    keyfiles = [(parse(str(keybasename)+'_{:d}.'+str(fileending), f), os.path.join(keylocation, f)) for f in os.listdir(keylocation) if os.isfile(os.path.join(keylocation, f))]
+    keyfiles = [e for e in keyfiles if e[0] is not None]
+    return keyfiles
 
 
 def createCert(domainList, email, keysize = 4096, extraFlags = []):
