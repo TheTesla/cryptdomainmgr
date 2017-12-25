@@ -9,6 +9,7 @@ from parse import parse
 import configparser
 import time
 from jinja2 import Template
+import re
 
 def findCert(path, curName = None, nameList = [], filename = 'fullchain.pem', cert = None):
     path = os.path.expanduser(path)
@@ -35,11 +36,20 @@ def findCert(path, curName = None, nameList = [], filename = 'fullchain.pem', ce
     
 
 
+def mxParse(mxStr, prioDefault = 10):
+        mxPrio = mxStr.split(':')
+        if 2 == len(mxPrio):
+            return (str(mxPrio[0]), int(mxPrio[1]))
+        elif 1 == len(mxPrio):
+            return (str(mxPrio[0]), int(prioDefault))
+        else:
+            return ()
+
 class ManagedDomain:
     def __init__(self):
         self.dnsup = dnsuptools.DNSUpTools()
         self.confPar = configparser.ConfigParser()
-        self.certconfig = {'generator': 'certbot', 'email': 'stefan.helmert@t-online.de', 'destination': '/etc/ssl', 'extraflags': '', 'source': '/etc/letsencrypt/live', 'certname': 'fullchain.pem', 'keysize': 4096}
+        self.certconfig = {'generator': 'certbot', 'email': 'stefan.helmert@t-online.de', 'destination': '/etc/ssl', 'extraflags': '', 'source': '/etc/letsencrypt/live', 'certname': 'fullchain.pem', 'keysize': 4096, 'webservers': 'apache2, nginx'}
         self.domainconfig = {'myexample.net': {'ip4': 'auto', 'ip6': 'auto', 'hasdkim': True, 'gencert': True, 'certlocation': '', 'tlsa': 'auto', 'mx': {'mail.myexample.net': 10}}}
         self.dkimconfig = {'generator': 'rspamd', 'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingConfTemplateFile': './dkim_signing_template.conf', 'signingConfTemporaryFile': '/etc/rspamd/dkim_signing_new.conf', 'signingConfDestinationFile': '/etc/rspamd/local.d/dkim_signing.conf'}
         self.webservers = ['apache2', 'nginx']
@@ -48,17 +58,36 @@ class ManagedDomain:
         if confFile is None:
             return
         self.confPar.read(os.path.expanduser(confFile))
-        self.domainconfig = dict(self.confPar)
+        self.domainconfig = self.confPar._sections
+        print(self.domainconfig)
         self.certconfig = {}
+        self.dkimconfig = {}
+        self.webservers = []
         if 'certificate' in self.domainconfig:
             self.certconfig = dict(self.confPar['certificate'])
             del self.domainconfig['certificate']
+            if 'webservers' in self.certconfig:
+                self.webservers = re.sub(' ', '', self.certconfig['webservers']).split(',')
+                if '' == self.webservers[0]:
+                    self.webservers = []
+            
         self.dkimconfig = {}
-        if 'dkimconfig' in self.domainconfig:
-            self.dkimconfig = dict(self.confPar['dkimconfig'])
-            del self.domainconfig['dkimconfig']
+        if 'dkim' in self.domainconfig:
+            self.dkimconfig = dict(self.confPar['dkim'])
+            del self.domainconfig['dkim']
+        for name, content in self.domainconfig.items():
+            if 'mx' in content.keys():
+                mx = content['mx']
+                mxList = re.sub(' ', '', mx).split(',')
+                mxPrioList = [mxParse(e) for e in mxList]
+                mxPrioDict = {e[0]: e[1] for e in mxPrioList}
+                self.domainconfig[name]['mx'] = dict(mxPrioDict)
+
+
 
     def createCert(self):
+        if 'generator' not in self.certconfig:
+            return
         if 'certbot' == self.certconfig['generator']:
             createCert([k for k, v in self.domainconfig.items() if 'gencert' in v and True == v['gencert']], self.certconfig['email'], self.certconfig['keysize'], self.certconfig['extraflags'])
 
@@ -130,13 +159,13 @@ class ManagedDomain:
 
     def dkimPrepare(self):
         if 'generator' in self.dkimconfig:
-            if 'rspamd' == self.dkimconfig['generator']
+            if 'rspamd' == self.dkimconfig['generator']:
                 createDKIM(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'], self.dkimconfig['keysize'], self.dkimconfig['signingConfTemplateFile'], self.dkimconfig['signingConfTemporaryFile'])
-        self.addDKIM()
+            self.addDKIM()
 
     def dkimRollover(self):
         if 'generator' in self.dkimconfig:
-            if 'rspamd' == self.dkimconfig['generator']
+            if 'rspamd' == self.dkimconfig['generator']:
                 rv = check_output(('mv', self.dkimconfig['signingConfTemporaryFile'], self.dkimconfig['signingConfDestinationFile']))
                 rv = check_output(('systemctl', 'relaod', 'rspamd'))
 
@@ -184,8 +213,8 @@ class ManagedDomain:
 
 def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signingConfDestFile):
     keylocation = os.path.expanduser(keylocation)
-    newKeyname = str(keybasename) + '_{:10d}'.format(int(time.time())
-    keyTxt = check_output(('rspamd', 'dkim_keygen', '-b', str(int(keysize)), '-s', str(newKeyname), '-k', os.path.join(keylocation, newKeyname+'.key'))
+    newKeyname = str(keybasename) + '_{:10d}'.format(int(time.time()))
+    keyTxt = check_output(('rspamd', 'dkim_keygen', '-b', str(int(keysize)), '-s', str(newKeyname), '-k', os.path.join(keylocation, newKeyname+'.key')))
     f = open(os.path.join(keylocation, newKeyname+'.txt'), 'w')
     f.write(f)
     f.close()
