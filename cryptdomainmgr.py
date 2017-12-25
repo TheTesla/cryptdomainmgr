@@ -45,6 +45,24 @@ def mxParse(mxStr, prioDefault = 10):
         else:
             return ()
 
+def parseBool(x):
+    if type(x) is bool:
+        return x
+    else:
+        x = str(x)
+        x = re.sub(' ', '', x)
+        x = x.lower()
+        if 'true' == x:
+            print(x)
+            return True
+        elif '1' == x:
+            return True
+        elif 'yes' == x:
+            return True
+        else:
+            return False
+   
+
 class ManagedDomain:
     def __init__(self):
         self.dnsup = dnsuptools.DNSUpTools()
@@ -89,7 +107,9 @@ class ManagedDomain:
         if 'generator' not in self.certconfig:
             return
         if 'certbot' == self.certconfig['generator']:
-            createCert([k for k, v in self.domainconfig.items() if 'gencert' in v and True == v['gencert']], self.certconfig['email'], self.certconfig['keysize'], self.certconfig['extraflags'])
+            extraFlags = re.sub(' ', '', self.certconfig['extraflags']).split(',')
+            print([k for k, v in self.domainconfig.items() if parseBool(v['gencert'])])
+            createCert([k for k, v in self.domainconfig.items() if 'gencert' in v and parseBool(v['gencert'])], self.certconfig['email'], self.certconfig['keysize'], extraFlags)
 
     def findCert(self, name, content):
         if 'certlocation' in content:
@@ -148,7 +168,7 @@ class ManagedDomain:
     def addDKIM(self):
         keys = findDKIMkeyTXT(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'])
         for name, content in self.domainconfig.items():
-            if content['hasdkim'] is True:
+            if parseBool(content['hasdkim']) is True:
                 self.dnsup.addDKIMfromFile(name, keys)
 
     def setDKIM(self):
@@ -195,6 +215,7 @@ class ManagedDomain:
     def prepare(self, confFile = None):
         self.readConfig(confFile)
         self.setIPs()
+        self.addMX()
         self.certPrepare()
         self.dkimPrepare()
 
@@ -243,9 +264,12 @@ def findDKIMkey(keylocation, keybasename, fileending = '{}'):
 
 
 def createCert(domainList, email, keysize = 4096, extraFlags = []):
+    print(domainList)
+    if 0 == len(domainList):
+        return
     args = ['./certbot/certbot-auto', 'certonly', '--email', str(email), '--agree-tos', '--non-interactive', '--standalone', '--expand', '--rsa-key-size', str(int(keysize))]
-    for e in extraFlags:
-        args.extend(e)
+    print(extraFlags)
+    args.extend(extraFlags)
     for d in domainList:
         args.extend(['-d', str(d)])
     print(args)
