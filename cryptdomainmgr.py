@@ -84,6 +84,12 @@ class ManagedDomain:
         if 'certificate' in self.domainconfig:
             self.certconfig = dict(self.confPar['certificate'])
             del self.domainconfig['certificate']
+            if 'source' not in self.certconfig:
+                self.certconfig['source'] = '/etc/letsencrypt/live'
+            if 'certname' not in self.certconfig:
+                self.certconfig['certname'] = 'fullchain.pem'
+            if 'keysize' not in self.certconfig:
+                self.certconfig['keysize'] = 4096
             if 'webservers' in self.certconfig:
                 self.webservers = re.sub(' ', '', self.certconfig['webservers']).split(',')
                 if '' == self.webservers[0]:
@@ -92,6 +98,12 @@ class ManagedDomain:
         self.dkimconfig = {}
         if 'dkim' in self.domainconfig:
             self.dkimconfig = dict(self.confPar['dkim'])
+            if 'keysize' not in self.dkimconfig:
+                self.dkimconfig['keysize'] = 2048
+            if 'keybasename' not in self.dkimconfig:
+                self.dkimconfig['keybasename'] = 'key'
+            if 'keylocation' not in self.dkimconfig:
+                self.dkimconfig['keylocation'] = '/var/lib/rspamd/dkim'
             del self.domainconfig['dkim']
         for name, content in self.domainconfig.items():
             if 'mx' in content.keys():
@@ -112,10 +124,13 @@ class ManagedDomain:
             createCert([k for k, v in self.domainconfig.items() if 'gencert' in v and parseBool(v['gencert'])], self.certconfig['email'], self.certconfig['keysize'], extraFlags)
 
     def findCert(self, name, content):
+        certlocation = None
         if 'certlocation' in content:
             certlocation = content['certlocation']
-        else:
-            certlocation = None
+            if 'auto' == certlocation:
+                certlocation = None
+        print(certlocation)
+        print(findCert(self.certconfig['source'], name, self.domainconfig.keys(), self.certconfig['certname'], certlocation))
         return findCert(self.certconfig['source'], name, self.domainconfig.keys(), self.certconfig['certname'], certlocation)
 
     def setIPs(self): 
@@ -154,7 +169,7 @@ class ManagedDomain:
     def copyCert(self):
         for name, content in self.domainconfig.items():
             src = os.path.basename(self.findCert(name, content))
-            rv = check_output(('cp', '-rfL', str(src), os.path.join(self.domainconfig['destination'], name)))
+            rv = check_output(('cp', '-rfL', str(src), os.path.join(self.certconfig['destination'], name)))
 
 
     def stop80(self):
