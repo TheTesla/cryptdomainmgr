@@ -129,8 +129,8 @@ class ManagedDomain:
             certlocation = content['certlocation']
             if 'auto' == certlocation:
                 certlocation = None
-        print(certlocation)
-        print(findCert(self.certconfig['source'], name, self.domainconfig.keys(), self.certconfig['certname'], certlocation))
+        print('certlocation = %s' % certlocation)
+        print('self.findCert = %s' % findCert(self.certconfig['source'], name, self.domainconfig.keys(), self.certconfig['certname'], certlocation))
         return findCert(self.certconfig['source'], name, self.domainconfig.keys(), self.certconfig['certname'], certlocation)
 
     def setIPs(self): 
@@ -159,12 +159,12 @@ class ManagedDomain:
     def addTLSA(self):
         for name, content in self.domainconfig.items():
             if 'tlsa' in content:
-                self.dnsup.addTLSAfromCert(self.findCert(name, content), content['tlsa'])
+                self.dnsup.addTLSAfromCert(name, self.findCert(name, content), content['tlsa'])
 
     def setTLSA(self):
         for name, content in self.domainconfig.items():
             if 'tlsa' in content:
-                self.dnsup.setTLSAfromCert(self.findCert(name, content), content['tlsa'])
+                self.dnsup.setTLSAfromCert(name, self.findCert(name, content), content['tlsa'])
 
     def copyCert(self):
         for name, content in self.domainconfig.items():
