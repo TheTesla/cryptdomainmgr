@@ -168,8 +168,8 @@ class ManagedDomain:
 
     def copyCert(self):
         for name, content in self.domainconfig.items():
-            src = os.path.basename(self.findCert(name, content))
-            rv = check_output(('cp', '-rfL', str(src), os.path.join(self.certconfig['destination'], name)))
+            src = os.path.dirname(self.findCert(name, content))
+            rv = check_output(('cp', '-rfLT', str(src), os.path.join(self.certconfig['destination'], name)))
 
 
     def stop80(self):
