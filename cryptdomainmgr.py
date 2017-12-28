@@ -205,14 +205,16 @@ class ManagedDomain:
                 rv = check_output(('systemctl', 'relaod', 'rspamd'))
 
     def dkimCleanup(self):
-        keyFiles = findDKIMkey(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'])
-        keyFiles.sort()
-        if 2 > len(keyFiles):
-            return
-        del keyFiles[-1]
-        for keyFile in keyfiles:
-            rv = check_output(('rm', keyFile[1]))
-        self.setDKIM()
+        if 'generator' in self.dkimconfig:
+            if 'rspamd' == self.dkimconfig['generator']:
+                keyFiles = findDKIMkey(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'])
+                keyFiles.sort()
+                if 2 > len(keyFiles):
+                    return
+                del keyFiles[-1]
+                for keyFile in keyfiles:
+                    rv = check_output(('rm', keyFile[1]))
+                self.setDKIM()
 
     def certPrepare(self):
         self.stop80()
