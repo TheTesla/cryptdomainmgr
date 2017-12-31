@@ -254,7 +254,7 @@ def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signi
     newKeyname = str(keybasename) + '_{:10d}'.format(int(time.time()))
     keyTxt = check_output(('rspamadm', 'dkim_keygen', '-b', str(int(keysize)), '-s', str(newKeyname), '-k', os.path.join(keylocation, newKeyname+'.key')))
     f = open(os.path.join(keylocation, newKeyname+'.txt'), 'w')
-    f.write(f)
+    f.write(keyTxt)
     f.close()
     rv = check_output(('chmod', '0440', os.path.join(keylocation, newKeyname) + '.*'))
     rv = check_output(('chown', '_rspamd:_rspamd', os.path.join(keylocation, newKeyname) + '.*'))
