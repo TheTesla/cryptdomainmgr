@@ -202,7 +202,7 @@ class ManagedDomain:
         if 'generator' in self.dkimconfig:
             if 'rspamd' == self.dkimconfig['generator']:
                 rv = check_output(('mv', self.dkimconfig['signingconftemporaryfile'], self.dkimconfig['signingconfdestinationfile']))
-                rv = check_output(('systemctl', 'relaod', 'rspamd'))
+                rv = check_output(('systemctl', 'reload', 'rspamd'))
 
     def dkimCleanup(self):
         if 'generator' in self.dkimconfig:
@@ -252,7 +252,7 @@ class ManagedDomain:
 def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signingConfDestFile):
     keylocation = os.path.expanduser(keylocation)
     newKeyname = str(keybasename) + '_{:10d}'.format(int(time.time()))
-    keyTxt = check_output(('rspamd', 'dkim_keygen', '-b', str(int(keysize)), '-s', str(newKeyname), '-k', os.path.join(keylocation, newKeyname+'.key')))
+    keyTxt = check_output(('rspamadm', 'dkim_keygen', '-b', str(int(keysize)), '-s', str(newKeyname), '-k', os.path.join(keylocation, newKeyname+'.key')))
     f = open(os.path.join(keylocation, newKeyname+'.txt'), 'w')
     f.write(f)
     f.close()
