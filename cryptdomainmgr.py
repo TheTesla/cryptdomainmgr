@@ -262,7 +262,7 @@ def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signi
     templateContent = f.read()
     f.close()
     template = Template(templateContent)
-    confDestContent = template.reander(keyname = newKeyname)
+    confDestContent = template.render(keyname = newKeyname, keylocation = keylocation)
     f = open(os.path.expanduser(signingConfDestFile), 'w')
     f.write(confDestContent)
     f.close()
