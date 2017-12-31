@@ -69,7 +69,7 @@ class ManagedDomain:
         self.confPar = configparser.ConfigParser()
         self.certconfig = {'generator': 'certbot', 'email': 'stefan.helmert@t-online.de', 'destination': '/etc/ssl', 'extraflags': '', 'source': '/etc/letsencrypt/live', 'certname': 'fullchain.pem', 'keysize': 4096, 'webservers': 'apache2, nginx'}
         self.domainconfig = {'myexample.net': {'ip4': 'auto', 'ip6': 'auto', 'hasdkim': True, 'gencert': True, 'certlocation': '', 'tlsa': 'auto', 'mx': {'mail.myexample.net': 10}}}
-        self.dkimconfig = {'generator': 'rspamd', 'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingConfTemplateFile': './dkim_signing_template.conf', 'signingConfTemporaryFile': '/etc/rspamd/dkim_signing_new.conf', 'signingConfDestinationFile': '/etc/rspamd/local.d/dkim_signing.conf'}
+        self.dkimconfig = {'generator': 'rspamd', 'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingconftemplatefile': './dkim_signing_template.conf', 'signingconftemporaryfile': '/etc/rspamd/dkim_signing_new.conf', 'signingconfdestinationfile': '/etc/rspamd/local.d/dkim_signing.conf'}
         self.webservers = ['apache2', 'nginx']
 
     def readConfig(self, confFile):
@@ -195,13 +195,13 @@ class ManagedDomain:
     def dkimPrepare(self):
         if 'generator' in self.dkimconfig:
             if 'rspamd' == self.dkimconfig['generator']:
-                createDKIM(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'], self.dkimconfig['keysize'], self.dkimconfig['signingConfTemplateFile'], self.dkimconfig['signingConfTemporaryFile'])
+                createDKIM(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'], self.dkimconfig['keysize'], self.dkimconfig['signingconftemplatefile'], self.dkimconfig['signingconftemporaryfile'])
             self.addDKIM()
 
     def dkimRollover(self):
         if 'generator' in self.dkimconfig:
             if 'rspamd' == self.dkimconfig['generator']:
-                rv = check_output(('mv', self.dkimconfig['signingConfTemporaryFile'], self.dkimconfig['signingConfDestinationFile']))
+                rv = check_output(('mv', self.dkimconfig['signingconftemporaryfile'], self.dkimconfig['signingconfdestinationfile']))
                 rv = check_output(('systemctl', 'relaod', 'rspamd'))
 
     def dkimCleanup(self):
