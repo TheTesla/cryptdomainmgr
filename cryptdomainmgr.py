@@ -216,7 +216,7 @@ class ManagedDomain:
                 if 2 > len(keyFiles):
                     return
                 del keyFiles[-1]
-                for keyFile in keyfiles:
+                for keyFile in keyFiles:
                     rv = check_output(('rm', keyFile[1]))
                 self.setDKIM()
 
