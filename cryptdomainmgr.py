@@ -183,8 +183,9 @@ class ManagedDomain:
     def addDKIM(self):
         keys = findDKIMkeyTXT(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'])
         for name, content in self.domainconfig.items():
-            if parseBool(content['hasdkim']) is True:
-                self.dnsup.addDKIMfromFile(name, keys)
+            if 'hasdkim' in content:
+                if parseBool(content['hasdkim']) is True:
+                    self.dnsup.addDKIMfromFile(name, keys)
 
     def setDKIM(self):
         keys = findDKIMkeyTXT(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'])
