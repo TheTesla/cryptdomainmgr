@@ -182,9 +182,11 @@ class ManagedDomain:
 
     def addDKIM(self):
         keys = findDKIMkeyTXT(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'])
+	print(keys)
         for name, content in self.domainconfig.items():
             if 'hasdkim' in content:
                 if parseBool(content['hasdkim']) is True:
+                    print((name, keys))
                     self.dnsup.addDKIMfromFile(name, keys)
 
     def setDKIM(self):
@@ -273,12 +275,14 @@ def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signi
     
 
 def findDKIMkeyTXT(keylocation, keybasename, fileending = 'txt'):
-    findDKIMkey(keylocation, keybasename, fileending)
+    return findDKIMkey(keylocation, keybasename, fileending)
 
 def findDKIMkey(keylocation, keybasename, fileending = '{}'):
     keylocation = os.path.expanduser(keylocation)
     keyfiles = [(parse(str(keybasename)+'_{:d}.'+str(fileending), f), os.path.join(keylocation, f)) for f in os.listdir(keylocation) if os.path.isfile(os.path.join(keylocation, f))]
-    keyfiles = [e for e in keyfiles if e[0] is not None]
+    print(keyfiles)
+    keyfiles = [e[1] for e in keyfiles if e[0] is not None]
+    print(keyfiles)
     return keyfiles
 
 
