@@ -182,6 +182,7 @@ class ManagedDomain:
 
     def addDKIM(self):
         keys = findDKIMkeyTXT(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'])
+        keys = [f[1] for f in keys]
 	print(keys)
         for name, content in self.domainconfig.items():
             if 'hasdkim' in content:
@@ -191,6 +192,7 @@ class ManagedDomain:
 
     def setDKIM(self):
         keys = findDKIMkeyTXT(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'])
+        keys = [f[1] for f in keys]
         for name, content in self.domainconfig.items():
             if 'hasdkim' in content:
                 if content['hasdkim'] is True:
@@ -281,7 +283,7 @@ def findDKIMkey(keylocation, keybasename, fileending = '{}'):
     keylocation = os.path.expanduser(keylocation)
     keyfiles = [(parse(str(keybasename)+'_{:d}.'+str(fileending), f), os.path.join(keylocation, f)) for f in os.listdir(keylocation) if os.path.isfile(os.path.join(keylocation, f))]
     print(keyfiles)
-    keyfiles = [e[1] for e in keyfiles if e[0] is not None]
+    keyfiles = [(e[0][0], e[1]) for e in keyfiles if e[0] is not None]
     print(keyfiles)
     return keyfiles
 
