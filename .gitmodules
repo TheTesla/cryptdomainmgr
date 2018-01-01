@@ -3,4 +3,4 @@
 	url = https://github.com/certbot/certbot.git
 [submodule "dnsupdate"]
 	path = dnsupdate
-	url = git@github.com:TheTesla/dnsupdate.git
+	url = https://github.com/TheTesla/dnsupdate.git
