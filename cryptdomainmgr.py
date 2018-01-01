@@ -191,11 +191,14 @@ class ManagedDomain:
                     self.dnsup.addDKIMfromFile(name, keys)
 
     def setDKIM(self):
+	print('setDKIM')
         keys = findDKIMkeyTXT(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'])
         keys = [f[1] for f in keys]
+        print(keys)
         for name, content in self.domainconfig.items():
             if 'hasdkim' in content:
-                if content['hasdkim'] is True:
+                if parseBool(content['hasdkim']) is True:
+                    print((name, keys))
                     self.dnsup.setDKIMfromFile(name, keys)
 
     def dkimPrepare(self):
@@ -213,6 +216,7 @@ class ManagedDomain:
     def dkimCleanup(self):
         if 'generator' in self.dkimconfig:
             if 'rspamd' == self.dkimconfig['generator']:
+                self.setDKIM()
                 keyFiles = findDKIMkey(self.dkimconfig['keylocation'], self.dkimconfig['keybasename'])
                 keyFiles.sort()
                 if 2 > len(keyFiles):
@@ -220,7 +224,6 @@ class ManagedDomain:
                 del keyFiles[-1]
                 for keyFile in keyFiles:
                     rv = check_output(('rm', keyFile[1]))
-                self.setDKIM()
 
     def certPrepare(self):
         self.stop80()
