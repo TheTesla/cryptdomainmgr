@@ -275,7 +275,7 @@ def findDKIMkeyTXT(keylocation, keybasename, fileending = 'txt'):
 
 def findDKIMkey(keylocation, keybasename, fileending = '{}'):
     keylocation = os.path.expanduser(keylocation)
-    keyfiles = [(parse(str(keybasename)+'_{:d}.'+str(fileending), f), os.path.join(keylocation, f)) for f in os.listdir(keylocation) if os.isfile(os.path.join(keylocation, f))]
+    keyfiles = [(parse(str(keybasename)+'_{:d}.'+str(fileending), f), os.path.join(keylocation, f)) for f in os.listdir(keylocation) if os.path.isfile(os.path.join(keylocation, f))]
     keyfiles = [e for e in keyfiles if e[0] is not None]
     return keyfiles
 
