@@ -1,40 +1,5 @@
 ---
 
-- name: Secondary domains with mailman prefix as csv
-  set_fact:
-   #secondary_mailman_domains_csv: "{% if secondarydomains %}{% for d in secondarydomains %}{{ mailman_prefix }}.{{ d }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}" 
-    secondary_mailman_domains_csv: "{% if secondarydomains %}{{ mailman_prefix+'.'+secondarydomains | join(', '+mailman_prefix+'.')}}{% endif %}" 
-
-- name: Secondary domains with mailman prefix as ssv
-  set_fact:
-   #secondary_mailman_domains_ssv: "{% if secondarydomains %}{% for d in secondarydomains %}{{ mailman_prefix }}.{{ d }}{% if not loop.last %} {% endif %}{% endfor %}{% endif %}" 
-    secondary_mailman_domains_ssv: "{% if secondarydomains %}{{ mailman_prefix+'.'+secondarydomains | join(' '+mailman_prefix+'.')}}{% endif %}" 
-
-  #- name: All domains with mailman prefix as csv
-  #  set_fact:
-  #    mailman_domains_csv: "{{ mailman_prefix }}.{{ domain }}{% if secondary_mailman_domains_csv %}, {% endif %}{{ secondary_mailman_domains_csv }}" 
- 
-- name: All domains with mailman prefix as csv
-  set_fact:
-    mailman_domains_csv: "{{ mailman_prefix+'.'+alldomains | join(', '+mailman_prefix+'.')}}" 
-
-- name: All domains with mailman prefix as ssv
-  set_fact:
-    mailman_domains_ssv: "{{ mailman_prefix+'.'+alldomains | join(' '+mailman_prefix+'.')}}" 
-    #mailman_domains_ssv: "{{ mailman_prefix }}.{{ domain }}{% if secondary_mailman_domains_ssv %} {% endif %}{{ secondary_mailman_domains_ssv }}" 
- 
-- name: Secondary domains with mailman prefix as python list
-  set_fact:
-   #secondary_mailman_domains_pylist: "{% if secondarydomains %}{% for d in secondarydomains %}'{{ mailman_prefix }}.{{ d }}'{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}" 
-    secondary_mailman_domains_pylist: "{% if secondarydomains %}{% for d in secondarydomains %}'{{ mailman_prefix }}.{{ d }}'{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}" 
-   #secondary_mailman_domains_pylist: "{{ '\''+mailman_prefix+'.'+secondarydomains | join('\', '+mailman_prefix+'.')}}" 
-   #secondary_mailman_domains_pylist: "{{ '{% raw %}'{% endraw %}'+mailman_prefix+'.'+secondarydomains | join('{% raw %}'{% endraw %}, {% raw %}'{% endraw %}'+mailman_prefix+'.')}}" 
-
-- name: All domains with mailman prefix as python list
-  set_fact:
-    mailman_domains_pylist: "{% if alldomains %}{% for d in alldomains %}'{{ mailman_prefix }}.{{ d }}'{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}" 
-   #mailman_domains_pylist: "'{{ mailman_prefix }}.{{ domain }}'{% if secondary_mailman_domains_pylist %}, {% endif %}{{ secondary_mailman_domains_pylist }}" 
-   # mailman_domains_pylist: "{{ '{% raw %}'{% endraw %}'+mailman_prefix+'.'+alldomains | join('{% raw %}'{% endraw %}, {% raw %}'{% endraw %}'+mailman_prefix+'.')}}" 
 
 - name: Configure mailman create_site_list
   debconf:
@@ -78,60 +43,18 @@
   notify:
     - Restart mailman
 
-  #- name: Connect mailman to postfix - main.cf
-  #  blockinfile:
-  #    dest: "/etc/postfix/main.cf"
-  #    marker: "# {mark} ANSIBLE MANAGED BLOCK for mailman"
-  #    content: |
-  #      relay_recipient_maps = hash:/var/lib/mailman/data/virtual-mailman
-  #      mailman_destination_recipient_limit = 1
-  #
-  #- name: Connect mailman to postfix - transport
-  #  blockinfile:
-  #    dest: "/etc/postfix/transport"
-  #    create: True
-  #    marker: "# {mark} ANSIBLE MANAGED BLOCK for mailman - {{ mailman_prefix }}.{{ item }}"
-  #    content: |
-  #      {{ mailman_prefix }}.{{ item }} mailman:
-  #  with_items:
-  #    - "{{ domain }}"
-  #    - "{{ secondarydomains }}"
-  #
-  #- name: Connect mailman to postfix - relaydomains
-  #  blockinfile:
-  #    dest: "/etc/postfix/relaydomains"
-  #    create: True
-  #    marker: "# {mark} ANSIBLE MANAGED BLOCK for mailman - {{ mailman_prefix }}.{{ item }}"
-  #    content: |
-  #      {{ mailman_prefix }}.{{ item }}
-  #  with_items:
-  #    - "{{ domain }}"
-  #    - "{{ secondarydomains }}"
-  #
-  #- name: Postmap transport
-  #  shell: "postmap /etc/postfix/transport"
-  #
-  #- name: Postmap relaydomains
-  #  shell: "postmap /etc/postfix/relaydomains"
-  #
-  #
-  #- name: Connect mailman to postfix - master.cf
-  #  blockinfile:
-  #    dest: "/etc/postfix/master.cf"
-  #    marker: "# {mark} ANSIBLE MANAGED BLOCK for mailman"
-  #    content: |
-  #      mailman   unix  -       n       n       -       -       pipe
-  #        flags=FR user=list argv=/usr/lib/mailman/bin/postfix-to-mailman.py ${nexthop} ${recipient}
-
 - name: Configure mailman
   blockinfile:
     dest: "/etc/mailman/mm_cfg.py"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ mailman_prefix }}.{{ item }}"
+    marker: '# {mark} ANSIBLE MANAGED BLOCK - {{ item["webdomain"] }}: {{ item["emaildomain"] }}'
     content: |
-      add_virtualhost( '{{ mailman_prefix }}.{{ item }}', '{{ mailman_prefix }}.{{ item }}' )
+      add_virtualhost( '{{ item["webdomain"] }}', '{{ item["emaildomain"] }}' )
+#   content: |
+#     add_virtualhost( '{{ mailman_prefix }}.{{ item }}', '{{ mailman_prefix }}.{{ item }}' )
   with_items:
-    - "{{ domain }}"
-    - "{{ secondarydomains }}"
+    - "{{ listmaps }}"
+   #- "{{ domain }}"
+   # - "{{ secondarydomains }}"
 
 - name: Add mailman to apache2
   template:
@@ -142,15 +65,27 @@
   blockinfile:
     dest: "/etc/apache2/sites-available/mailman.conf"
     insertbefore: "^# Ansible block position"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ mailman_prefix }}.{{ item }}"
+    marker: '# {mark} ANSIBLE MANAGED BLOCK - {{ item["webdomain"] }}: {{ item["emaildomain"] }}'
     content: |
       <VirtualHost *:80>
-          ServerName {{ mailman_prefix }}.{{ item }}
-          Redirect / https://{{ mailman_prefix }}.{{ item }}/
+          ServerName {{ item["webdomain"] }}
+          Redirect / https://{{ item["webdomain"] }}/
       </VirtualHost>
   with_items:
-    - "{{ domain }}"
-    - "{{ secondarydomains }}"
+    - "{{ listmaps }}"
+   #- "{{ domain }}"
+   #- "{{ secondarydomains }}"
+
+- name: Add mailman domains to apache2 - ServerAlias
+  blockinfile:
+    dest: "/etc/apache2/sites-available/mailman.conf"
+    insertafter: "^# ServerAliases"
+    marker: '# {mark} ANSIBLE MANAGED BLOCK - Aliases {{ item["webdomain"] }}'
+    content: |
+      ServerAlias {{ item["webdomain"] }} {{ mailman_prefix }}.{{ domain }} 
+  with_items:
+    - "{{ listmaps }}"
+
 
 - name: Activate cgid in apache2
   apache2_module:
@@ -176,6 +111,8 @@
   shell: "mmsitepass {{ list_creators_passwd }}"
   args:
     executable: "/bin/bash"
+
+- meta: flush_handlers
 
 - name: Newlist mailman
   shell: 'echo -e "\n" | /usr/sbin/newlist mailman {{ mailman_email }} {{ mailman_passwd }}'

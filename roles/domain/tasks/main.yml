@@ -1,6 +1,8 @@
 ---
 
-- include: domain_mgr.yml
+- include: cryptdomainmgr.yml
+
+  #- include: domain_mgr.yml
 
   #- include: dane.yml
 

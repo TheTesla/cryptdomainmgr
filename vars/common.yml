@@ -10,8 +10,18 @@ emailmaps:
   - { emaildomain: "mymail.entroserv.de", serverdomain: "testserver.entroserv.de" }
   - { emaildomain: "extra.entroserv.de", serverdomain: "testserver.entroserv.de" }
   - { emaildomain: "extra.smartrns.net", serverdomain: "testserver.smartrns.net" }
+listmaps:
+  - { emaildomain: "list.mail.smartrns.net", webdomain: "list.www.smartrns.net", mx: 'testserver.smartrns.net'}
+  - { emaildomain: "lists.smartrns.net", webdomain: "lists.smartrns.net", mx: 'testserver.smartrns.net' }
+  - { emaildomain: "other.smartrns.net", webdomain: "www.list.entroserv.de", mx: 'testserver.entroserv.de' }
+  - { emaildomain: "other.entroserv.de", webdomain: "www.list.smartrns.net", mx: 'testserver.smartrns.net' }
+
+
 secondarydomains: "{{ emailmaps | map(attribute='serverdomain') | unique | list }}"
 secondaryemaildomains: "{{ emailmaps | map(attribute='emaildomain') | unique | list }}"
+secondarylistwebdomains: "{{ listmaps | map(attribute='webdomain') | unique | list }}"
+secondarylistemaildomains: "{{ listmaps | map(attribute='emaildomain') | unique | list }}"
+
  # - "testserver.entroserv.de"
  #  - "a.b.c"
  #  - "example.de"

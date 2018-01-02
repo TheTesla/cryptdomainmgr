@@ -1,7 +1,7 @@
 ---
 
 mailman_domain: "lists.{{ domain }}"
-mailman_email: "{{ tine20_admin_name }}@{{ domain }}"
+mailman_email: "{{ tine20_admin_name }}@{{ emaildomain }}"
 mailman_prefix: "lists"
 
 

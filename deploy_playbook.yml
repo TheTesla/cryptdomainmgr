@@ -20,8 +20,8 @@
     - common
     - database
     - webserver
+    - domain
     - mailserver
     - mailinglist
-    - domain
     - crm
 
