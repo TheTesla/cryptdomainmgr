@@ -2,9 +2,14 @@
 
 - name: Install dependencies via apt
   apt:
-    name: 'libcurl4-openssl-dev'
+    name: '{{ item }}'
     state: latest
     update_cache: True
+  with_items:
+    - libcurl4-openssl-dev
+    - libssl-dev
+    - python-pip
+    - curl
 
 - name: Install depencies via pip
   pip:
