@@ -255,7 +255,6 @@ class ManagedDomain:
             return
         if 'certbot' == self.certconfig['generator']:
             extraFlags = re.sub(' ', '', self.certconfig['extraflags']).split(',')
-            print([k for k, v in self.domainconfig.items() if parseBool(v['gencert'])])
             createCert([k for k, v in self.domainconfig.items() if 'gencert' in v and parseBool(v['gencert'])], self.certconfig['email'], self.certconfig['keysize'], extraFlags)
 
     def findCert(self, name, content):
