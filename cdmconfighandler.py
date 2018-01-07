@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- encoding: UTF8 -*-
 
+import configparser
+import os
 
 def mxParse(mxStr, prioDefault = 10):
         mxPrio = mxStr.split(':')
@@ -55,6 +57,8 @@ class ConfigReader:
         self.domainconfig = applyDefault(interpreteDomainConfig(self.cp))
         self.certconfig = applyDefault(interpreteCertConfig(self.cp))
         self.dkimconfig = applyDefault(interpreteDKIMConfig(self.cp))
+        self.conflictingservices = getConflictingServices(self.certconfig)
+
 
 
 def interpreteDomainConfig(cf):
@@ -162,4 +166,9 @@ def applyDefault(config):
         newconfig[section] = dict(default)
         newconfig[section].update(content)
     return newconfig
+
+def getConflictingServices(certConfig):
+    return {f for e in certconfig.values() for f in e['conflictingservices']}
+
+
 
