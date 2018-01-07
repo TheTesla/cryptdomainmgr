@@ -5,5 +5,5 @@ from cryptdomainmgr import *
 from sys import argv
 
 mgr = ManagedDomain()
-mgr.prepare(argv[1])
+mgr.prepare(argv[1:])
 

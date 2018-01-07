@@ -10,7 +10,7 @@ import configparser
 import time
 from jinja2 import Template
 import re
-form cdmconfighandler import *
+from cdmconfighandler import *
 
 
 def findCert(path, curName = None, nameList = [], filename = 'fullchain.pem', cert = None):
@@ -111,7 +111,7 @@ class ManagedDomain:
 
     def findCert(self, name, content):
         try:
-            certlocation = self.cr.certconfig[content['certificate']]['source']:
+            certlocation = self.cr.certconfig[content['certificate']]['source']
         except:
             certlocation = None
         if 'certificate' in content:
@@ -120,7 +120,7 @@ class ManagedDomain:
             certSecName = 'DEFAULT'
         domainsOfSameCert = [k for k,v in self.cr.domainconfig.items() if 'certificate' in v and certSecName == v['certificate']]
         print('certlocation = %s' % certlocation)
-        cert = findCert(certlocation, name, domainsOfSameCert, self.cr.certconfig['certname'], certlocation)
+        cert = findCert(certlocation, name, domainsOfSameCert, self.cr.certconfig[content['certificate']]['certname'], certlocation)
         print('self.findCert = %s' % cert)
         return cert
 

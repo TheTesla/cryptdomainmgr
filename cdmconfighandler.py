@@ -3,6 +3,7 @@
 
 import configparser
 import os
+import re
 
 def mxParse(mxStr, prioDefault = 10):
         mxPrio = mxStr.split(':')
@@ -38,6 +39,7 @@ class ConfigReader:
         self.domainconfig = {}
         self.certconfig = {}
         self.dkimconfig = {}
+        self.conflictingservices = {}
 
     def setFilenames(self, filenames):
         if type(filenames) is str:
@@ -153,7 +155,7 @@ def interpreteCertConfig(cf):
             conflictingservices = re.sub(' ', '', content['conflictingservices']).split(',')
             if '' == conflictingservices[0]:
                 conflictingservices = []
-        certconfig[certSecName]['conflictingservices'] = conflictingservices
+            certconfig[certSecName]['conflictingservices'] = conflictingservices
     return certconfig
 
 
@@ -168,7 +170,7 @@ def applyDefault(config):
     return newconfig
 
 def getConflictingServices(certConfig):
-    return {f for e in certconfig.values() for f in e['conflictingservices']}
+    return {f for e in certConfig.values()if 'conflictingservices' in e for f in e['conflictingservices']}
 
 
 
