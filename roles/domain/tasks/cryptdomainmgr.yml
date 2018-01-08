@@ -27,47 +27,56 @@
     dest: "/root/cryptdomainmgr" 
     force: yes
 
+  #- name: Set inwx login
+  #  copy:
+  #    dest: "/root/cryptdomainmgr/dnsupdate/passwords.py"
+  #    content: |
+  #      #!/usr/bin/env python
+  #      inwxUserDict = {'default': "{{ inwxlogin }}" }
+  #      inwxPasswdDict = {'default': "{{ inwxpasswd }}" }
+
+
 - name: Set inwx login
-  copy:
-    dest: "/root/cryptdomainmgr/dnsupdate/passwords.py"
-    content: |
-      #!/usr/bin/env python
-      inwxUserDict = {'default': "{{ inwxlogin }}" }
-      inwxPasswdDict = {'default': "{{ inwxpasswd }}" }
-      
+  ini_file:
+    dest: "/root/inwxcred.conf"
+    section: "domain"
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  with_dict: { user: '{{ inwxlogin }}', passwd: '{{ inwxpasswd }}' }
+
 - name: Set certificate base configuration
   ini_file:
     dest: "/root/domains.conf"
-    section: "certificate"
+    section: "certificate:maincert"
     option: "{{ item.key }}"
     value: "{{ item.value }}"
-  with_dict: { generator: 'certbot', keysize: '4096', webservers: 'apache2', certname: 'fullchain.pem' }
+  with_dict: { generator: 'certbot', keysize: '4096', conflictingservices: 'apache2', certname: 'fullchain.pem' }
  
 - name: Set letsencrypt account e-mail
   ini_file:
     dest: "/root/domains.conf"
-    section: "certificate"
+    section: "certificate:maincert"
     option: "email"
     value: "{{ certemail }}"
 
 - name: Set letsencrypt extra arguments
   ini_file:
     dest: "/root/domains.conf"
-    section: "certificate"
+    section: "certificate:maincert"
     option: "extraflags"
     value: "{{ certextra }}"
 
 - name: Set live path certificates are copied into on rollover
   ini_file:
     dest: "/root/domains.conf"
-    section: "certificate"
+    section: "certificate:maincert"
     option: "destination"
     value: "{{ certbaselocation }}"
 
 - name: Set dkim configuration
   ini_file:
     dest: "/root/domains.conf"
-    section: "dkim"
+    section: "dkim:maindkim"
     option: "{{ item.key }}"
     value: "{{ item.value }}"
   with_dict: { generator: 'rspamd', signingConfTemplateFile: '/root/cryptdomainmgr/dkim_signing_template.conf', signingConfTemporaryFile: '/etc/rspamd/dkim_signing_new.conf', signingConfDestinationFile: '/etc/rspamd/local.d/dkim_signing.conf' }
@@ -76,25 +85,25 @@
 - name: Set primary domain configuration
   ini_file:
     dest: "/root/domains.conf"
-    section: "{{ domain }}"
+    section: "domain:{{ domain }}"
     option: "{{ item.key }}"
     value: "{{ item.value }}"
-  with_dict: {ip4: 'auto', ip6: 'auto', tlsa: 'auto', gencert: 'true', hasdkim: 'true'}
+  with_dict: {ip4: 'auto', ip6: 'auto', tlsa: '301,302', certificate: 'maincert', dkim: 'maindkim'}
 
 - name: Set domain configurations
   ini_file:
     dest: "/root/domains.conf"
-    section: "{{ item[1] }}"
+    section: "domain:{{ item[1] }}"
     option: "{{ item[0].key }}"
     value: "{{ item[0].value }}"
   with_nested:
-    - [{key: 'ip4', value: 'auto'}, {key: 'ip6', value: 'auto'}, {key: 'tlsa', value: 'auto'}, {key: 'gencert', value: 'true'}, {key: 'hasdkim', value: 'true'}]
+    - [{key: 'ip4', value: 'auto'}, {key: 'ip6', value: 'auto'}, {key: 'tlsa', value: '301,302'}, {key: 'certificate', value: 'maincert'}, {key: 'dkim', value: 'maindkim'}]
     - "{{ secondarydomains }}"
     
 - name: Set primary e-mail domain configuration
   ini_file:
     dest: "/root/domains.conf"
-    section: "{{ emaildomain }}"
+    section: "domain:{{ emaildomain }}"
     option: "{{ item.key }}"
     value: "{{ item.value }}"
   with_dict: {mx: "{{ domain }}:10"}
@@ -102,7 +111,7 @@
 - name: Set e-mail domain configurations
   ini_file:
     dest: "/root/domains.conf"
-    section: "{{ item.emaildomain }}"
+    section: "domain:{{ item.emaildomain }}"
     option: "mx"
     value: "{{ item.serverdomain }}:10"
   with_items:
@@ -111,7 +120,7 @@
 - name: Set e-mail list domain configurations
   ini_file:
     dest: "/root/domains.conf"
-    section: "{{ item.emaildomain }}"
+    section: "domain:{{ item.emaildomain }}"
     option: "mx"
     value: "{{ item.mx }}:10"
   with_items:
@@ -120,27 +129,27 @@
 - name: Set list domain configurations
   ini_file:
     dest: "/root/domains.conf"
-    section: "{{ item[1].webdomain }}"
+    section: "domain:{{ item[1].webdomain }}"
     option: "{{ item[0].key }}"
     value: "{{ item[0].value }}"
   with_nested:
-    - [{key: 'ip4', value: 'auto'}, {key: 'ip6', value: 'auto'}, {key: 'tlsa', value: 'auto'}, {key: 'gencert', value: 'true'}, {key: 'hasdkim', value: 'true'}]
+    - [{key: 'ip4', value: 'auto'}, {key: 'ip6', value: 'auto'}, {key: 'tlsa', value: 'auto'}, {key: 'certificate', value: 'maincert'}, {key: 'dkim', value: 'maindkim'}]
     - "{{ listmaps }}"
 
 - name: Immediatelly prepare certificate
-  shell: 'cd /root/cryptdomainmgr && python prepare.py ../domains.conf'
+  shell: 'cd /root/cryptdomainmgr && python prepare.py ../domains.conf ../inwxcred.conf'
   args:
     executable: '/bin/bash'
   ignore_errors: True
 
 - name: Immediatelly rollover certificate
-  shell: 'cd /root/cryptdomainmgr && python rollover.py ../domains.conf'
+  shell: 'cd /root/cryptdomainmgr && python rollover.py ../domains.conf ../inwxcred.conf'
   args:
     executable: '/bin/bash'
   ignore_errors: True
 
 - name: Immediatelly cleanup
-  shell: 'cd /root/cryptdomainmgr && python cleanup.py ../domains.conf'
+  shell: 'cd /root/cryptdomainmgr && python cleanup.py ../domains.conf ../inwxcred.conf'
   args:
     executable: '/bin/bash'
   ignore_errors: True
