@@ -54,6 +54,7 @@ class ManagedDomain:
         self.cr.setFilenames(confFiles)
         self.cr.open()
         self.cr.interprete()
+        self.dnsupLoginConf()
 
 
 #    def readConfig(self, confFile):
@@ -97,6 +98,15 @@ class ManagedDomain:
 #                mxPrioDict = {e[0]: e[1] for e in mxPrioList}
 #                self.domainconfig[name]['mx'] = dict(mxPrioDict)
 
+    def dnsupLoginConf(self):
+        userDict = {k: v['user'] for k, v in self.cr.domainconfig.items() if 'user' in v}
+        self.dnsup.setUserDict(userDict)
+        if 'DEFAULT' in userDict.keys():
+            userDict['default'] = userDict['DEFAULT'] 
+        passwdDict = {k: v['passwd'] for k, v in self.cr.domainconfig.items() if 'passwd' in v}
+        if 'DEFAULT' in passwdDict.keys():
+            passwdDict['default'] = passwdDict['DEFAULT'] 
+        self.dnsup.setPasswdDict(passwdDict)
 
 
     def createCert(self):
