@@ -113,7 +113,7 @@ class ManagedDomain:
         for certSecName, certConfig in self.cr.certconfig.items():
             if 'generator' not in certConfig:
                 continue
-            if 'certbot' == certConfig['generator']:
+            if 'certbot' != certConfig['generator']:
                 continue
             domains = [k for k,v in self.cr.domainconfig.items() if 'certificate' in v and certSecName == v['certificate']]
             extraFlags = certConfig['extraflags']
@@ -129,7 +129,10 @@ class ManagedDomain:
         else:
             certSecName = 'DEFAULT'
         domainsOfSameCert = [k for k,v in self.cr.domainconfig.items() if 'certificate' in v and certSecName == v['certificate']]
+	print('domainsOfSameCert = ' + str(domainsOfSameCert))
         print('certlocation = %s' % certlocation)
+	print('name = ' +str(name))
+	print('certname = ' +str(self.cr.certconfig[content['certificate']]['certname']))
         cert = findCert(certlocation, name, domainsOfSameCert, self.cr.certconfig[content['certificate']]['certname'], certlocation)
         print('self.findCert = %s' % cert)
         return cert
