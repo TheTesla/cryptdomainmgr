@@ -56,9 +56,9 @@ class ConfigReader:
         self.cp.read(self.filenameList)
         
     def interprete(self):
-        self.domainconfig = applyDefault(interpreteDomainConfig(self.cp))
-        self.certconfig = applyDefault(interpreteCertConfig(self.cp))
-        self.dkimconfig = applyDefault(interpreteDKIMConfig(self.cp))
+        self.domainconfig = interpreteDomainConfig(self.cp)
+        self.certconfig = interpreteCertConfig(self.cp)
+        self.dkimconfig = interpreteDKIMConfig(self.cp)
         self.conflictingservices = getConflictingServices(self.certconfig)
 
 
@@ -76,23 +76,18 @@ def interpreteDomainConfig(cf):
             domain = 'DEFAULT'
             if '.' in section[0]:
                 domain = section[0] # fallback if not domain:example.de but example.de
-        domainconfig[domain] = dict(content)
+        domainconfig[domain] = dict({str(k): str(v) for k, v in content.items()})
+    domainconfig = applyDefault(domainconfig) # must be here because following section depends on default values
+
+    for domain, content in domainconfig.items():
         if 'mx' in content.keys():
             mx = content['mx']
             mxList = re.sub(' ', '', mx).split(',')
             mxPrioList = [mxParse(e) for e in mxList]
             mxPrioDict = {e[0]: e[1] for e in mxPrioList}
             domainconfig[domain]['mx'] = dict(mxPrioDict)
-        if 'hasdkim' in content:
-            domainconfig[domain]['hasdkim'] = cf.getboolean(name, 'hasdkim')
-        else:
-            domainconfig[domain]['hasdkim'] = False
-        if 'gencert' in content:
-            domainconfig[domain]['gencert'] = cf.getboolean(name, 'gencert')
-        else:
-            domainconfig[domain]['gencert'] = False
         if 'tlsa' in content:
-            tlsa = cf.get(name, 'tlsa')
+            tlsa = str(domainconfig[domain]['tlsa'])
             if 'auto' == tlsa:
                 tlsa = [[3,0,1], [3,0,2], [3,1,1], [3,1,2], [2,0,1], [2,0,2], [2,1,1], [2,1,2]]
             else:
@@ -110,7 +105,10 @@ def interpreteDKIMConfig(cf):
             dkimSecName = section[1]
         else:
             dkimSecName = 'DEFAULT'
-        dkimconfig[dkimSecName] = dict(content)
+        dkimconfig[dkimSecName] = dict({str(k): str(v) for k, v in content.items()})
+    dkimconfig = applyDefault(dkimconfig) # must be here because following section depends on default values
+
+    for dkimSecName, content in dkimconfig.items():
         if 'keysize' not in content:
             dkimconfig[dkimSecName]['keysize'] = 2048
         if 'keybasename' not in content:
@@ -135,16 +133,21 @@ def interpreteCertConfig(cf):
             certSecName = section[1]
         else:
             certSecName = 'DEFAULT'
-        certconfig[certSecName] = dict(content)
+        certconfig[certSecName] = dict({str(k): str(v) for k, v in content.items()})
+    certconfig = applyDefault(certconfig) # must be here because following section depends on default values
+
+    for certSecName, content in certconfig.items():
         if 'source' not in content:
             certconfig[certSecName]['source'] = '/etc/letsencrypt/live'
         if 'generator' in content:
-            if 'certbot' == content['generator']: # certbot default certificate location - overrides source config
+            print('generator in content')
+            if 'certbot' == str(content['generator']): # certbot default certificate location - overrides source config
+                print('certbot is generator')
                 certconfig[certSecName]['source'] = '/etc/letsencrypt/live'
         if 'certname' not in content:
             certconfig[certSecName]['certname'] = 'fullchain.pem'
         if 'keysize' in content:
-            certconfig[certSecName]['keysize'] = cf.getint(name, 'keysize')
+            certconfig[certSecName]['keysize'] = int(certconfig[certSecName]['keysize'])
         else:
             certconfig[certSecName]['keysize'] = 4096
         if 'extraflags' in content:
@@ -156,6 +159,7 @@ def interpreteCertConfig(cf):
             if '' == conflictingservices[0]:
                 conflictingservices = []
             certconfig[certSecName]['conflictingservices'] = conflictingservices
+    print(certconfig)
     return certconfig
 
 
@@ -170,7 +174,7 @@ def applyDefault(config):
     return newconfig
 
 def getConflictingServices(certConfig):
-    return {f for e in certConfig.values()if 'conflictingservices' in e for f in e['conflictingservices']}
+    return {f for e in certConfig.values() if 'conflictingservices' in e for f in e['conflictingservices']}
 
 
 
