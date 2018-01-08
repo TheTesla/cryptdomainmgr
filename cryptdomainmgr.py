@@ -179,12 +179,14 @@ class ManagedDomain:
                 self.dnsup.setTLSAfromCert(name, self.findCert(name, content), content['tlsa'])
 
     def copyCert(self):
-        for name, content in self.domainconfig.items():
+        for name, content in self.cr.domainconfig.items():
+            print(name)
             if 'DEFAULT' == name:
                 continue
             if 'certificate' not in content:
                 continue
             src = os.path.dirname(self.findCert(name, content))
+            print(src)
             rv = check_output(('cp', '-rfLT', str(src), os.path.join(self.cr.certconfig[content['certificate']]['destination'], name)))
 
 
