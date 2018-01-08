@@ -88,7 +88,7 @@
     section: "domain:{{ domain }}"
     option: "{{ item.key }}"
     value: "{{ item.value }}"
-  with_dict: {ip4: 'auto', ip6: 'auto', tlsa: '301,302', certificate: 'maincert', dkim: 'maindkim'}
+  with_dict: {ip4: 'auto', ip6: 'auto', tlsa: '311,201', certificate: 'maincert', dkim: 'maindkim'}
 
 - name: Set domain configurations
   ini_file:
@@ -97,7 +97,7 @@
     option: "{{ item[0].key }}"
     value: "{{ item[0].value }}"
   with_nested:
-    - [{key: 'ip4', value: 'auto'}, {key: 'ip6', value: 'auto'}, {key: 'tlsa', value: '301,302'}, {key: 'certificate', value: 'maincert'}, {key: 'dkim', value: 'maindkim'}]
+    - [{key: 'ip4', value: 'auto'}, {key: 'ip6', value: 'auto'}, {key: 'tlsa', value: '311,201'}, {key: 'certificate', value: 'maincert'}, {key: 'dkim', value: 'maindkim'}]
     - "{{ secondarydomains }}"
     
 - name: Set primary e-mail domain configuration
@@ -133,7 +133,7 @@
     option: "{{ item[0].key }}"
     value: "{{ item[0].value }}"
   with_nested:
-    - [{key: 'ip4', value: 'auto'}, {key: 'ip6', value: 'auto'}, {key: 'tlsa', value: 'auto'}, {key: 'certificate', value: 'maincert'}, {key: 'dkim', value: 'maindkim'}]
+    - [{key: 'ip4', value: 'auto'}, {key: 'ip6', value: 'auto'}, {key: 'tlsa', value: '311,201'}, {key: 'certificate', value: 'maincert'}, {key: 'dkim', value: 'maindkim'}]
     - "{{ listmaps }}"
 
 - name: Immediatelly prepare certificate
