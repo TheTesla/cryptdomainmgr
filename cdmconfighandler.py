@@ -91,8 +91,21 @@ def interpreteDomainConfig(cf):
             if 'auto' == tlsa:
                 tlsa = [[3,0,1], [3,0,2], [3,1,1], [3,1,2], [2,0,1], [2,0,2], [2,1,1], [2,1,2]]
             else:
-                tlsa = [[int(f) for f in e] for e in re.sub(' ', '', tlsa).split(',')]
+                tlsa = [[int(f) for f in e] for e in tlsa.replace(' ', '').split(',')]
             domainconfig[domain]['tlsa'] = tlsa
+        if 'spf' in content:
+            domainconfig[domain]['spf'] = domainconfig[domain]['spf'].replace(' ','').split(',')
+        if 'dmarc' in [k.split('.')[0] for k in content.keys()]:
+            dmarc = {k.split('.')[1]: v for k, v in content.items() if 'dmarc' == k.split('.')[0]}
+            domainconfig[domain]['dmarc'] = dmarc
+        if 'srv' in [k.split('.')[0] for k in content.keys()]:
+            domainconfig[domain]['srv'] = [{'server': v.split(':')[0], 'prio': v.split(':')[1], 'service': k.split('.')[1], 'proto': k.split('.')[2], 'port': k.split('.')[3], 'weight':  k.split('.')[4]} for k, v in content.items() if 'srv' == k.split('.')[0]]
+        if 'soa' in [k.split('.')[0] for k in content.keys()]:
+            domainconfig[domain]['soa'] =  {k.split('.')[1]: v for k, v in content.items() if 'soa' == k.split('.')[0]}
+        if 'caa' in content:
+            domainconfig[domain]['caa'] = [(lambda x: {'flag': x[0], 'issue': x[1], 'url': x[2]})([f for f in e.split(' ') if '' != f]) for e in domainconfig[domain]['caa'].split(',')]
+
+    print(domainconfig)    
     return domainconfig
 
 def interpreteDKIMConfig(cf):
@@ -151,7 +164,7 @@ def interpreteCertConfig(cf):
         else:
             certconfig[certSecName]['keysize'] = 4096
         if 'extraflags' in content:
-            certconfig[certSecName]['extraflags'] = re.sub(' ', '', content['extraflags']).split(',')
+            certconfig[certSecName]['extraflags'] = content['extraflags'].replace(' ', '').split(',')
         else:
             certconfig[certSecName]['extraflags'] = []
         if 'conflictingservices' in content:
