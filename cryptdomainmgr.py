@@ -45,10 +45,10 @@ class ManagedDomain:
         self.cr = ConfigReader()
         self.dnsup = dnsuptools.DNSUpTools()
         self.confPar = configparser.ConfigParser()
-        self.certconfig = {'generator': 'certbot', 'email': 'stefan.helmert@t-online.de', 'destination': '/etc/ssl', 'extraflags': '', 'source': '/etc/letsencrypt/live', 'certname': 'fullchain.pem', 'keysize': 4096, 'webservers': 'apache2, nginx'}
-        self.domainconfig = {'myexample.net': {'ip4': 'auto', 'ip6': 'auto', 'hasdkim': True, 'gencert': True, 'certlocation': '', 'tlsa': 'auto', 'mx': {'mail.myexample.net': 10}}}
-        self.dkimconfig = {'generator': 'rspamd', 'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingconftemplatefile': './dkim_signing_template.conf', 'signingconftemporaryfile': '/etc/rspamd/dkim_signing_new.conf', 'signingconfdestinationfile': '/etc/rspamd/local.d/dkim_signing.conf'}
-        self.webservers = ['apache2', 'nginx']
+        self.certconfig = {} #{'generator': 'certbot', 'email': 'stefan.helmert@t-online.de', 'destination': '/etc/ssl', 'extraflags': '', 'source': '/etc/letsencrypt/live', 'certname': 'fullchain.pem', 'keysize': 4096, 'webservers': 'apache2, nginx'}
+        self.domainconfig = {} #{'myexample.net': {'ip4': 'auto', 'ip6': 'auto', 'hasdkim': True, 'gencert': True, 'certlocation': '', 'tlsa': 'auto', 'mx': {'mail.myexample.net': 10}}}
+        self.dkimconfig = {} #{'generator': 'rspamd', 'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingconftemplatefile': './dkim_signing_template.conf', 'signingconftemporaryfile': '/etc/rspamd/dkim_signing_new.conf', 'signingconfdestinationfile': '/etc/rspamd/local.d/dkim_signing.conf'}
+        self.webservers = [] #['apache2', 'nginx']
 
     def readConfig(self, confFiles):
         self.cr.setFilenames(confFiles)
@@ -57,46 +57,6 @@ class ManagedDomain:
         self.dnsupLoginConf()
 
 
-#    def readConfig(self, confFile):
-#        if confFile is None:
-#            return
-#        self.confPar.read(os.path.expanduser(confFile))
-#        self.domainconfig = self.confPar._sections
-#        print(self.domainconfig)
-#        self.certconfig = {}
-#        self.dkimconfig = {}
-#        self.webservers = []
-#        if 'certificate' in self.domainconfig:
-#            self.certconfig = dict(self.confPar['certificate'])
-#            del self.domainconfig['certificate']
-#            if 'source' not in self.certconfig:
-#                self.certconfig['source'] = '/etc/letsencrypt/live'
-#            if 'certname' not in self.certconfig:
-#                self.certconfig['certname'] = 'fullchain.pem'
-#            if 'keysize' not in self.certconfig:
-#                self.certconfig['keysize'] = 4096
-#            if 'webservers' in self.certconfig:
-#                self.webservers = re.sub(' ', '', self.certconfig['webservers']).split(',')
-#                if '' == self.webservers[0]:
-#                    self.webservers = []
-#            
-#        self.dkimconfig = {}
-#        if 'dkim' in self.domainconfig:
-#            self.dkimconfig = dict(self.confPar['dkim'])
-#            if 'keysize' not in self.dkimconfig:
-#                self.dkimconfig['keysize'] = 2048
-#            if 'keybasename' not in self.dkimconfig:
-#                self.dkimconfig['keybasename'] = 'key'
-#            if 'keylocation' not in self.dkimconfig:
-#                self.dkimconfig['keylocation'] = '/var/lib/rspamd/dkim'
-#            del self.domainconfig['dkim']
-#        for name, content in self.domainconfig.items():
-#            if 'mx' in content.keys():
-#                mx = content['mx']
-#                mxList = re.sub(' ', '', mx).split(',')
-#                mxPrioList = [mxParse(e) for e in mxList]
-#                mxPrioDict = {e[0]: e[1] for e in mxPrioList}
-#                self.domainconfig[name]['mx'] = dict(mxPrioDict)
 
     def dnsupLoginConf(self):
         userDict = {k: v['user'] for k, v in self.cr.domainconfig.items() if 'user' in v}

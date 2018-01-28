@@ -82,7 +82,7 @@ def interpreteDomainConfig(cf):
     for domain, content in domainconfig.items():
         if 'mx' in content.keys():
             mx = content['mx']
-            mxList = re.sub(' ', '', mx).split(',')
+            mxList = mx.replace(' ', '').split(',')
             mxPrioList = [mxParse(e) for e in mxList]
             mxPrioDict = {e[0]: e[1] for e in mxPrioList}
             domainconfig[domain]['mx'] = dict(mxPrioDict)
