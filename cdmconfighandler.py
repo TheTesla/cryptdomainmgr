@@ -103,7 +103,7 @@ def interpreteDomainConfig(cf):
         if 'soa' in [k.split('.')[0] for k in content.keys()]:
             domainconfig[domain]['soa'] =  {k.split('.')[1]: v for k, v in content.items() if 'soa' == k.split('.')[0]}
         if 'caa' in content:
-            domainconfig[domain]['caa'] = [(lambda x: {'flag': x[0], 'issue': x[1], 'url': x[2]})([f for f in e.split(' ') if '' != f]) for e in domainconfig[domain]['caa'].split(',')]
+            domainconfig[domain]['caa'] = [(lambda x: {'flag': x[0], 'tag': x[1], 'url': x[2]})([f for f in e.split(' ') if '' != f]) for e in domainconfig[domain]['caa'].split(',')]
 
     print(domainconfig)    
     return domainconfig
