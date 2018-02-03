@@ -149,8 +149,12 @@ class ManagedDomain:
                 continue
             if 'ip4' in content:
                 self.dnsup.setA(name, content['ip4']) 
+            if 'ip4+' in content:
+                self.dnsup.addA(name, content['ip4+']) 
             if 'ip6' in content:
                 self.dnsup.setAAAA(name, content['ip6']) 
+            if 'ip6+' in content:
+                self.dnsup.addAAAA(name, content['ip6+']) 
 
     def addMX(self, delete = False):
         for name, content in self.cr.domainconfig.items():

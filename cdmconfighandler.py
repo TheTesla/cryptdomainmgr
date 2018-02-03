@@ -81,6 +81,15 @@ def interpreteDomainConfig(cf):
     domainconfig = applyDefault(domainconfig) # must be here because following section depends on default values
 
     for domain, content in domainconfig.items():
+        if 'ip4' in content.keys():
+            domainconfig[domain]['ip4'] = domainconfig[domain]['ip4'].replace(' ','').split(',')
+        if 'ip4+' in content.keys():
+            domainconfig[domain]['ip4+'] = domainconfig[domain]['ip4+'].replace(' ','').split(',')
+        if 'ip6' in content.keys():
+            domainconfig[domain]['ip6'] = domainconfig[domain]['ip6'].replace(' ','').split(',')
+        if 'ip6+' in content.keys():
+            domainconfig[domain]['ip6+'] = domainconfig[domain]['ip6+'].replace(' ','').split(',')
+
         if 'mx' in content.keys():
             mx = content['mx']
             mxList = mx.replace(' ', '').split(',')
