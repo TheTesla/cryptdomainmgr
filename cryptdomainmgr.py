@@ -76,6 +76,8 @@ class ManagedDomain:
             if 'certbot' != certConfig['generator']:
                 continue
             domains = [k for k,v in self.cr.domainconfig.items() if 'certificate' in v and certSecName == v['certificate']]
+            print('createCert')
+            print(certConfig)
             extraFlags = certConfig['extraflags']
             createCert(domains, certConfig['email'], certConfig['keysize'], extraFlags)
 

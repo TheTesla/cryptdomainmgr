@@ -64,19 +64,20 @@ class ConfigReader:
 
 
 def interpreteDomainConfig(cf):
-    domainconfig = {}
-    for name, content in cf.items():
-        section = name.split(':')
-        if 'domain' != section[0]:
-            if '.' not in section[0]: # fallback if not domain:example.de but example.de
-                continue
-        if 2 == len(section):
-            domain = section[1]
-        else:
-            domain = 'DEFAULT'
-            if '.' in section[0]:
-                domain = section[0] # fallback if not domain:example.de but example.de
-        domainconfig[domain] = dict({str(k): str(v) for k, v in content.items()})
+    #domainconfig = {}
+    #for name, content in cf.items():
+    #    section = name.split(':')
+    #    if 'domain' != section[0]:
+    #        if '.' not in section[0]: # fallback if not domain:example.de but example.de
+    #            continue
+    #    if 2 == len(section):
+    #        domain = section[1]
+    #    else:
+    #        domain = 'DEFAULT'
+    #        if '.' in section[0]:
+    #            domain = section[0] # fallback if not domain:example.de but example.de
+    #    domainconfig[domain] = dict({str(k): str(v) for k, v in content.items()})
+    domainconfig = getConfigOf('domain', cf, True)
     domainconfig = applyDefault(domainconfig) # must be here because following section depends on default values
 
     for domain, content in domainconfig.items():
@@ -109,64 +110,72 @@ def interpreteDomainConfig(cf):
     return domainconfig
 
 def interpreteDKIMConfig(cf):
-    dkimconfig = {}
-    for name, content in cf.items():
-        section = name.split(':')
-        if 'dkim' != section[0]:
-            continue
-        if 2 == len(section):
-            dkimSecName = section[1]
-        else:
-            dkimSecName = 'DEFAULT'
-        dkimconfig[dkimSecName] = dict({str(k): str(v) for k, v in content.items()})
-    dkimconfig = applyDefault(dkimconfig) # must be here because following section depends on default values
+    defaultDKIMConfig = {'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingconftemplatefile': './dkim_signing_template.conf', 'signingconftemporaryfile': '/etc/rspamd/dkim_signing_new.conf', 'signingconftemplatefile': '/etc/rspamd/local.d/dkim_signing.conf'}
+    #dkimconfig = {}
+    #for name, content in cf.items():
+    #    section = name.split(':')
+    #    if 'dkim' != section[0]:
+    #        continue
+    #    if 2 == len(section):
+    #        dkimSecName = section[1]
+    #    else:
+    #        dkimSecName = 'DEFAULT'
+    #    dkimconfig[dkimSecName] = dict({str(k): str(v) for k, v in content.items()})
+    dkimconfig = getConfigOf('dkim', cf)
+    # apply general config defaults and the default section
+    dkimconfig = applyDefault(dkimconfig, defaultDKIMConfig) # must be here because following section depends on default values
 
-    for dkimSecName, content in dkimconfig.items():
-        if 'keysize' not in content:
-            dkimconfig[dkimSecName]['keysize'] = 2048
-        if 'keybasename' not in content:
-            dkimconfig[dkimSecName]['keybasename'] = 'key'
-        if 'keylocation' not in content:
-            dkimconfig[dkimSecName]['keylocation'] = '/var/lib/rspamd/dkim'
-        if 'signingconftemplatefile' not in content:
-            dkimconfig[dkimSecName]['signingconftemplatefile'] = './dkim_signing_template.conf'
-        if 'signingconftemporaryfile' not in content:
-            dkimconfig[dkimSecName]['signingconftemporaryfile'] = '/etc/rspamd/dkim_signing_new.conf'
-        if 'signingconfdestinationfile' not in content:
-            dkimconfig[dkimSecName]['signingconftemplatefile'] = '/etc/rspamd/local.d/dkim_signing.conf'
+    #for dkimSecName, content in dkimconfig.items():
+    #    if 'keysize' not in content:
+    #        dkimconfig[dkimSecName]['keysize'] = 2048
+    #    if 'keybasename' not in content:
+    #        dkimconfig[dkimSecName]['keybasename'] = 'key'
+    #    if 'keylocation' not in content:
+    #        dkimconfig[dkimSecName]['keylocation'] = '/var/lib/rspamd/dkim'
+    #    if 'signingconftemplatefile' not in content:
+    #        dkimconfig[dkimSecName]['signingconftemplatefile'] = './dkim_signing_template.conf'
+    #    if 'signingconftemporaryfile' not in content:
+    #        dkimconfig[dkimSecName]['signingconftemporaryfile'] = '/etc/rspamd/dkim_signing_new.conf'
+    #    if 'signingconfdestinationfile' not in content:
+    #        dkimconfig[dkimSecName]['signingconftemplatefile'] = '/etc/rspamd/local.d/dkim_signing.conf'
     return dkimconfig
 
 def interpreteCertConfig(cf):
-    certconfig = {}
-    for name, content in cf.items():
-        section = name.split(':')
-        if 'certificate' != section[0]:
-            continue
-        if 2 == len(section):
-            certSecName = section[1]
-        else:
-            certSecName = 'DEFAULT'
-        certconfig[certSecName] = dict({str(k): str(v) for k, v in content.items()})
-    certconfig = applyDefault(certconfig) # must be here because following section depends on default values
+    defaultCertConfig = {'source': '/etc/letsencrypt/live', 'certname': 'fullchain.pem', 'keysize': 4096, 'extraflags': ''}
+    #certconfig = {}
+    #for name, content in cf.items():
+    #    section = name.split(':')
+    #    if 'certificate' != section[0]:
+    #        continue
+    #    if 2 == len(section):
+    #        certSecName = section[1]
+    #    else:
+    #        certSecName = 'DEFAULT'
+    #    certconfig[certSecName] = dict({str(k): str(v) for k, v in content.items()})
+    certconfig = getConfigOf('certificate', cf)
+    # apply general config defaults and the default section
+    certconfig = applyDefault(certconfig, defaultCertConfig) # must be here because following section depends on default values
+
+
 
     for certSecName, content in certconfig.items():
-        if 'source' not in content:
-            certconfig[certSecName]['source'] = '/etc/letsencrypt/live'
+        #if 'source' not in content:
+        #    certconfig[certSecName]['source'] = '/etc/letsencrypt/live'
         if 'generator' in content:
             print('generator in content')
             if 'certbot' == str(content['generator']): # certbot default certificate location - overrides source config
                 print('certbot is generator')
                 certconfig[certSecName]['source'] = '/etc/letsencrypt/live'
-        if 'certname' not in content:
-            certconfig[certSecName]['certname'] = 'fullchain.pem'
+        #if 'certname' not in content:
+        #    certconfig[certSecName]['certname'] = 'fullchain.pem'
         if 'keysize' in content:
             certconfig[certSecName]['keysize'] = int(certconfig[certSecName]['keysize'])
-        else:
-            certconfig[certSecName]['keysize'] = 4096
+        #else:
+        #    certconfig[certSecName]['keysize'] = 4096
         if 'extraflags' in content:
             certconfig[certSecName]['extraflags'] = content['extraflags'].replace(' ', '').split(',')
-        else:
-            certconfig[certSecName]['extraflags'] = []
+        #else:
+        #    certconfig[certSecName]['extraflags'] = []
         if 'conflictingservices' in content:
             conflictingservices = re.sub(' ', '', content['conflictingservices']).split(',')
             if '' == conflictingservices[0]:
@@ -176,10 +185,10 @@ def interpreteCertConfig(cf):
     return certconfig
 
 
-def applyDefault(config):
-    default = {}
+def applyDefault(config, defaultConfig = {}):
+    default = dict(defaultConfig)
     if 'DEFAULT' in config:
-        default = config['DEFAULT']
+        default.update(config['DEFAULT'])
     newconfig = {}
     for section, content in config.items():
         newconfig[section] = dict(default)
@@ -189,5 +198,23 @@ def applyDefault(config):
 def getConflictingServices(certConfig):
     return {f for e in certConfig.values() if 'conflictingservices' in e for f in e['conflictingservices']}
 
-
+def getConfigOf(getSection, config, domainOldStyle = False):
+    resConfig = {}
+    for name, content in config.items():
+        section = name.split(':')
+        if getSection != section[0]:
+            if domainOldStyle is True:
+                if '.' not in section[0]: # fallback if not domain:example.de but example.de
+                    continue
+            else:
+                continue
+        if 2 == len(section):
+            secName = section[1]
+        else:
+            secName = 'DEFAULT'
+            if domainOldStyle is True:
+                if '.' in section[0]:
+                    secName = section[0] # fallback if not domain:example.de but example.de
+        resConfig[secName] = dict({str(k): str(v) for k, v in content.items()})
+    return resConfig
 
