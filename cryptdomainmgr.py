@@ -160,17 +160,31 @@ class ManagedDomain:
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
                 continue
-            if 'mx' in content:
-                mx = content['mx']
-                if type(mx) is str:
-                    mx = {mx: 10}
-                for k, v in mx.items():
-                    self.dnsup.addMX(name, k, v)
-                if delete is True:
-                    self.dnsup.delMX(name, '*', mx.keys())
+            if 'mxAdd' in content:
+                for mx in content['mxAdd']:
+                    self.dnsup.addMX(name, mx['content'], mx['addprio']) 
+            #if 'mx' in content:
+            #    mx = content['mx']
+            #    if type(mx) is str:
+            #        mx = {mx: 10}
+            #    for k, v in mx.items():
+            #        self.dnsup.addMX(name, k, v)
+            #    if delete is True:
+            #        self.dnsup.delMX(name, '*', mx.keys())
             
     def setMX(self):
-        self.addMX(True)
+        for name, content in self.cr.domainconfig.items():
+            if 'DEFAULT' == name:
+                continue
+            if 'mxSet' in content:
+                for mx in content['mxSet']:
+                    self.dnsup.addMX(name, mx['content'], mx['addprio']) 
+                delList = [{'prio': e['delprio']} for e in content['mxSet']]
+                if '*' in [e['prio'] for e in delList]:
+                    delList = [{}]
+                presList = [{'prio': e['addprio'], 'content': e['content']} for e in content['mxSet']]
+                self.dnsup.delDictList({'name': name, 'type': 'MX'}, delList, presList)
+        #self.addMX(True)
 
 
 
@@ -284,6 +298,7 @@ class ManagedDomain:
         self.setDMARC()
         self.setSRV()
         self.setIPs()
+        self.setMX()
         self.addMX()
         self.certPrepare()
         self.dkimPrepare()

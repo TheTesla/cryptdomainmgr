@@ -90,12 +90,42 @@ def interpreteDomainConfig(cf):
         if 'ip6+' in content.keys():
             domainconfig[domain]['ip6+'] = domainconfig[domain]['ip6+'].replace(' ','').split(',')
 
-        if 'mx' in content.keys():
-            mx = content['mx']
-            mxList = mx.replace(' ', '').split(',')
-            mxPrioList = [mxParse(e) for e in mxList]
-            mxPrioDict = {e[0]: e[1] for e in mxPrioList}
-            domainconfig[domain]['mx'] = dict(mxPrioDict)
+        if 'mx' in [k.split('.')[0] for k in content.keys()]:    
+            mxSetList = []
+            mxAddList = []
+            for k, v in content.items():
+                if '+' == k[-1]:
+                    addMode = True
+                    k = k[:-1]
+                else:
+                    addMode = False
+                ks = k.split('.')
+                if 'mx' != ks[0]:
+                    continue
+                print(v)
+                vList = v.replace(' ', '').split(',')
+                for v in vList:
+                    vs = v.split(':')
+                    mx = {'content': vs[0], 'delprio': '*', 'addprio': 10}
+                    if 2 == len(ks):
+                        mx['delprio'] = ks[1]
+                        mx['addprio'] = ks[1]
+                    if 2 == len(vs):
+                        mx['addprio'] = vs[1]
+                    if addMode is True:
+                        mxAddList.append(mx)
+                    else:
+                        mxSetList.append(mx)
+            domainconfig[domain]['mxSet'] = mxSetList
+            domainconfig[domain]['mxAdd'] = mxAddList
+
+
+        #if 'mx' in content.keys():
+        #    mx = content['mx']
+        #    mxList = mx.replace(' ', '').split(',')
+        #    mxPrioList = [mxParse(e) for e in mxList]
+        #    mxPrioDict = {e[0]: e[1] for e in mxPrioList}
+        #    domainconfig[domain]['mx'] = dict(mxPrioDict)
         if 'tlsa' in content:
             tlsa = str(domainconfig[domain]['tlsa'])
             if 'auto' == tlsa:
