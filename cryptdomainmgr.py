@@ -142,6 +142,20 @@ class ManagedDomain:
             if 'srv' in content:
                 self.dnsup.setSRV(name, content['srv'])
 
+    def addSRV(self):
+        for name, content in self.cr.domainconfig.items():
+            if 'DEFAULT' == name:
+                continue
+            if 'srvAggrAdd' in content:
+                self.dnsup.addSRV(name, content['srvAggrAdd']) 
+
+    def delSRV(self):
+        for name, content in self.cr.domainconfig.items():
+            if 'DEFAULT' == name:
+                continue
+            if 'srvAggrDel' in content:
+                self.dnsup.delSRV(name, content['srvAggrDel'], content['srvAggrAdd']) 
+
     def addCAA(self):
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
@@ -334,7 +348,9 @@ class ManagedDomain:
         self.addSPF()
         self.setADSP()
         self.setDMARC()
-        self.setSRV()
+        #self.setSRV()
+        self.addSRV()
+        self.delSRV()
         self.setIPs()
         self.addIPs()
         #self.setMX()

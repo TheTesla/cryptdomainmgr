@@ -31,6 +31,33 @@ def parseBool(x):
         else:
             return False
 
+def srvParseDel(srv):
+    defaultAggrDel = {'content': [], 'prio': '*', 'key': []}
+    for i, e in enumerate(srv['aggrDelList']):
+        aggrDel = dict(defaultAggrDel)
+        aggrDel.update(e)
+        aggrDel['content'].extend(6*['*'])
+        aggrDel['key'].extend(6*['*'])
+        srv['aggrDelList'][i] = aggrDel
+    print(srv['aggrDelList'])
+    srvAggrDel = [{'prio': e['prio'], 'service': e['key'][1], 'proto': e['key'][2], 'port': e['key'][3], 'weight':  e['key'][4]} for e in srv['aggrDelList']] 
+    srvAggrDel = [{k: v for k, v in e.items() if '*' != str(v)} for e in srvAggrDel]
+    return srvAggrDel
+
+def srvParseAdd(srv):
+    defaultAggrAdd = {'content': [], 'prio': '*', 'key': []}
+    for i, e in enumerate(srv['aggrAddList']):
+        aggrAdd = dict(defaultAggrAdd)
+        aggrAdd.update(e)
+        aggrAdd['content'].extend(6*['*'])
+        aggrAdd['key'].extend(6*['*'])
+        srv['aggrAddList'][i] = aggrAdd
+    srvAggrAddKey= [{'server': e['content'][0], 'prio': e['prio'], 'service': e['key'][1], 'proto': e['key'][2], 'port': e['key'][3], 'weight':  e['key'][4]} for e in srv['aggrAddList']] 
+    srvAggrAddVal= [{'server': e['content'][0], 'prio': e['prio'], 'service': e['content'][5], 'proto': e['content'][4], 'port': e['content'][3], 'weight':  e['content'][2]} for e in srv['aggrAddList']] 
+    for i, e in enumerate(srvAggrAddVal):
+        srvAggrAddKey[i].update(e)
+    srvAggrAdd = [{k: v for k, v in e.items() if '*' != str(v)} for e in srvAggrAddKey]
+    return srvAggrAdd
 
 class ConfigReader:
     def __init__(self):
@@ -61,7 +88,7 @@ class ConfigReader:
         self.dkimconfig = interpreteDKIMConfig(self.cp)
         self.conflictingservices = getConflictingServices(self.certconfig)
 
-def prioParse(content, rrType = 'mx', removeSpaces = True, dotsLeft = 0):
+def prioParse(content, rrType = 'mx', removeSpaces = True, dotsLeft = 0, keySplit = False, colonArgs = False):
     setList = []
     addList = []
     aggrAddList = []
@@ -80,9 +107,15 @@ def prioParse(content, rrType = 'mx', removeSpaces = True, dotsLeft = 0):
             v = v.replace(' ', '')
         vList = v.split(',')
         for v in vList:
-            vs = v.split(':', 1)
-            item = {'content': vs[0], 'key': ks[0], 'delprio': '*', 'addprio': 10}
-            baseItem = {'content': vs[0], 'key': ks[0]}
+            vs = v.split(':')
+            if keySplit is True:
+                ks[0] = ks[0].split('.')
+            if colonArgs is True:
+                args = vs
+            else:
+                args = vs[0]
+            item = {'content': args, 'key': ks[0], 'delprio': '*', 'addprio': 10}
+            baseItem = {'content': args, 'key': ks[0]}
             delItem = dict(baseItem)
             addItem = dict(baseItem)
             addItem['prio'] = 10 # default
@@ -91,7 +124,7 @@ def prioParse(content, rrType = 'mx', removeSpaces = True, dotsLeft = 0):
                 item['addprio'] = ks[1]
                 delItem['prio'] = ks[1]
                 addItem['prio'] = ks[1]
-            if 2 == len(vs):
+            if 2 <= len(vs):
                 item['addprio'] = vs[1]
                 addItem['prio'] = vs[1]
             if addMode is True:
@@ -183,7 +216,11 @@ def interpreteDomainConfig(cf):
             dmarc = {k.split('.')[1]: v for k, v in content.items() if 'dmarc' == k.split('.')[0]}
             domainconfig[domain]['dmarc'] = dmarc
         if 'srv' in [k.split('.')[0] for k in content.keys()]:
-            srv = prioParse(content, 'srv', True, 4)
+            srv = prioParse(content, 'srv', True, 4, True, True)
+            srvDel = srvParseDel(srv)
+            srvAdd = srvParseAdd(srv)
+            domainconfig[domain]['srvAggrAdd'] = srvAdd #[{'server': e['content'], 'prio': e['prio'], 'service:': e['key'][1], 'proto': e['key'][2], 'port': e['key'][3], 'weight':  k['key'][4]} for e in srv['aggrAddList']] 
+            domainconfig[domain]['srvAggrDel'] = srvDel #[{'server': e['content'], 'prio': e['prio'], 'service:': e['key'][1], 'proto': e['key'][2], 'port': e['key'][3], 'weight':  k['key'][4]} for e in srv['aggrDelList']] 
             domainconfig[domain]['srv'] = [{'server': v.split(':')[0], 'prio': v.split(':')[1], 'service': k.split('.')[1], 'proto': k.split('.')[2], 'port': k.split('.')[3], 'weight':  k.split('.')[4]} for k, v in content.items() if 'srv' == k.split('.')[0]]
         if 'soa' in [k.split('.')[0] for k in content.keys()]:
             domainconfig[domain]['soa'] =  {k.split('.')[1]: v for k, v in content.items() if 'soa' == k.split('.')[0]}
