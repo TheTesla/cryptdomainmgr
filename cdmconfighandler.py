@@ -135,6 +135,8 @@ def interpreteDomainConfig(cf):
             domainconfig[domain]['tlsa'] = tlsa
         if 'spf' in content:
             domainconfig[domain]['spf'] = domainconfig[domain]['spf'].replace(' ','').split(',')
+        if 'spf+' in content:
+            domainconfig[domain]['spf+'] = domainconfig[domain]['spf+'].replace(' ','').split(',')
         if 'dmarc' in [k.split('.')[0] for k in content.keys()]:
             dmarc = {k.split('.')[1]: v for k, v in content.items() if 'dmarc' == k.split('.')[0]}
             domainconfig[domain]['dmarc'] = dmarc
@@ -144,6 +146,8 @@ def interpreteDomainConfig(cf):
             domainconfig[domain]['soa'] =  {k.split('.')[1]: v for k, v in content.items() if 'soa' == k.split('.')[0]}
         if 'caa' in content:
             domainconfig[domain]['caa'] = [(lambda x: {'flag': x[0], 'tag': x[1], 'url': x[2]})([f for f in e.split(' ') if '' != f]) for e in domainconfig[domain]['caa'].split(',')]
+        if 'caa+' in content:
+            domainconfig[domain]['caa+'] = [(lambda x: {'flag': x[0], 'tag': x[1], 'url': x[2]})([f for f in e.split(' ') if '' != f]) for e in domainconfig[domain]['caa+'].split(',')]
 
     print(domainconfig)    
     return domainconfig

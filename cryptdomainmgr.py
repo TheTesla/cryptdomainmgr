@@ -100,6 +100,13 @@ class ManagedDomain:
         return cert
 
 
+    def addSPF(self):
+        for name, content in self.cr.domainconfig.items():
+            if 'DEFAULT' == name:
+                continue
+            if 'spf+' in content:
+                self.dnsup.setSPFentry(name, content['spf+'])
+
     def setSPF(self):
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
@@ -135,6 +142,12 @@ class ManagedDomain:
             if 'srv' in content:
                 self.dnsup.setSRV(name, content['srv'])
 
+    def addCAA(self):
+        for name, content in self.cr.domainconfig.items():
+            if 'DEFAULT' == name:
+                continue
+            if 'caa+' in content:
+                self.dnsup.addCAA(name, content['caa+'])
 
     def setCAA(self):
         for name, content in self.cr.domainconfig.items():
@@ -149,10 +162,15 @@ class ManagedDomain:
                 continue
             if 'ip4' in content:
                 self.dnsup.setA(name, content['ip4']) 
-            if 'ip4+' in content:
-                self.dnsup.addA(name, content['ip4+']) 
             if 'ip6' in content:
                 self.dnsup.setAAAA(name, content['ip6']) 
+
+    def addIPs(self): 
+        for name, content in self.cr.domainconfig.items():
+            if 'DEFAULT' == name:
+                continue
+            if 'ip4+' in content:
+                self.dnsup.addA(name, content['ip4+']) 
             if 'ip6+' in content:
                 self.dnsup.addAAAA(name, content['ip6+']) 
 
@@ -292,12 +310,15 @@ class ManagedDomain:
     def prepare(self, confFile = None):
         self.readConfig(confFile)
         self.setCAA()
+        self.addCAA()
         self.setSOA()
         self.setSPF()
+        self.addSPF()
         self.setADSP()
         self.setDMARC()
         self.setSRV()
         self.setIPs()
+        self.addIPs()
         self.setMX()
         self.addMX()
         self.certPrepare()
