@@ -61,7 +61,35 @@ class ConfigReader:
         self.dkimconfig = interpreteDKIMConfig(self.cp)
         self.conflictingservices = getConflictingServices(self.certconfig)
 
-
+def prioParse(content, rrType = 'mx', removeSpaces = True, dotsLeft = 0):
+    setList = []
+    addList = []
+    for k, v in content.items():
+        if '+' == k[-1]:
+            addMode = True
+            k = k[:-1]
+        else:
+            addMode = False
+        ks = k.rsplit('.', dotsLeft+1)
+        if rrType != k.split('.')[0]:
+            continue
+        print(v)
+        if removeSpaces is True:
+            v = v.replace(' ', '')
+        vList = v.split(',')
+        for v in vList:
+            vs = v.split(':', 1)
+            item = {'content': vs[0], 'key': ks[0], 'delprio': '*', 'addprio': 10}
+            if 2 == len(ks):
+                item['delprio'] = ks[1]
+                item['addprio'] = ks[1]
+            if 2 == len(vs):
+                item['addprio'] = vs[1]
+            if addMode is True:
+                addList.append(item)
+            else:
+                setList.append(item)
+    return {'addList': addList, 'setList': setList}
 
 def interpreteDomainConfig(cf):
     #domainconfig = {}
@@ -91,33 +119,34 @@ def interpreteDomainConfig(cf):
             domainconfig[domain]['ip6+'] = domainconfig[domain]['ip6+'].replace(' ','').split(',')
 
         if 'mx' in [k.split('.')[0] for k in content.keys()]:    
-            mxSetList = []
-            mxAddList = []
-            for k, v in content.items():
-                if '+' == k[-1]:
-                    addMode = True
-                    k = k[:-1]
-                else:
-                    addMode = False
-                ks = k.split('.')
-                if 'mx' != ks[0]:
-                    continue
-                print(v)
-                vList = v.replace(' ', '').split(',')
-                for v in vList:
-                    vs = v.split(':')
-                    mx = {'content': vs[0], 'delprio': '*', 'addprio': 10}
-                    if 2 == len(ks):
-                        mx['delprio'] = ks[1]
-                        mx['addprio'] = ks[1]
-                    if 2 == len(vs):
-                        mx['addprio'] = vs[1]
-                    if addMode is True:
-                        mxAddList.append(mx)
-                    else:
-                        mxSetList.append(mx)
-            domainconfig[domain]['mxSet'] = mxSetList
-            domainconfig[domain]['mxAdd'] = mxAddList
+            mx = prioParse(content)
+            #mxSetList = []
+            #mxAddList = []
+            #for k, v in content.items():
+            #    if '+' == k[-1]:
+            #        addMode = True
+            #        k = k[:-1]
+            #    else:
+            #        addMode = False
+            #    ks = k.split('.')
+            #    if 'mx' != ks[0]:
+            #        continue
+            #    print(v)
+            #    vList = v.replace(' ', '').split(',')
+            #    for v in vList:
+            #        vs = v.split(':')
+            #        mx = {'content': vs[0], 'delprio': '*', 'addprio': 10}
+            #        if 2 == len(ks):
+            #            mx['delprio'] = ks[1]
+            #            mx['addprio'] = ks[1]
+            #        if 2 == len(vs):
+            #            mx['addprio'] = vs[1]
+            #        if addMode is True:
+            #            mxAddList.append(mx)
+            #        else:
+            #            mxSetList.append(mx)
+            domainconfig[domain]['mxSet'] = mx['setList'] #mxSetList
+            domainconfig[domain]['mxAdd'] = mx['addList'] #mxAddList
 
 
         #if 'mx' in content.keys():
@@ -141,6 +170,7 @@ def interpreteDomainConfig(cf):
             dmarc = {k.split('.')[1]: v for k, v in content.items() if 'dmarc' == k.split('.')[0]}
             domainconfig[domain]['dmarc'] = dmarc
         if 'srv' in [k.split('.')[0] for k in content.keys()]:
+            srv = prioParse(content, 'srv', True, 4)
             domainconfig[domain]['srv'] = [{'server': v.split(':')[0], 'prio': v.split(':')[1], 'service': k.split('.')[1], 'proto': k.split('.')[2], 'port': k.split('.')[3], 'weight':  k.split('.')[4]} for k, v in content.items() if 'srv' == k.split('.')[0]]
         if 'soa' in [k.split('.')[0] for k in content.keys()]:
             domainconfig[domain]['soa'] =  {k.split('.')[1]: v for k, v in content.items() if 'soa' == k.split('.')[0]}
