@@ -64,6 +64,8 @@ class ConfigReader:
 def prioParse(content, rrType = 'mx', removeSpaces = True, dotsLeft = 0):
     setList = []
     addList = []
+    aggrAddList = []
+    aggrDelList = []
     for k, v in content.items():
         if '+' == k[-1]:
             addMode = True
@@ -80,16 +82,25 @@ def prioParse(content, rrType = 'mx', removeSpaces = True, dotsLeft = 0):
         for v in vList:
             vs = v.split(':', 1)
             item = {'content': vs[0], 'key': ks[0], 'delprio': '*', 'addprio': 10}
+            baseItem = {'content': vs[0], 'key': ks[0]}
+            delItem = dict(baseItem)
+            addItem = dict(baseItem)
+            addItem['prio'] = 10 # default
             if 2 == len(ks):
                 item['delprio'] = ks[1]
                 item['addprio'] = ks[1]
+                delItem['prio'] = ks[1]
+                addItem['prio'] = ks[1]
             if 2 == len(vs):
                 item['addprio'] = vs[1]
+                addItem['prio'] = vs[1]
             if addMode is True:
                 addList.append(item)
+                aggrAddList.append(addItem)
             else:
                 setList.append(item)
-    return {'addList': addList, 'setList': setList}
+                aggrDelList.append(delItem)
+    return {'addList': addList, 'setList': setList, 'aggrAddList':  aggrAddList, 'aggrDelList': aggrDelList}
 
 def interpreteDomainConfig(cf):
     #domainconfig = {}
@@ -147,6 +158,8 @@ def interpreteDomainConfig(cf):
             #            mxSetList.append(mx)
             domainconfig[domain]['mxSet'] = mx['setList'] #mxSetList
             domainconfig[domain]['mxAdd'] = mx['addList'] #mxAddList
+            domainconfig[domain]['mxAggrDel'] = mx['aggrDelList'] #mxSetList
+            domainconfig[domain]['mxAggrAdd'] = mx['aggrAddList'] #mxAddList
 
 
         #if 'mx' in content.keys():
