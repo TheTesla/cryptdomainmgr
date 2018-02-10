@@ -9,13 +9,12 @@
 
 from dnsupdate import dnsuptools 
 
-from subprocess import *
+from subprocess import check_output
 import os
 from parse import parse
 import configparser
 import time
 from jinja2 import Template
-import re
 from cdmconfighandler import *
 
 
@@ -97,10 +96,10 @@ class ManagedDomain:
         else:
             certSecName = 'DEFAULT'
         domainsOfSameCert = [k for k,v in self.cr.domainconfig.items() if 'certificate' in v and certSecName == v['certificate']]
-	print('domainsOfSameCert = ' + str(domainsOfSameCert))
+        print('domainsOfSameCert = ' + str(domainsOfSameCert))
         print('certlocation = %s' % certlocation)
-	print('name = ' +str(name))
-	print('certname = ' +str(self.cr.certconfig[content['certificate']]['certname']))
+        print('name = ' +str(name))
+        print('certname = ' +str(self.cr.certconfig[content['certificate']]['certname']))
         cert = findCert(certlocation, name, domainsOfSameCert, self.cr.certconfig[content['certificate']]['certname'], certlocation)
         print('self.findCert = %s' % cert)
         return cert
