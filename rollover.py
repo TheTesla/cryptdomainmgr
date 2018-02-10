@@ -11,5 +11,11 @@ from cryptdomainmgr import *
 from sys import argv
 
 mgr = ManagedDomain()
-mgr.rollover(argv[1:])
+if '--update-only' == argv[1]:
+    mgr.update('rollover', argv[2:])
+elif '--update' == argv[1]:
+    mgr.update('', argv[2:])
+    mgr.rollover()
+else:
+    mgr.rollover(argv[1:])
 

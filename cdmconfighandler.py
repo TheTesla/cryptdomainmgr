@@ -75,11 +75,15 @@ class ConfigReader:
         self.conflictingservices = {}
 
     def setFilenames(self, filenames):
+        if filenames is None:
+            return
         if type(filenames) is str:
             filenames = [filenames]
         self.filenameList = filenames
 
     def addFilenames(self, filenames):
+        if filenames is None:
+            return
         if type(filenames) is str:
             filenames = [filenames]
         self.filenameList.extend(filenames)

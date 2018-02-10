@@ -11,5 +11,11 @@ from cryptdomainmgr import *
 from sys import argv
 
 mgr = ManagedDomain()
-mgr.prepare(argv[1:])
+if '--update-only' == argv[1]:
+    mgr.update('prepare', argv[2:])
+elif '--update' == argv[1]:
+    mgr.update('', argv[2:])
+    mgr.prepare()
+else:
+    mgr.prepare(argv[1:])
 

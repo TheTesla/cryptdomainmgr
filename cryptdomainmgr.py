@@ -51,10 +51,10 @@ class ManagedDomain:
         self.cr = ConfigReader()
         self.dnsup = dnsuptools.DNSUpTools()
         self.confPar = configparser.ConfigParser()
-        self.certconfig = {} #{'generator': 'certbot', 'email': 'stefan.helmert@t-online.de', 'destination': '/etc/ssl', 'extraflags': '', 'source': '/etc/letsencrypt/live', 'certname': 'fullchain.pem', 'keysize': 4096, 'webservers': 'apache2, nginx'}
-        self.domainconfig = {} #{'myexample.net': {'ip4': 'auto', 'ip6': 'auto', 'hasdkim': True, 'gencert': True, 'certlocation': '', 'tlsa': 'auto', 'mx': {'mail.myexample.net': 10}}}
-        self.dkimconfig = {} #{'generator': 'rspamd', 'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingconftemplatefile': './dkim_signing_template.conf', 'signingconftemporaryfile': '/etc/rspamd/dkim_signing_new.conf', 'signingconfdestinationfile': '/etc/rspamd/local.d/dkim_signing.conf'}
-        self.webservers = [] #['apache2', 'nginx']
+        self.certconfig = {} 
+        self.domainconfig = {} 
+        self.dkimconfig = {} 
+        self.webservers = [] 
 
     def readConfig(self, confFiles):
         self.cr.setFilenames(confFiles)
@@ -194,25 +194,13 @@ class ManagedDomain:
             if 'ip6+' in content:
                 self.dnsup.addAAAA(name, content['ip6+']) 
 
-    def addMX(self, delete = False):
+    def addMX(self):
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
                 continue
-            #if 'mxAdd' in content:
-            #    for mx in content['mxAdd']:
-            #        self.dnsup.addMX(name, mx['content'], mx['addprio']) 
             if 'mxAggrAdd' in content:
                 for mx in content['mxAggrAdd']:
                     self.dnsup.addMX(name, mx['content'], mx['prio']) 
-
-            #if 'mx' in content:
-            #    mx = content['mx']
-            #    if type(mx) is str:
-            #        mx = {mx: 10}
-            #    for k, v in mx.items():
-            #        self.dnsup.addMX(name, k, v)
-            #    if delete is True:
-            #        self.dnsup.delMX(name, '*', mx.keys())
             
     def setMX(self):
         for name, content in self.cr.domainconfig.items():
@@ -226,14 +214,12 @@ class ManagedDomain:
                     delList = [{}]
                 presList = [{'prio': e['addprio'], 'content': e['content']} for e in content['mxSet']]
                 self.dnsup.delDictList({'name': name, 'type': 'MX'}, delList, presList)
-        #self.addMX(True)
 
     def delMX(self):
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
                 continue
             if 'mxAggrDel' in content:
-                #delList = [{'prio': e['prio']} for e in content['mxAggrDel']]
                 delList = content['mxAggrDel']
                 for e in delList:
                     del e['key']
@@ -241,8 +227,6 @@ class ManagedDomain:
                 for e in presList:
                     del e['key']
                 self.dnsup.delDictList({'name': name, 'type': 'MX'}, delList, presList)
-
-
 
     def addTLSA(self):
         for name, content in self.cr.domainconfig.items():
@@ -344,8 +328,7 @@ class ManagedDomain:
     def certCleanup(self):
         self.setTLSA()
 
-
-    def prepare(self, confFile = None):
+    def update(self, state = '', confFile = None):
         self.readConfig(confFile)
         self.setCAA()
         self.addCAA()
@@ -354,14 +337,23 @@ class ManagedDomain:
         self.addSPF()
         self.setADSP()
         self.setDMARC()
-        #self.setSRV()
+        self.setSRV()
         self.addSRV()
         self.delSRV()
         self.setIPs()
         self.addIPs()
-        #self.setMX()
+        self.setMX()
         self.addMX()
         self.delMX()
+        if 'prepare' == state:
+            self.addDKIM()
+            self.addTLSA()
+        elif 'cleanup' == state:
+            self.setDKIM()
+            self.setTLSA()
+
+    def prepare(self, confFile = None):
+        self.readConfig(confFile)
         self.certPrepare()
         self.dkimPrepare()
 
