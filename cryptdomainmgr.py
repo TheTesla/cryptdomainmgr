@@ -80,13 +80,14 @@ class ManagedDomain:
                 continue
             if 'certbot' != certConfig['generator']:
                 continue
+            print('Create Certificate -- Section: {}'.format(certSecName))
             domains = [k for k,v in self.cr.domainconfig.items() if 'certificate' in v and certSecName == v['certificate']]
-            print('createCert')
             print(certConfig)
             extraFlags = certConfig['extraflags']
             createCert(domains, certConfig['email'], certConfig['keysize'], extraFlags)
 
     def findCert(self, name, content):
+        print('Find Certificate')
         try:
             certlocation = self.cr.certconfig[content['certificate']]['source']
         except:
@@ -96,12 +97,12 @@ class ManagedDomain:
         else:
             certSecName = 'DEFAULT'
         domainsOfSameCert = [k for k,v in self.cr.domainconfig.items() if 'certificate' in v and certSecName == v['certificate']]
-        print('domainsOfSameCert = ' + str(domainsOfSameCert))
-        print('certlocation = %s' % certlocation)
-        print('name = ' +str(name))
-        print('certname = ' +str(self.cr.certconfig[content['certificate']]['certname']))
+        print('  domainsOfSameCert = ' + str(domainsOfSameCert))
+        print('  certlocation = %s' % certlocation)
+        print('  name = ' +str(name))
+        print('  certname = ' +str(self.cr.certconfig[content['certificate']]['certname']))
         cert = findCert(certlocation, name, domainsOfSameCert, self.cr.certconfig[content['certificate']]['certname'], certlocation)
-        print('self.findCert = %s' % cert)
+        print('  self.findCert = %s' % cert)
         return cert
 
 
@@ -249,8 +250,10 @@ class ManagedDomain:
             if 'certificate' not in content:
                 continue
             src = os.path.dirname(self.findCert(name, content))
-            print(src)
-            rv = check_output(('cp', '-rfLT', str(src), os.path.join(self.cr.certconfig[content['certificate']]['destination'], name)))
+            dest = os.path.join(self.cr.certconfig[content['certificate']]['destination'], name)
+            print('Copy Certificate')
+            print('  {} -> {}'.format(src, dest))
+            rv = check_output(('cp', '-rfLT', str(src), str(dest)))
 
 
     def stop80(self):
