@@ -8,34 +8,6 @@
 #######################################################################
 
 import configparser
-import os
-import re
-
-def mxParse(mxStr, prioDefault = 10):
-        mxPrio = mxStr.split(':')
-        if 2 == len(mxPrio):
-            return (str(mxPrio[0]), int(mxPrio[1]))
-        elif 1 == len(mxPrio):
-            return (str(mxPrio[0]), int(prioDefault))
-        else:
-            return ()
-
-def parseBool(x):
-    if type(x) is bool:
-        return x
-    else:
-        x = str(x)
-        x = re.sub(' ', '', x)
-        x = x.lower()
-        if 'true' == x:
-            print(x)
-            return True
-        elif '1' == x:
-            return True
-        elif 'yes' == x:
-            return True
-        else:
-            return False
 
 def srvParseDel(srv):
     defaultAggrDel = {'content': [], 'prio': '*', 'key': []}
@@ -310,7 +282,7 @@ def interpreteCertConfig(cf):
         #else:
         #    certconfig[certSecName]['extraflags'] = []
         if 'conflictingservices' in content:
-            conflictingservices = re.sub(' ', '', content['conflictingservices']).split(',')
+            conflictingservices = content['conflictingservices'].replace(' ', '').split(',')
             if '' == conflictingservices[0]:
                 conflictingservices = []
             certconfig[certSecName]['conflictingservices'] = conflictingservices
