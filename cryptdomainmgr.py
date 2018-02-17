@@ -16,7 +16,7 @@ import configparser
 import time
 from jinja2 import Template
 from cdmconfighandler import *
-
+from deepops import passwordFilter 
 
 def findCert(path, curName = None, nameList = [], filename = 'fullchain.pem', cert = None):
     path = os.path.expanduser(path)

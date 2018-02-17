@@ -9,6 +9,30 @@
 
 import configparser
 
+import cdmlogger as log
+
+#import logging
+#import traceback
+#
+#import re
+#
+#logger = logging.getLogger('cryptdomainmgr')
+#logger.setLevel(logging.DEBUG)
+#formatter = logging.Formatter('%(levelname)s    [%(asctime)s]    %(message)s')
+#ch = logging.StreamHandler()
+#ch.setFormatter(formatter)
+#logger.addHandler(ch)
+#
+#def log(msg):
+#    trc = traceback.extract_stack()
+#    return '{}/{}()/{}:    {}'.format(trc[-3][0], trc[-3][2], re.search('[^\(]*\((.*)\)', trc[-3][3]).group(1), passwordFilter(msg))
+#
+#def debug(msg):
+#    logger.debug(log(msg))
+#
+#def info(msg):
+#    logger.info(log(msg))
+
 def srvParseDel(srv):
     defaultAggrDel = {'content': [], 'prio': '*', 'key': []}
     for i, e in enumerate(srv['aggrDelList']):
@@ -17,7 +41,7 @@ def srvParseDel(srv):
         aggrDel['content'].extend(6 * ['*'])
         aggrDel['key'].extend(6 * ['*'])
         srv['aggrDelList'][i] = aggrDel
-    print(srv['aggrDelList'])
+    log.debug(srv['aggrDelList'])
     srvAggrDel = [{'prio': e['prio'], 'service': e['key'][1], 'proto': e['key'][2], 'port': e['key'][3], 'weight': e['key'][4]} for e in srv['aggrDelList']]
     srvAggrDel = [{k: v for k, v in e.items() if '*' != str(v)} for e in srvAggrDel]
     return srvAggrDel
@@ -84,7 +108,7 @@ def prioParse(content, rrType='mx', removeSpaces=True, dotsLeft=0, keySplit=Fals
         ks = k.rsplit('.', dotsLeft + 1)
         if rrType != k.split('.')[0]:
             continue
-        print(v)
+        log.debug(v)
         if removeSpaces is True:
             v = v.replace(' ', '')
         vList = v.split(',')
@@ -166,7 +190,7 @@ def interpreteDomainConfig(cf):
         if 'caa+' in content:
             domainconfig[domain]['caa+'] = [(lambda x: {'flag': x[0], 'tag': x[1], 'url': x[2]})([f for f in e.split(' ') if '' != f]) for e in domainconfig[domain]['caa+'].split(',')]
 
-    print(domainconfig)
+    log.debug(domainconfig)
     return domainconfig
 
 def interpreteDKIMConfig(cf):
@@ -186,9 +210,9 @@ def interpreteCertConfig(cf):
 
     for certSecName, content in certconfig.items():
         if 'generator' in content:
-            print('generator in content')
+            log.debug('generator in content')
             if 'certbot' == str(content['generator']): # certbot default certificate location - overrides source config
-                print('certbot is generator')
+                log.debug('certbot is generator')
                 certconfig[certSecName]['source'] = '/etc/letsencrypt/live'
         if 'keysize' in content:
             certconfig[certSecName]['keysize'] = int(certconfig[certSecName]['keysize'])
@@ -199,7 +223,7 @@ def interpreteCertConfig(cf):
             if '' == conflictingservices[0]:
                 conflictingservices = []
             certconfig[certSecName]['conflictingservices'] = conflictingservices
-    print(certconfig)
+    log.debug(certconfig)
     return certconfig
 
 
