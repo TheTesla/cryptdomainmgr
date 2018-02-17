@@ -17,7 +17,7 @@ from jinja2 import Template
 from cdmconfighandler import *
 
 from simplelogger import simplelogger as log
-from dnsupdate import dnsuptools 
+from dnsuptools import dnsuptools 
 
 def findCert(path, curName = None, nameList = [], filename = 'fullchain.pem', cert = None):
     path = os.path.expanduser(path)
