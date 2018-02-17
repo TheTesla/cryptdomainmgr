@@ -20,6 +20,8 @@ from simplelogger import simplelogger as log
 from dnsuptools import dnsuptools 
 
 def findCert(path, curName = None, nameList = [], filename = 'fullchain.pem', cert = None):
+    if path is None:
+        return None
     path = os.path.expanduser(path)
     if cert is not None:
         cert = os.path.expanduser(cert)
@@ -88,6 +90,7 @@ class ManagedDomain:
             createCert(domains, certConfig['email'], certConfig['keysize'], extraFlags)
 
     def findCert(self, name, content):
+	log.debug(self.cr.certconfig)
         try:
             certlocation = self.cr.certconfig[content['certificate']]['source']
         except:
@@ -100,8 +103,12 @@ class ManagedDomain:
         log.debug('  domainsOfSameCert = ' + str(domainsOfSameCert))
         log.debug('  certlocation = %s' % certlocation)
         log.debug('  name = ' +str(name))
-        log.debug('  certname = ' +str(self.cr.certconfig[content['certificate']]['certname']))
-        cert = findCert(certlocation, name, domainsOfSameCert, self.cr.certconfig[content['certificate']]['certname'], certlocation)
+        if certSecName in self.cr.certconfig:
+            certName = self.cr.certconfig[certSecName]['certname']
+        else:
+            certName = 'fullchain.pem'
+        log.debug('  certname = ' +str(certName))
+        cert = findCert(certlocation, name, domainsOfSameCert, certName, certlocation)
         log.debug('  self.findCert = %s' % cert)
         return cert
 
@@ -233,14 +240,22 @@ class ManagedDomain:
             if 'DEFAULT' == name:
                 continue
             if 'tlsa' in content:
-                self.dnsup.addTLSAfromCert(name, self.findCert(name, content), content['tlsa'])
+                cert = self.findCert(name, content)
+                if cert is None:
+                    log.info('{} has no cert'.format(name))
+                else:
+                    self.dnsup.addTLSAfromCert(name, cert, content['tlsa'])
 
     def setTLSA(self):
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
                 continue
             if 'tlsa' in content:
-                self.dnsup.setTLSAfromCert(name, self.findCert(name, content), content['tlsa'])
+                cert = self.findCert(name, content)
+                if cert is None:
+                    log.info('{} has no cert'.format(name))
+                else:
+                    self.dnsup.setTLSAfromCert(name, cert, content['tlsa'])
 
     def copyCert(self):
         for name, content in self.cr.domainconfig.items():
