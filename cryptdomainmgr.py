@@ -16,7 +16,8 @@ import configparser
 import time
 from jinja2 import Template
 from cdmconfighandler import *
-from deepops import passwordFilter 
+
+from simplelogger import cdmlogger as log
 
 def findCert(path, curName = None, nameList = [], filename = 'fullchain.pem', cert = None):
     path = os.path.expanduser(path)
@@ -80,14 +81,13 @@ class ManagedDomain:
                 continue
             if 'certbot' != certConfig['generator']:
                 continue
-            print('Create Certificate -- Section: {}'.format(certSecName))
+            log.debug('Create Certificate -- Section: {}'.format(certSecName))
             domains = [k for k,v in self.cr.domainconfig.items() if 'certificate' in v and certSecName == v['certificate']]
-            print(certConfig)
+            log.debug(certConfig)
             extraFlags = certConfig['extraflags']
             createCert(domains, certConfig['email'], certConfig['keysize'], extraFlags)
 
     def findCert(self, name, content):
-        print('Find Certificate')
         try:
             certlocation = self.cr.certconfig[content['certificate']]['source']
         except:
@@ -97,12 +97,12 @@ class ManagedDomain:
         else:
             certSecName = 'DEFAULT'
         domainsOfSameCert = [k for k,v in self.cr.domainconfig.items() if 'certificate' in v and certSecName == v['certificate']]
-        print('  domainsOfSameCert = ' + str(domainsOfSameCert))
-        print('  certlocation = %s' % certlocation)
-        print('  name = ' +str(name))
-        print('  certname = ' +str(self.cr.certconfig[content['certificate']]['certname']))
+        log.debug('  domainsOfSameCert = ' + str(domainsOfSameCert))
+        log.debug('  certlocation = %s' % certlocation)
+        log.debug('  name = ' +str(name))
+        log.debug('  certname = ' +str(self.cr.certconfig[content['certificate']]['certname']))
         cert = findCert(certlocation, name, domainsOfSameCert, self.cr.certconfig[content['certificate']]['certname'], certlocation)
-        print('  self.findCert = %s' % cert)
+        log.debug('  self.findCert = %s' % cert)
         return cert
 
 
@@ -244,15 +244,15 @@ class ManagedDomain:
 
     def copyCert(self):
         for name, content in self.cr.domainconfig.items():
-            print(name)
+            log.debug(name)
             if 'DEFAULT' == name:
                 continue
             if 'certificate' not in content:
                 continue
             src = os.path.dirname(self.findCert(name, content))
             dest = os.path.join(self.cr.certconfig[content['certificate']]['destination'], name)
-            print('Copy Certificate')
-            print('  {} -> {}'.format(src, dest))
+            log.debug('Copy Certificate')
+            log.debug('  {} -> {}'.format(src, dest))
             rv = check_output(('cp', '-rfLT', str(src), str(dest)))
 
 
@@ -271,9 +271,9 @@ class ManagedDomain:
             keys = findDKIMkeyTXT(dkimContent['keylocation'], dkimContent['keybasename'])
             keys = [f[1] for f in keys]
             domainsOfSameDKIM = {k:v for k, v in self.cr.domainconfig.items() if 'dkim' in v and dkimSecName == v['dkim']}
-            print(keys)
+            log.debug(keys)
             for name, content in domainsOfSameDKIM.items():
-                print((name, keys))
+                log.debug((name, keys))
                 if delete is True:
                     self.dnsup.setDKIMfromFile(name, keys)
                 else:
@@ -399,22 +399,22 @@ def findDKIMkeyTXT(keylocation, keybasename, fileending = 'txt'):
 def findDKIMkey(keylocation, keybasename, fileending = '{}'):
     keylocation = os.path.expanduser(keylocation)
     keyfiles = [(parse(str(keybasename)+'_{:d}.'+str(fileending), f), os.path.join(keylocation, f)) for f in os.listdir(keylocation) if os.path.isfile(os.path.join(keylocation, f))]
-    print(keyfiles)
+    log.debug(keyfiles)
     keyfiles = [(e[0][0], e[1]) for e in keyfiles if e[0] is not None]
-    print(keyfiles)
+    log.debug(keyfiles)
     return keyfiles
 
 
 def createCert(domainList, email, keysize = 4096, extraFlags = []):
-    print(domainList)
+    log.debug(domainList)
     if 0 == len(domainList):
         return
     args = ['./certbot/certbot-auto', 'certonly', '--email', str(email), '--agree-tos', '--non-interactive', '--standalone', '--expand', '--rsa-key-size', str(int(keysize))]
-    print(extraFlags)
+    log.debug(extraFlags)
     args.extend(extraFlags)
     for d in domainList:
         args.extend(['-d', str(d)])
-    print(args)
+    log.debug(args)
     rv = check_output(args)
     return rv
 

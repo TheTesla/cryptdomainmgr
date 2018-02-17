@@ -9,7 +9,7 @@
 
 import configparser
 
-import cdmlogger as log
+from simplelogger import cdmlogger as log
 
 #import logging
 #import traceback
