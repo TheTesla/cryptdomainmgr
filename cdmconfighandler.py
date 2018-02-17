@@ -9,29 +9,8 @@
 
 import configparser
 
-from simplelogger import cdmlogger as log
+from simplelogger import simplelogger as log
 
-#import logging
-#import traceback
-#
-#import re
-#
-#logger = logging.getLogger('cryptdomainmgr')
-#logger.setLevel(logging.DEBUG)
-#formatter = logging.Formatter('%(levelname)s    [%(asctime)s]    %(message)s')
-#ch = logging.StreamHandler()
-#ch.setFormatter(formatter)
-#logger.addHandler(ch)
-#
-#def log(msg):
-#    trc = traceback.extract_stack()
-#    return '{}/{}()/{}:    {}'.format(trc[-3][0], trc[-3][2], re.search('[^\(]*\((.*)\)', trc[-3][3]).group(1), passwordFilter(msg))
-#
-#def debug(msg):
-#    logger.debug(log(msg))
-#
-#def info(msg):
-#    logger.info(log(msg))
 
 def srvParseDel(srv):
     defaultAggrDel = {'content': [], 'prio': '*', 'key': []}

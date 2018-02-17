@@ -7,7 +7,6 @@
 #
 #######################################################################
 
-from dnsupdate import dnsuptools 
 
 from subprocess import check_output
 import os
@@ -17,7 +16,8 @@ import time
 from jinja2 import Template
 from cdmconfighandler import *
 
-from simplelogger import cdmlogger as log
+from simplelogger import simplelogger as log
+from dnsupdate import dnsuptools 
 
 def findCert(path, curName = None, nameList = [], filename = 'fullchain.pem', cert = None):
     path = os.path.expanduser(path)
