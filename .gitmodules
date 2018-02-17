@@ -4,6 +4,9 @@
 [submodule "dnsupdate"]
 	path = dnsupdate
 	url = https://github.com/TheTesla/dnsupdate.git
+[submodule "dnsuptools"]
+	path = dnsuptools
+	url = https://github.com/TheTesla/dnsuptools.git
 [submodule "simplelogger"]
 	path = simplelogger
 	url = https://github.com/TheTesla/simplelogger.git
