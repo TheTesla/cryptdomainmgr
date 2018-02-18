@@ -112,9 +112,9 @@ def prioParse(content, rrType='mx', removeSpaces=True, dotsLeft=0, keySplit=Fals
             if 2 <= len(vs):
                 item['addprio'] = vs[1]
                 addItem['prio'] = vs[1]
+            aggrAddList.append(addItem)
             if addMode is True:
                 addList.append(item)
-                aggrAddList.append(addItem)
             else:
                 setList.append(item)
                 aggrDelList.append(delItem)

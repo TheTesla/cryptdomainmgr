@@ -359,7 +359,7 @@ class ManagedDomain:
         self.delSRV()
         self.setIPs()
         self.addIPs()
-        self.setMX()
+        # self.setMX() # preplaced by addMX() and delMX()
         self.addMX()
         self.delMX()
         if 'prepare' == state:
