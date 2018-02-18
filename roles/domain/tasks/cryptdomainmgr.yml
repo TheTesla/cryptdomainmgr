@@ -115,7 +115,7 @@
     dest: "/root/domains.conf"
     section: "domain:{{ item.emaildomain }}"
     option: "mx"
-    value: "{{ item.serverdomain }}:10"
+    value: "{{ item.mx }}:10"
   with_items:
     - "{{ allmaps }}"
 

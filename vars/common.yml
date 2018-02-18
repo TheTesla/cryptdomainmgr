@@ -7,9 +7,9 @@ name: "testserver"
 domain: "{{ name }}.{{ tld }}"
 emaildomain: "mymail.{{ tld }}"
 emailmaps:
-  - { emaildomain: "mymail.entroserv.de", serverdomain: "testserver.entroserv.de" }
-  - { emaildomain: "extra.entroserv.de", serverdomain: "testserver.entroserv.de" }
-  - { emaildomain: "extra.smartrns.net", serverdomain: "testserver.smartrns.net" }
+  - { emaildomain: "mymail.entroserv.de", mx: "testserver.entroserv.de" }
+  - { emaildomain: "extra.entroserv.de", mx: "testserver.entroserv.de" }
+  - { emaildomain: "extra.smartrns.net", mx: "testserver.smartrns.net" }
 listmaps:
   - { emaildomain: "list.mail.smartrns.net", webdomain: "list.www.smartrns.net", mx: 'testserver.smartrns.net'}
   - { emaildomain: "lists.smartrns.net", webdomain: "lists.smartrns.net", mx: 'testserver.smartrns.net' }
@@ -17,14 +17,14 @@ listmaps:
   - { emaildomain: "other.entroserv.de", webdomain: "www.list.smartrns.net", mx: 'testserver.smartrns.net' }
 
 
-secondarydomains: "{{ emailmaps | map(attribute='serverdomain') | unique | list }}"
+secondarydomains: "{{ emailmaps | map(attribute='mx') | unique | list }}"
 secondaryemaildomains: "{{ emailmaps | map(attribute='emaildomain') | unique | list }}"
 secondarylistwebdomains: "{{ listmaps | map(attribute='webdomain') | unique | list }}"
 secondarylistemaildomains: "{{ listmaps | map(attribute='emaildomain') | unique | list }}"
 
-alldomains: "[ '{{ domain }}' ] + {{ secondarydomains }} + {{ secondarylistwebdomains }}"
-allemaildomains: "[ '{{ emaildomain }}' ] + {{ secondaryemaildomains }} + {{ secondarylistemaildomains ]]"
-allmaps: "[ {emaildomain: {{ emaildomain }}, webdomain: {{ domain }}, mx: {{ domain }} } ] + {{ emailmaps }} + {{ listmaps }}"
+alldomains: "{{ ( [ domain ] + secondarydomains + secondarylistwebdomains ) | unique | list }}"
+allemaildomains: "{{ ( [ emaildomain ] + secondaryemaildomains + secondarylistemaildomains ) | unique | list }}"
+allmaps: "{{ ( [ {'emaildomain': emaildomain , 'webdomain': domain , 'mx':  domain  } ] + emailmaps + listmaps ) | unique | list }}"
 
 tlsa: '311,201'
  # - "testserver.entroserv.de"

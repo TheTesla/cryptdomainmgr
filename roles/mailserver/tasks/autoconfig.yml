@@ -29,21 +29,21 @@
         <displayName>Tesla42 Ansible mailserver/tine</displayName>
         <displayShortName>Tesla42</displayShortName>
         <incomingServer type="imap">
-          <hostname>{{ item.serverdomain }}</hostname>
+          <hostname>{{ item.mx }}</hostname>
           <port>143</port>
           <socketType>STARTTLS</socketType>
           <authentication>password-cleartext</authentication>
           <username>%EMAILLOCALPART%@{{ domain }}</username>
         </incomingServer>
         <incomingServer type="pop3">
-          <hostname>{{ item.serverdomain }}</hostname>
+          <hostname>{{ item.mx }}</hostname>
           <port>110</port>
           <socketType>STARTTLS</socketType>
           <authentication>password-cleartext</authentication>
           <username>%EMAILLOCALPART%@{{ domain }}</username>
         </incomingServer>
         <outgoingServer type="smtp">
-          <hostname>{{ item.serverdomain }}</hostname>
+          <hostname>{{ item.mx }}</hostname>
           <port>587</port>
           <socketType>STARTTLS</socketType>
           <authentication>password-cleartext</authentication>
@@ -55,7 +55,7 @@
         </documentation>
       </emailProvider>
   with_items:
-    - { emaildomain: "{{ emaildomain }}", serverdomain: "{{ domain }}" }
+    - { emaildomain: "{{ emaildomain }}", mx: "{{ domain }}" }
     - "{{ emailmaps }}"
           
     
