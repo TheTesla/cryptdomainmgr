@@ -22,6 +22,11 @@ secondaryemaildomains: "{{ emailmaps | map(attribute='emaildomain') | unique | l
 secondarylistwebdomains: "{{ listmaps | map(attribute='webdomain') | unique | list }}"
 secondarylistemaildomains: "{{ listmaps | map(attribute='emaildomain') | unique | list }}"
 
+alldomains: "[ '{{ domain }}' ] + {{ secondarydomains }} + {{ secondarylistwebdomains }}"
+allemaildomains: "[ '{{ emaildomain }}' ] + {{ secondaryemaildomains }} + {{ secondarylistemaildomains ]]"
+allmaps: "[ {emaildomain: {{ emaildomain }}, webdomain: {{ domain }}, mx: {{ domain }} } ] + {{ emailmaps }} + {{ listmaps }}"
+
+tlsa: '311,201'
  # - "testserver.entroserv.de"
  #  - "a.b.c"
  #  - "example.de"
