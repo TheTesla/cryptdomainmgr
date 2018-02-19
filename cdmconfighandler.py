@@ -102,6 +102,7 @@ def prioParse(content, rrType='mx', removeSpaces=True, dotsLeft=0, keySplit=Fals
             item = {'content': args, 'key': ks[0], 'delprio': '*', 'addprio': 10}
             baseItem = {'content': args, 'key': ks[0]}
             delItem = dict(baseItem)
+            del delItem['content']
             addItem = dict(baseItem)
             addItem['prio'] = 10 # default
             if 2 == len(ks):
