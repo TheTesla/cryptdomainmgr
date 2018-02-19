@@ -5,7 +5,8 @@ tld: "smartrns.net"
 #tld: "entroserv.de"
 name: "testserver"
 domain: "{{ name }}.{{ tld }}"
-emaildomain: "mymail.{{ tld }}"
+#emaildomain: "mymail.{{ tld }}"
+emaildomain: "{{ tld }}"
 emailmaps:
   - { emaildomain: "mymail.entroserv.de", mx: "testserver.entroserv.de" }
   - { emaildomain: "extra.entroserv.de", mx: "testserver.entroserv.de" }
@@ -16,6 +17,8 @@ listmaps:
   - { emaildomain: "other.smartrns.net", webdomain: "www.list.entroserv.de", mx: 'testserver.entroserv.de' }
   - { emaildomain: "other.entroserv.de", webdomain: "www.list.smartrns.net", mx: 'testserver.smartrns.net' }
 
+secondarytlds:
+  - "entroserv.de"
 
 secondarydomains: "{{ emailmaps | map(attribute='mx') | unique | list }}"
 secondaryemaildomains: "{{ emailmaps | map(attribute='emaildomain') | unique | list }}"
@@ -25,6 +28,7 @@ secondarylistemaildomains: "{{ listmaps | map(attribute='emaildomain') | unique 
 alldomains: "{{ ( [ domain ] + secondarydomains + secondarylistwebdomains ) | unique | list }}"
 allemaildomains: "{{ ( [ emaildomain ] + secondaryemaildomains + secondarylistemaildomains ) | unique | list }}"
 allmaps: "{{ ( [ {'emaildomain': emaildomain , 'webdomain': domain , 'mx':  domain  } ] + emailmaps + listmaps ) | unique | list }}"
+alltlds: "{{ ( [ tld ] + secondarytlds ) | unique | list }}"
 
 tlsa: '311,201'
  # - "testserver.entroserv.de"
