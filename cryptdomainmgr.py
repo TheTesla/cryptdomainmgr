@@ -301,6 +301,7 @@ class ManagedDomain:
         for dkimSecName, dkimContent in self.cr.dkimconfig.items():
             if 'DEFAULT' == dkimSecName:
                 continue
+            log.info("Preparing DKIM key for dkim-section: \"{}\"".format(dkimSecName))
             if 'generator' not in dkimContent:
                 continue
             if 'rspamd' == dkimContent['generator']:
@@ -424,7 +425,7 @@ def createCert(domainList, email, keysize = 4096, extraFlags = []):
     log.debug(domainList)
     if 0 == len(domainList):
         return
-    args = ['./certbot/certbot-auto', 'certonly', '--email', str(email), '--agree-tos', '--non-interactive', '--standalone', '--expand', '--rsa-key-size', str(int(keysize))]
+    args = [os.path.join(os.path.dirname(os.path.realpath(__file__)), 'certbot/certbot-auto'), 'certonly', '--email', str(email), '--agree-tos', '--non-interactive', '--standalone', '--expand', '--rsa-key-size', str(int(keysize))]
     log.debug(extraFlags)
     args.extend(extraFlags)
     for d in domainList:
