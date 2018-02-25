@@ -325,7 +325,6 @@ class ManagedDomain:
             if 'generator' not in dkimContent:
                 continue
             if 'rspamd' == dkimContent['generator']:
-                self.setDKIM()
                 keyFiles = findDKIMkey(dkimContent['keylocation'], dkimContent['keybasename'])
                 keyFiles.sort()
                 if 2 > len(keyFiles):
@@ -333,6 +332,8 @@ class ManagedDomain:
                 del keyFiles[-1]
                 for keyFile in keyFiles:
                     rv = check_output(('rm', keyFile[1]))
+                # set records after deleting, to delete all records, where the files are already deleted 
+                self.setDKIM()
 
     def certPrepare(self):
         self.stop80()
