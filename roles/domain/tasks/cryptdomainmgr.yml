@@ -82,7 +82,7 @@
     option: "{{ item[0].key }}"
     value: "{{ item[0].value }}"
   with_nested:
-    - [{key: 'ip4', value: 'auto'}, {key: 'ip6', value: 'auto'}, {key: 'tlsa', value: '{{ tlsa }}'}, {key: 'certificate', value: 'maincert'}, {key: 'dkim', value: 'maindkim'}]
+    - [{key: 'ip4', value: 'auto'}, {key: 'ip6', value: 'auto'}, {key: 'tlsa', value: '{{ tlsa }}'}, {key: 'certificate', value: 'maincert'}]
     - "{{ alldomains }}"
     
 - name: Set toplevel domain configurations - soa
@@ -113,15 +113,15 @@
   with_items:
     - "{{ allmaps }}"
 
-- name: Set e-mail domain configurations - dmarc
+- name: Set e-mail domain configurations - dmarc, dkim
   ini_file:
     dest: "/root/domains.conf"
-    section: "domain:{{ item[1] }}"
+    section: "domain:{{ item[1].emaildomain }}"
     option: "{{ item[0].key }}"
     value: "{{ item[0].value }}"
   with_nested:
-    - [{key: 'dmarc.p', value: 'quarantine'}, {key: 'dmarc.rua', value: 'mailto:admin@smartrns.net'}, {key: 'dmarc.ruf', value: 'mailto:admin@smartrns.net'}, {key: 'dmarc.adkim', value: 's'}, {key: 'dmarc.aspf', value: 'r'}, {key: 'dmarc.pct', value: '100'}]
-    - "{{ allemaildomains }}"
+    - [{key: 'dmarc.p', value: 'quarantine'}, {key: 'dmarc.rua', value: 'mailto:admin@smartrns.net'}, {key: 'dmarc.ruf', value: 'mailto:admin@smartrns.net'}, {key: 'dmarc.adkim', value: 's'}, {key: 'dmarc.aspf', value: 'r'}, {key: 'dmarc.pct', value: '100'}, {key: 'dkim', value: 'maindkim'}]
+    - "{{ allmaps }}"
 
 - name: Set e-mail domain configurations - spf
   ini_file:
