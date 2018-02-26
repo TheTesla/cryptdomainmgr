@@ -85,6 +85,16 @@
     - [{key: 'ip4', value: 'auto'}, {key: 'ip6', value: 'auto'}, {key: 'tlsa', value: '{{ tlsa }}'}, {key: 'certificate', value: 'maincert'}]
     - "{{ alldomains }}"
     
+- name: Set domain configurations for email autoconfig
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "domain:autoconfig.{{ item[1] }}"
+    option: "{{ item[0].key }}"
+    value: "{{ item[0].value }}"
+  with_nested:
+    - [{key: 'ip4', value: 'auto'}, {key: 'ip6', value: 'auto'}, {key: 'tlsa', value: '{{ tlsa }}'}, {key: 'certificate', value: 'maincert'}]
+    - "{{ allemaildomains }}"
+
 - name: Set toplevel domain configurations - soa
   ini_file:
     dest: "/root/domains.conf"
@@ -104,23 +114,33 @@
   with_items:
     - "{{ allmaps }}"
 
-- name: Set e-mail domain configurations - tlsa
-  ini_file:
-    dest: "/root/domains.conf"
-    section: "domain:{{ item.emaildomain }}"
-    option: "tlsa"
-    value: "{{ tlsa }}"
-  with_items:
-    - "{{ allmaps }}"
+  #- name: Set e-mail domain configurations - tlsa
+  #  ini_file:
+  #    dest: "/root/domains.conf"
+  #    section: "domain:{{ item.emaildomain }}"
+  #    option: "tlsa"
+  #    value: "{{ tlsa }}"
+  #  with_items:
+  #    - "{{ allmaps }}"
 
-- name: Set e-mail domain configurations - dmarc, dkim
+- name: Set e-mail domain configurations - dmarc
   ini_file:
     dest: "/root/domains.conf"
     section: "domain:{{ item[1].emaildomain }}"
     option: "{{ item[0].key }}"
     value: "{{ item[0].value }}"
   with_nested:
-    - [{key: 'dmarc.p', value: 'quarantine'}, {key: 'dmarc.rua', value: 'mailto:admin@smartrns.net'}, {key: 'dmarc.ruf', value: 'mailto:admin@smartrns.net'}, {key: 'dmarc.adkim', value: 's'}, {key: 'dmarc.aspf', value: 'r'}, {key: 'dmarc.pct', value: '100'}, {key: 'dkim', value: 'maindkim'}]
+    - [{key: 'dmarc.p', value: 'quarantine'}, {key: 'dmarc.rua', value: 'mailto:admin@smartrns.net'}, {key: 'dmarc.ruf', value: 'mailto:admin@smartrns.net'}, {key: 'dmarc.adkim', value: 's'}, {key: 'dmarc.aspf', value: 'r'}, {key: 'dmarc.pct', value: '100'}]
+    - "{{ allmaps }}"
+
+- name: Set e-mail domain configurations - dkim
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "domain:{{ item[1].emaildomain }}"
+    option: "{{ item[0].key }}"
+    value: "{{ item[0].value }}"
+  with_nested:
+    - [{key: 'dkim', value: 'maindkim'}]
     - "{{ allmaps }}"
 
 - name: Set e-mail domain configurations - spf
