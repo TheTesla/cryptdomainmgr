@@ -242,8 +242,9 @@ class ManagedDomain:
             if 'tlsa' in content:
                 cert = self.findCert(name, content)
                 if cert is None:
-                    log.info('{} has no cert'.format(name))
+                    log.info('{} is not a primary domain of a certificate'.format(name))
                 else:
+                    log.info('{} is a primary domain of a certificate'.format(name))
                     self.dnsup.addTLSAfromCert(name, cert, content['tlsa'])
 
     def setTLSA(self):
@@ -258,6 +259,7 @@ class ManagedDomain:
                     self.dnsup.setTLSAfromCert(name, cert, content['tlsa'])
 
     def copyCert(self):
+        log.info('Copy certificate')
         for name, content in self.cr.domainconfig.items():
             log.debug(name)
             if 'DEFAULT' == name:
@@ -266,8 +268,7 @@ class ManagedDomain:
                 continue
             src = os.path.dirname(self.findCert(name, content))
             dest = os.path.join(self.cr.certconfig[content['certificate']]['destination'], name)
-            log.debug('Copy Certificate')
-            log.debug('  {} -> {}'.format(src, dest))
+            log.info('  {} -> {}'.format(src, dest))
             rv = check_output(('cp', '-rfLT', str(src), str(dest)))
 
 
@@ -423,7 +424,8 @@ def findDKIMkey(keylocation, keybasename, fileending = '{}'):
 
 
 def createCert(domainList, email, keysize = 4096, extraFlags = []):
-    log.debug(domainList)
+    log.info('createCert for {}'.format(', '.join(domainList)))
+    #log.debug(domainList)
     if 0 == len(domainList):
         return
     args = [os.path.join(os.path.dirname(os.path.realpath(__file__)), 'certbot/certbot-auto'), 'certonly', '--email', str(email), '--agree-tos', '--non-interactive', '--standalone', '--expand', '--rsa-key-size', str(int(keysize))]
