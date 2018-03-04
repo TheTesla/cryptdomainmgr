@@ -84,10 +84,11 @@ class ManagedDomain:
                 continue
             if 'certbot' != certConfig['generator']:
                 continue
-            log.debug('Create Certificate -- Section: {}'.format(certSecName))
+            log.info('Create certificate for section \"{}\"'.format(certSecName))
             domains = [k for k,v in self.cr.domainconfig.items() if 'certificate' in v and certSecName == v['certificate']]
-            log.debug(certConfig)
             extraFlags = certConfig['extraflags']
+            log.info('  -> {}'.format(', '.join(domains)))
+            log.debug(certConfig)
             createCert(domains, certConfig['email'], certConfig['keysize'], extraFlags)
 
     def findCert(self, name, content):
@@ -250,7 +251,10 @@ class ManagedDomain:
                     log.info('not deploying TLSA record for {} (no certificate)'.format(name))
                 else:
                     log.info('deploying TLSA record for {} (certificate found)'.format(name))
-                    log.info('  -> found certificate: {} for: {}'.format(cert, getCertSAN(cert)))
+                    sanList = getCertSAN(cert)
+                    log.info('  -> found certificate: {} for: {}'.format(cert, ', '.join(sanList)))
+                    if name not in sanList:
+                        log.error('{} not in certificate {}'.format(name, cert))
                     if addOnly is True:
                         self.dnsup.addTLSAfromCert(name, cert, content['tlsa'])
                     else:
@@ -297,6 +301,7 @@ class ManagedDomain:
         self.addDKIM(True)
 
     def dkimPrepare(self):
+        log.info('DKIM prepare')
         for dkimSecName, dkimContent in self.cr.dkimconfig.items():
             if 'DEFAULT' == dkimSecName:
                 continue
@@ -308,16 +313,21 @@ class ManagedDomain:
             self.addDKIM()
 
     def dkimRollover(self):
+        log.info('DKIM rollover')
         for dkimSecName, dkimContent in self.cr.dkimconfig.items():
             if 'DEFAULT' == dkimSecName:
                 continue
             if 'generator' not in dkimContent:
                 continue
             if 'rspamd' == dkimContent['generator']:
+                log.info('using new dkim key, moving new config file')
+                log.info('  {} -> {}'.format(dkimContent['signingconftemporaryfile'], dkimContent['signingconfdestinationfile']))
                 rv = check_output(('mv', dkimContent['signingconftemporaryfile'], dkimContent['signingconfdestinationfile']))
+                log.info('reloading rspamd')
                 rv = check_output(('systemctl', 'reload', 'rspamd'))
 
     def dkimCleanup(self):
+        log.info('DKIM cleanup')
         for dkimSecName, dkimContent in self.cr.dkimconfig.items():
             if 'DEFAULT' == dkimSecName:
                 continue
@@ -330,20 +340,24 @@ class ManagedDomain:
                     return
                 del keyFiles[-1]
                 for keyFile in keyFiles:
+                    log.info('  rm {}'.format(keyFile[1]))
                     rv = check_output(('rm', keyFile[1]))
                 # set records after deleting, to delete all records, where the files are already deleted 
                 self.setDKIM()
 
     def certPrepare(self):
+        log.info('Certificate prepare')
         self.stop80()
         self.createCert()
         self.start80()
         self.addTLSA()
 
     def certRollover(self):
+        log.info('Certificate rollover')
         self.copyCert()
 
     def certCleanup(self):
+        log.info('Certificate cleanup')
         self.setTLSA()
 
     def update(self, state = '', confFile = None):
@@ -422,7 +436,6 @@ def findDKIMkey(keylocation, keybasename, fileending = '{}'):
 
 
 def createCert(domainList, email, keysize = 4096, extraFlags = []):
-    log.info('createCert for {}'.format(', '.join(domainList)))
     #log.debug(domainList)
     if 0 == len(domainList):
         return
