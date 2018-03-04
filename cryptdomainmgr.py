@@ -369,12 +369,12 @@ class ManagedDomain:
         self.addSPF()
         self.setADSP()
         self.setDMARC()
-        self.setSRV()
+        # self.setSRV() # replaced by addSRV() and delSRV() 
         self.addSRV()
         self.delSRV()
         self.setIPs()
         self.addIPs()
-        # self.setMX() # preplaced by addMX() and delMX()
+        # self.setMX() # replaced by addMX() and delMX()
         self.addMX()
         self.delMX()
         if 'prepare' == state:
@@ -436,7 +436,6 @@ def findDKIMkey(keylocation, keybasename, fileending = '{}'):
 
 
 def createCert(domainList, email, keysize = 4096, extraFlags = []):
-    #log.debug(domainList)
     if 0 == len(domainList):
         return
     args = [os.path.join(os.path.dirname(os.path.realpath(__file__)), 'certbot/certbot-auto'), 'certonly', '--email', str(email), '--agree-tos', '--non-interactive', '--standalone', '--expand', '--rsa-key-size', str(int(keysize))]
