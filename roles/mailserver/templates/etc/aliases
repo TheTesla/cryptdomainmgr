@@ -1,4 +1,0 @@
-# /etc/aliases
-www-data: root
-root: {{ tine20_admin_name }}@{{ emaildomain }}
-

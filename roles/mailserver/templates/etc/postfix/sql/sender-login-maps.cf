@@ -1,8 +1,0 @@
-user     = {{ mailserver_db_user_name }} 
-password = {{ mailserver_db_user_passwd }}
-hosts    = {{ dbaddr }}
-dbname   = postfix
-query    = SELECT destination AS 'owns' FROM smtp_destinations WHERE source = CONCAT('%u','@','%d');
-# SELECT username AS 'owns' FROM smtp_destinations INNER JOIN smtp_users ON smtp_destinations.userid=smtp_users.userid WHERE source=CONCAT('%u','@','%d');
-
-

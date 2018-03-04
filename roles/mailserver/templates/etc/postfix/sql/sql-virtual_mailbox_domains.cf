@@ -1,6 +1,0 @@
-user     = {{ mailserver_db_user_name }} 
-password = {{ mailserver_db_user_passwd }}
-hosts    = {{ dbaddr }}
-dbname   = postfix
-query    = SELECT DISTINCT 1 FROM smtp_destinations WHERE SUBSTRING_INDEX(source, '@', -1) = '%s';
-

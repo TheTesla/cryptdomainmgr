@@ -1,3 +1,0 @@
-use = ["x-spamd-bar", "x-spam-level", "authentication-results"];
-authenticated_headers = ["authentication-results"];
-

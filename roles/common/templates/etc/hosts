@@ -1,3 +1,0 @@
-127.0.0.1 {{ domain }} {{ hostname }} localhost.localdomain localhost  
-::1       {{ domain }} {{ hostname }} localhost.localdomain ip6-localhost
-

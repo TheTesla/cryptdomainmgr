@@ -1,8 +1,0 @@
----
-
-- name: Copy tlsa generator bash script
-  copy:
-    src: "../files/root/chaingen.bash"
-    dest: "/root/chaingen.bash"
-    mode: 0744
-

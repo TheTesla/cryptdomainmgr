@@ -1,9 +1,0 @@
----
-
-- name: Clone certbot
-  git:
-    repo: "https://github.com/certbot/certbot"
-    dest: "/root/certbot"
-  notify:
-    - New certificate
-

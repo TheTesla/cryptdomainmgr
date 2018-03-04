@@ -1,6 +1,0 @@
-bayes_store_module Mail::SpamAssassin::BayesStore::MySQL
-bayes_sql_dsn DBI:mysql:spamassassin:localhost
-bayes_sql_username spamassassin
-bayes_sql_password {{ spamass_passwd }}
-bayes_sql_override_username {{ deliver_user_name }}
-

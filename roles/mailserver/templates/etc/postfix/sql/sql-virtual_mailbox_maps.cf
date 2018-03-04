@@ -1,6 +1,0 @@
-user     = {{ mailserver_db_user_name }} 
-password = {{ mailserver_db_user_passwd }}
-hosts    = {{ dbaddr }}
-dbname   = postfix
-query    = SELECT 1 FROM smtp_users WHERE username='%s' AND forward_only=0
-

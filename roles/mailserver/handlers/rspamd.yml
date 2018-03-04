@@ -1,9 +1,0 @@
----
-
-- name: Delete default /etc/rspamd 
-  file:
-    dest: "/etc/rspamd/local.d"
-    state: absent
-  listen: delete rspamd config
-
-
