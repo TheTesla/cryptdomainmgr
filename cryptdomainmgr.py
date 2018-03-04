@@ -18,6 +18,7 @@ from cdmconfighandler import *
 
 from simplelogger import simplelogger as log
 from dnsuptools import dnsuptools 
+from OpenSSL import crypto
 
 def findCert(path, curName = None, nameList = [], filename = 'fullchain.pem', cert = None):
     if path is None:
@@ -235,28 +236,25 @@ class ManagedDomain:
                     del e['key']
                 self.dnsup.delDictList({'name': name, 'type': 'MX'}, delList, presList)
 
-    def addTLSA(self):
-        for name, content in self.cr.domainconfig.items():
-            if 'DEFAULT' == name:
-                continue
-            if 'tlsa' in content:
-                cert = self.findCert(name, content)
-                if cert is None:
-                    log.info('{} is not a primary domain of a certificate'.format(name))
-                else:
-                    log.info('{} is a primary domain of a certificate'.format(name))
-                    self.dnsup.addTLSAfromCert(name, cert, content['tlsa'])
 
-    def setTLSA(self):
+    def addTLSA(self):
+        self.setTLSA(True)
+
+    def setTLSA(self, addOnly = False):
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
                 continue
             if 'tlsa' in content:
                 cert = self.findCert(name, content)
                 if cert is None:
-                    log.info('{} has no cert'.format(name))
+                    log.info('not deploying TLSA record for {} (no certificate)'.format(name))
                 else:
-                    self.dnsup.setTLSAfromCert(name, cert, content['tlsa'])
+                    log.info('deploying TLSA record for {} (certificate found)'.format(name))
+                    log.info('  -> found certificate: {} for: {}'.format(cert, getCertSAN(cert)))
+                    if addOnly is True:
+                        self.dnsup.addTLSAfromCert(name, cert, content['tlsa'])
+                    else:
+                        self.dnsup.setTLSAfromCert(name, cert, content['tlsa'])
 
     def copyCert(self):
         log.info('Copy certificate')
@@ -436,5 +434,15 @@ def createCert(domainList, email, keysize = 4096, extraFlags = []):
     log.debug(args)
     rv = check_output(args)
     return rv
+
+
+def getCertSAN(filename):
+    certFile = open(filename, 'rt').read()
+    cert = crypto.load_certificate(crypto.FILETYPE_PEM, certFile)
+    san = [cert.get_extension(i).get_data().split('\x82\x17')[1:] for i in range(cert.get_extension_count()) if 'subjectAltName' == cert.get_extension(i).get_short_name()][0]
+    return san
+
+
+
 
 
