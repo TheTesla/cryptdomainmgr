@@ -10,6 +10,7 @@
     - libssl-dev
     - python-pip
     - python-dnspython
+    - python-openssl
     - curl
 
 - name: Install depencies via pip
