@@ -1,0 +1,21 @@
+[Unit]
+Description=Amavis Milter Interface amavisd-milter
+Requires=amavisd-new.service
+After=amavisd-new.service
+
+[Service]
+User=amavis
+Group=amavis
+PermissionsStartOnly=true
+Type=forking
+PIDFile=/var/run/amavis/amavisd-milter.pid
+
+ExecStart=/usr/local/sbin/amavisd-milter -B -p /var/run/amavis/amavisd-milter.pid -w /var/lib/amavis -s /var/run/amavis/amavisd-milter.sock -S /var/run/amavis/amavisd.sock -m 2
+ExecStartPost=/bin/chown postfix:postfix /var/run/amavis/amavisd-milter.sock
+ExecStartPost=/bin/chmod 0660 /var/run/amavis/amavisd-milter.sock
+
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+

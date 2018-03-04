@@ -1,0 +1,94 @@
+---
+
+- name: Configure postfix mailname
+  debconf:
+    name: postfix
+    question: postfix/mailname
+    value: "{{ mailname }}"
+    vtype: string
+
+- name: Configure postfix main mailer type
+  debconf:
+    name: postfix
+    question: postfix/main_mailer_type
+    value: "Internet Site"
+    vtype: string
+
+- name: Install postfix
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - postfix
+    - postfix-mysql
+
+- name: Copy postfix SQL file
+  copy:
+    dest: /tmp/postfix.sql
+    src: ../files/postfix.sql
+
+- name: Create postfix database
+  mysql_db:
+    name: postfix
+    state: present
+    login_password: '{{ mysql_root_passwd }}'
+  notify:
+    - Init postfix db
+
+- name: Create directory /etc/postfix/sql
+  file:
+    path: /etc/postfix/sql
+    owner: root 
+    group: root
+    mode: 0660
+    state: directory
+    recurse: yes
+
+- name: Process postfix templates
+  template:
+    src: "{{ item.src }}"
+    dest: "/etc/postfix/{{ item.path }}"
+  with_filetree: "../templates/etc/postfix"
+  when: item.state == 'file'
+  notify:
+    - Restart postfix
+
+- name: Process /etc/aliases template
+  template:
+    src: "../templates/etc/aliases"
+    dest: "/etc/aliases"
+
+- name: Copy rc.local
+  copy:
+    dest: "/etc/rc.local"
+    src: "../files/etc/rc.local"
+
+- name: Run rc.local
+  shell: "/etc/rc.local"
+  args:
+    executable: "/bin/bash"
+
+- name: Update permissions for /etc/postfix/sql
+  file:
+    path: /etc/postfix/sql
+    owner: root 
+    group: root
+    mode: 0660
+    state: directory
+    recurse: yes
+
+- name: Postmap without_ptr
+  shell: "postmap /etc/postfix/without_ptr"
+  args:
+    executable: "/bin/bash"
+
+  #- name: Postmap transport
+  #  shell: "postmap /etc/postfix/transport"
+  #  args:
+  #    executable: "/bin/bash"
+
+- name: Newaliases needed
+  shell: "newaliases"
+  args:
+    executable: "/bin/bash"
+

@@ -1,0 +1,11 @@
+---
+
+deliver_user_name: "deliver"
+mailserver_db_user_name: "dbuser"
+relay_domains: "{{ mailman_domain }}"
+
+#opendkim_keyname: "key1"
+
+
+mailname: "{{ name }}" #  "{{ domain }}"
+

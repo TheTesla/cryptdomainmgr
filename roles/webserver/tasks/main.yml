@@ -1,0 +1,44 @@
+---
+
+- name: Install apache2 webserver
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - apache2
+    - php
+    - libapache2-mod-php
+    - php-mysql
+
+- name: Enable https
+  apache2_module:
+    state: present
+    name: ssl
+    ignore_configcheck: true
+  notify:
+    - Restart apache2
+  ignore_errors: true 
+
+- name: Make SSL more secure - forward secrecy
+  lineinfile:
+    path: /etc/apache2/mods-enabled/ssl.conf
+    regexp: '^[[:space:]]SSLCipherSuite'
+    #line: "SSLCipherSuite 'EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA:EECDH:EDH+AESGCM:EDH:+3DES:ECDH+AESGCM:ECDH+AES:ECDH:AES:HIGH:MEDIUM:!RC4:!CAMELLIA:!SEED:!aNULL:!MD5:!eNULL:!LOW:!EXP:!DSS:!PSK:!SRP'"
+    line: "SSLCipherSuite 'EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA:EECDH:EDH+AESGCM:EDH:!3DES:ECDH+AESGCM:ECDH+AES:ECDH:AES:HIGH:MEDIUM:!RC4:!CAMELLIA:!SEED:!aNULL:!MD5:!eNULL:!LOW:!EXP:!DSS:!PSK:!SRP'"
+
+- name: Make SSL more secure - honor order of cipher
+  lineinfile:
+    path: /etc/apache2/mods-enabled/ssl.conf
+    regexp: '^[[:space:]]SSLHonorCipherOrder'
+    line: "SSLHonorCipherOrder on"
+
+  #- name: Set www-data Maildir 
+  #  file:
+  #    path: "{{ item }}"
+  #    owner: "www-data"
+  #    group: "www-data"
+  #    mode: 0770
+  #    state: directory
+  #  with_items:
+  #    - "/var/www/Maildir"
+

@@ -1,0 +1,198 @@
+---
+
+- name: Install dependencies via apt
+  apt:
+    name: '{{ item }}'
+    state: latest
+    update_cache: True
+  with_items:
+    - libcurl4-openssl-dev
+    - libssl-dev
+    - python-pip
+    - python-dnspython
+    - python-openssl
+    - curl
+
+- name: Install depencies via pip
+  pip:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - jinja2
+    - configparser
+    - parse
+    - pycurl
+
+- name: Clone cryptdomainmgr recursively
+  git:
+    repo: "https://github.com/TheTesla/cryptdomainmgr.git"
+    dest: "/root/cryptdomainmgr" 
+    recursive: yes
+    force: yes
+
+- name: Set inwx login
+  ini_file:
+    dest: "/root/inwxcred.conf"
+    section: "domain"
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  with_dict: { user: '{{ inwxlogin }}', passwd: '{{ inwxpasswd }}' }
+
+- name: Set certificate base configuration
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "certificate:maincert"
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  with_dict: { generator: 'certbot', keysize: '4096', conflictingservices: 'apache2', certname: 'fullchain.pem' }
+ 
+- name: Set letsencrypt account e-mail
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "certificate:maincert"
+    option: "email"
+    value: "{{ certemail }}"
+
+- name: Set letsencrypt extra arguments
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "certificate:maincert"
+    option: "extraflags"
+    value: "{{ certextra }}"
+
+- name: Set live path certificates are copied into on rollover
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "certificate:maincert"
+    option: "destination"
+    value: "{{ certbaselocation }}"
+
+- name: Set dkim configuration
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "dkim:maindkim"
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  with_dict: { generator: 'rspamd', signingConfTemplateFile: '/root/cryptdomainmgr/dkim_signing_template.conf', signingConfTemporaryFile: '/etc/rspamd/dkim_signing_new.conf', signingConfDestinationFile: '/etc/rspamd/local.d/dkim_signing.conf' }
+
+
+- name: Set domain configurations
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "domain:{{ item[1] }}"
+    option: "{{ item[0].key }}"
+    value: "{{ item[0].value }}"
+  with_nested:
+    - [{key: 'ip4', value: 'auto'}, {key: 'ip6', value: 'auto'}, {key: 'tlsa', value: '{{ tlsa }}'}, {key: 'certificate', value: 'maincert'}]
+    - "{{ alldomains }}"
+    
+- name: Set domain configurations for email autoconfig
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "domain:autoconfig.{{ item[1] }}"
+    option: "{{ item[0].key }}"
+    value: "{{ item[0].value }}"
+  with_nested:
+    - [{key: 'ip4', value: 'auto'}, {key: 'ip6', value: 'auto'}, {key: 'tlsa', value: '{{ tlsa }}'}, {key: 'certificate', value: 'maincert'}]
+    - "{{ allemaildomains }}"
+
+- name: Set toplevel domain configurations - soa
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "domain:{{ item[1] }}"
+    option: "{{ item[0].key }}"
+    value: "{{ item[0].value }}"
+  with_nested:
+    - [{key: 'soa.primns', value: 'ns.inwx.de'}, {key: 'soa.hostmaster', value: 'admin@{{ emaildomain }}'}, {key: 'soa.refresh', value: '7200'}, {key: 'soa.expire', value: '1209600'}, {key: 'soa.retry', value: '3600'}, {key: 'soa.ncttl', value: '3600'}]
+    - "{{ alltlds }}"
+
+- name: Set e-mail domain configurations - mx
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "domain:{{ item.emaildomain }}"
+    option: "mx"
+    value: "{{ item.mx }}:10"
+  with_items:
+    - "{{ allmaps }}"
+
+  #- name: Set e-mail domain configurations - tlsa
+  #  ini_file:
+  #    dest: "/root/domains.conf"
+  #    section: "domain:{{ item.emaildomain }}"
+  #    option: "tlsa"
+  #    value: "{{ tlsa }}"
+  #  with_items:
+  #    - "{{ allmaps }}"
+
+- name: Set e-mail domain configurations - dmarc
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "domain:{{ item[1].emaildomain }}"
+    option: "{{ item[0].key }}"
+    value: "{{ item[0].value }}"
+  with_nested:
+    - [{key: 'dmarc.p', value: 'quarantine'}, {key: 'dmarc.rua', value: 'mailto:admin@smartrns.net'}, {key: 'dmarc.ruf', value: 'mailto:admin@smartrns.net'}, {key: 'dmarc.adkim', value: 's'}, {key: 'dmarc.aspf', value: 'r'}, {key: 'dmarc.pct', value: '100'}]
+    - "{{ allmaps }}"
+
+- name: Set e-mail domain configurations - dkim
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "domain:{{ item[1].emaildomain }}"
+    option: "{{ item[0].key }}"
+    value: "{{ item[0].value }}"
+  with_nested:
+    - [{key: 'dkim', value: 'maindkim'}]
+    - "{{ allmaps }}"
+
+- name: Set e-mail domain configurations - spf
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "domain:{{ item.emaildomain }}"
+    option: "spf"
+    value: "mx, ?all"
+  with_items:
+    - "{{ allmaps }}"
+
+- name: Set e-mail domain configurations - adsp
+  ini_file:
+    dest: "/root/domains.conf"
+    section: "domain:{{ item.emaildomain }}"
+    option: "adsp"
+    value: "all"
+  with_items:
+    - "{{ allmaps }}"
+
+- name: Immediatelly update DNS
+  shell: 'cd /root/cryptdomainmgr && python update.py ../domains.conf ../inwxcred.conf'
+  args:
+    executable: '/bin/bash'
+  ignore_errors: True
+
+- name: Immediatelly prepare certificate
+  shell: 'cd /root/cryptdomainmgr && python prepare.py ../domains.conf ../inwxcred.conf'
+  args:
+    executable: '/bin/bash'
+  ignore_errors: True
+
+- name: Immediatelly rollover certificate
+  shell: 'cd /root/cryptdomainmgr && python rollover.py ../domains.conf ../inwxcred.conf'
+  args:
+    executable: '/bin/bash'
+  ignore_errors: True
+
+- name: Immediatelly cleanup
+  shell: 'cd /root/cryptdomainmgr && python cleanup.py ../domains.conf ../inwxcred.conf'
+  args:
+    executable: '/bin/bash'
+  ignore_errors: True
+
+- name: Copy cron file
+  copy:
+    dest: "/etc/cron.d/domain"
+    src: "../files/etc/cron.d/domain"
+    mode: 0644
+    owner: root
+    group: root
+
+
+

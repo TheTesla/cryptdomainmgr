@@ -1,0 +1,6 @@
+user     = {{ mailserver_db_user_name }} 
+password = {{ mailserver_db_user_passwd }}
+hosts    = {{ dbaddr }}
+dbname   = postfix
+query    = SELECT if(sendonly = true, 'REJECT', 'OK') AS access FROM smtp_extra_properties WHERE email = CONCAT('%u','@','%d') LIMIT 1;
+

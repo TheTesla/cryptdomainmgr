@@ -1,0 +1,33 @@
+---
+
+- name: Create deliver user
+  user:
+    name: "{{ deliver_user_name }}"
+    comment: user for mailserver
+
+- include: rspamd.yml
+
+- include: postfix.yml
+
+- include: dovecot.yml
+
+- name: Create database user for mailserver
+  mysql_user:
+    name: '{{ mailserver_db_user_name }}'  
+    password: '{{ mailserver_db_user_passwd }}'
+    priv: '*.*:USAGE/dovecot.*:ALL/postfix.*:ALL'
+    state: present
+    login_user: root
+    login_password: '{{ mysql_root_passwd }}'
+
+
+  #- include: amavis.yml
+
+  #- include: spamassassin.yml
+
+  #- include: opendkim.yml
+
+  #- include: razor.yml
+
+- include: autoconfig.yml
+

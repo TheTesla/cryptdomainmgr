@@ -1,0 +1,38 @@
+---
+
+
+- name: Install unbound
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - unbound
+    - dnsutils
+
+- name: Copy unbound config
+  copy:
+    src: "../files/etc/unbound/"
+    dest: "/etc/unbound/"
+
+- name: Copy dhcp config
+  copy:
+    src: "../files/etc/dhcp/"
+    dest: "/etc/dhcp/"
+
+- name: Process /etc/hosts template
+  template:
+    src: "../templates/etc/hosts"
+    dest: "/etc/hosts"
+  notify:
+    - Hostname
+
+- name: set /etc/unbound owner
+  file:
+    name: /etc/unbound
+    owner: unbound
+  notify:
+    - Restart unbound
+    - Unbound anchor
+
+
+

@@ -1,0 +1,109 @@
+---
+
+- name: Add apt key for rspamd
+  apt_key:
+    url: https://rspamd.com/apt-stable/gpg.key
+    state: present
+
+- name: Add repo for rspamd     
+  apt_repository:
+    repo: "deb http://rspamd.com/apt-stable/ {{ ansible_distribution_release }} main"
+    state: present
+
+- name: Add source repo for rspamd     
+  apt_repository:
+    repo: "deb-src http://rspamd.com/apt-stable/ {{ ansible_distribution_release }} main"
+    state: present
+
+- name: Install rspamd and redis
+  apt:
+    name: "{{ item }}"
+    update_cache: True
+    state: latest 
+  with_items:
+    - rspamd
+    - redis-server
+  notify:
+    - delete rspamd config
+
+- name: Run handler to initially delete rspamd config     
+  meta: flush_handlers
+
+  #- name: Stop rspamd
+  #  systemd:
+  #    name: rspamd
+  #    state: stopped
+
+- name: Create rspamd password hash
+  shell: "rspamadm pw -p {{ rspamd_pw }}"
+  register: rspamd_pw_result
+
+- name: Debug output of rspamd password set
+  debug:
+    msg: "{{ rspamd_pw_result }}"
+
+- name: Set rspamd hash value
+  set_fact:
+    rspamd_pw_hash: "{{ rspamd_pw_result.stdout }}"
+
+- name: Recreate /etc/rspamd/local.d/
+  file:
+    dest: "/etc/rspamd/local.d/"
+    state: directory
+    recurse: True
+
+- name: Templates for rspamd
+  template:
+    dest: "/etc/rspamd/{{ item.path }}"
+    src: "{{ item.src }}"
+  with_filetree: "../templates/etc/rspamd" 
+  when: item.state == 'file'
+
+- name: Create directory for dkim key
+  file:
+    dest: "/var/lib/rspamd/dkim"
+    state: directory
+    owner: _rspamd
+    group: _rspamd
+
+- name: Create symlink for arc module
+  file:
+    dest: /etc/rspamd/local.d/arc.conf 
+    src: /etc/rspamd/local.d/dkim_signing.conf
+    state: link
+
+- name: Create /var directories 
+  file:
+    path: "{{ item }}"
+    owner: "{{ deliver_user_name }}"
+    group: "{{ deliver_user_name }}"
+    mode: 0770
+    state: directory
+  with_items:
+    - "/var/mail"
+    - "/var/mail/sieve"
+    - "/var/mail/sieve/global"
+
+- name: Copy /var/mail files
+  copy:
+    dest: /var/mail/
+    src: ../files/var/mail/
+
+- name: Permissions and owner /var/mail/sieve
+  file:
+    path: /var/mail/sieve
+    owner: "{{ deliver_user_name }}"
+    group: "{{ deliver_user_name }}"
+    state: directory
+    recurse: yes
+
+- name: Permissions and owner /var/mail/spampipe.sh
+  file:
+    path: /var/mail/spampipe.sh
+    owner: "{{ deliver_user_name }}"
+    group: "{{ deliver_user_name }}"
+    mode: 774
+    state: file
+
+- include: rspamd_gui.yml     
+

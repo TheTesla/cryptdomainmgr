@@ -1,0 +1,58 @@
+---
+
+# This does NOT set /etc/hostname as hostname --fqdn, it uses first entry in /etc/hosts !
+# This is important for amavis, it reads hostname --fqdn
+- name: Hostname 
+  shell: "hostname -F /etc/hostname"
+  args:
+    executable: '/bin/bash'
+
+- name: Reboot system
+  shell: "ssh -t root@{{ inventory_hostname }} reboot"
+  delegate_to: localhost
+
+- name: Waiting for startup
+  wait_for:
+    host: "{{ inventory_hostname }}"
+    state: started
+    port: 22
+    delay: 10
+  delegate_to: localhost 
+  listen: "Reboot"
+
+- name: Restart unbound
+  service:
+    name: unbound
+    state: restarted
+
+- name: Unbound anchor
+  shell: "/usr/sbin/unbound-anchor ; echo $?"
+  args:
+    executable: "/bin/bash"
+
+  # - name: Generate openssl dh parameters
+  #   shell: "FILE=`mktemp` ; openssl dhparam 2048 -out $FILE && mv -f $FILE /etc/myssl/dh2048.pem &"
+  #   args:
+  #     executable: '/bin/bash'
+  # 
+  # - name: Release port 443 needed for certbot
+  #   service:
+  #     name: apache2
+  #     state: stopped
+  #   listen: "New certificate"
+  # 
+  # - name: "New LE certificate for {{ item }}"
+  #   command: "./certbot-auto certonly --email {{ certemail }} {{ certextra }} --agree-tos --non-interactive --standalone --rsa-key-size 4096 -d {{ item }}"
+  #   args:
+  #     chdir: /root/certbot
+  #   listen: "New certificate"
+  #   with_items:
+  #     - "{{ domain }}"
+  #     - "{{ secondarydomains }}"
+
+  # - name: Port 443 can now be used again
+  #   service:
+  #     name: apache2
+  #     state: started
+  #   listen: "New certificate"
+

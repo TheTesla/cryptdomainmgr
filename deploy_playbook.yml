@@ -1,0 +1,28 @@
+---
+
+- hosts: crm-server
+  gather_facts: False
+  user: root
+  #  sudo: True
+  #  gather_facts: True
+  vars_files:
+    - vars/common.yml
+    - vars/database.yml
+    - vars/mail.yml
+    - vars/tine.yml
+    - vars/lists.yml
+    - vars/cert.yml
+    - vars/passwords.yml
+    - vars/inwx.yml
+    - vars/inwxpasswd.yml
+  roles:
+    - debugs
+    - up
+    - common
+    - database
+    - webserver
+    - domain
+    - mailserver
+    - mailinglist
+    - crm
+

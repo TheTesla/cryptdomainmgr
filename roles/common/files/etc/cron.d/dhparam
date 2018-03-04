@@ -1,0 +1,8 @@
+# shell variable for cron
+SHELL=/bin/bash
+# PATH variable for cron
+PATH=/usr/local/bin:/usr/local/sbin:/sbin:/usr/sbin:/bin:/usr/bin
+#M   S     T M W  User  Befehl
+#-----------------------------------------------------------------
+13   5     * * *  root    FILE=`mktemp` ; openssl dhparam 2048 -out $FILE && mv -f $FILE /etc/myssl/dh2048.pem
+

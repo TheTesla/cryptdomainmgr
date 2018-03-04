@@ -1,0 +1,26 @@
+---
+
+- name: Set ssl-cert hostname (domain)
+  debconf:
+    name: ssl-cert
+    question: make-ssl-cert/hostname
+    value: "{{ domain }}"
+    vtype: string
+
+- name: Create /etc/myssl
+  file:
+    name: "/etc/myssl"
+    state: directory
+    owner: root
+    group: root
+  #  notify:
+  #  - Generate openssl dh parameters
+
+- name: Copy cron file
+  copy:
+    dest: "/etc/cron.d/dhparam"
+    src: "../files/etc/cron.d/dhparam"
+    mode: 0644
+    owner: root
+    group: root
+
