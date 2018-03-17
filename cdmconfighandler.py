@@ -13,12 +13,11 @@ from simplelogger import simplelogger as log
 
 
 def srvParseDel(srv):
-    defaultAggrDel = {'content': [], 'prio': '*', 'key': []}
+    defaultAggrDel = {'prio': '*', 'key': []}
     for i, e in enumerate(srv['aggrDelList']):
         aggrDel = dict(defaultAggrDel)
         aggrDel.update(e)
-        aggrDel['content'].extend(6 * ['*'])
-        aggrDel['key'].extend(6 * ['*'])
+        aggrDel['key'].extend((5 - len(aggrDel['key'])) * ['*'])
         srv['aggrDelList'][i] = aggrDel
     log.debug(srv['aggrDelList'])
     srvAggrDel = [{'prio': e['prio'], 'service': e['key'][1], 'proto': e['key'][2], 'port': e['key'][3], 'weight': e['key'][4]} for e in srv['aggrDelList']]
@@ -99,6 +98,7 @@ def prioParse(content, rrType='mx', removeSpaces=True, dotsLeft=0, keySplit=Fals
                 args = vs
             else:
                 args = vs[0]
+            log.debug(ks)
             item = {'content': args, 'key': ks[0], 'delprio': '*', 'addprio': 10}
             baseItem = {'content': args, 'key': ks[0]}
             delItem = dict(baseItem)
