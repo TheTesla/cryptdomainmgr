@@ -157,12 +157,15 @@ def interpreteDomainConfig(cf):
             dmarc = {k.split('.')[1]: v for k, v in content.items() if 'dmarc' == k.split('.')[0]}
             domainconfig[domain]['dmarc'] = dmarc
         if 'srv' in [k.split('.')[0] for k in content.keys()]:
-            srv = prioParse(content, 'srv', True, 4, True, True)
+            srv = prioParse(content, 'srv', True, 0, True, True)
+            log.debug(srv)
             srvDel = srvParseDel(srv)
             srvAdd = srvParseAdd(srv)
             domainconfig[domain]['srvAggrAdd'] = srvAdd
             domainconfig[domain]['srvAggrDel'] = srvDel
-            domainconfig[domain]['srv'] = [{'server': v.split(':')[0], 'prio': v.split(':')[1], 'service': k.split('.')[1], 'proto': k.split('.')[2], 'port': k.split('.')[3], 'weight': k.split('.')[4]} for k, v in content.items() if 'srv' == k.split('.')[0]]
+            log.debug(srvAdd)
+            log.debug(srvDel)
+            #domainconfig[domain]['srv'] = [{'server': v.split(':')[0], 'prio': v.split(':')[1], 'service': k.split('.')[1], 'proto': k.split('.')[2], 'port': k.split('.')[3], 'weight': k.split('.')[4]} for k, v in content.items() if 'srv' == k.split('.')[0]]
         if 'soa' in [k.split('.')[0] for k in content.keys()]:
             domainconfig[domain]['soa'] = {k.split('.')[1]: v for k, v in content.items() if 'soa' == k.split('.')[0]}
         if 'caa' in content:
