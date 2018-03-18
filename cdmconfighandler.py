@@ -38,12 +38,10 @@ def list2SRV(srvEntry, hasContent = True):
 
 def interpreteSRV(content):
     srvConf = filterEntries(content, 'srv')
-    srvParsedList = [parseNestedEntry(k, v, 6*['*']) for k, v in srvConf.items()]
+    srvParsedList = [parseNestedEntry(k, v, ['*', '*', '*', '*', '50', '10']) for k, v in srvConf.items()]
     srvAggrAdd = [list2SRV(e['addList']) for e in srvParsedList]
     srvAggrDel = [list2SRV(e['delList'], False) for e in srvParsedList]
     return {'srvAggrAdd': srvAggrAdd, 'srvAggrDel': srvAggrDel}
-
-
 
 def srvParseDel(srv):
     log.debug(srv)
@@ -58,25 +56,6 @@ def srvParseDel(srv):
     srvAggrDel = [{k: v for k, v in e.items() if '*' != str(v)} for e in srvAggrDel]
     log.debug(srvAggrDel)
     return srvAggrDel
-
-def srvParseAdd(srv, srvDel = []):
-    defaultAggrAdd = {'content': [], 'prio': '*', 'key': []}
-    for i, e in enumerate(srv['aggrAddList']):
-        aggrAdd = dict(defaultAggrAdd)
-        try:
-            aggrAdd.update(srvDel[i])
-        except:
-            log.info('too few entries on srv delete')
-        aggrAdd.update(e)
-        aggrAdd['content'].extend(6 * ['*'])
-        aggrAdd['key'].extend(6 * ['*'])
-        srv['aggrAddList'][i] = aggrAdd
-    srvAggrAddKey = [{'server': e['content'][0], 'prio': e['prio'], 'service': e['key'][1], 'proto': e['key'][2], 'port': e['key'][3], 'weight': e['key'][4]} for e in srv['aggrAddList']]
-    srvAggrAddVal = [{'server': e['content'][0], 'prio': e['prio'], 'service': e['content'][5], 'proto': e['content'][4], 'port': e['content'][3], 'weight': e['content'][2]} for e in srv['aggrAddList']]
-    for i, e in enumerate(srvAggrAddVal):
-        srvAggrAddKey[i].update(e)
-    srvAggrAdd = [{k: v for k, v in e.items() if '*' != str(v)} for e in srvAggrAddKey]
-    return srvAggrAdd
 
 class ConfigReader:
     def __init__(self):
@@ -196,10 +175,6 @@ def interpreteDomainConfig(cf):
             dmarc = {k.split('.')[1]: v for k, v in content.items() if 'dmarc' == k.split('.')[0]}
             domainconfig[domain]['dmarc'] = dmarc
         if 'srv' in [k.split('.')[0] for k in content.keys()]:
-            #srv = prioParse(content, 'srv', True, 0, True, True)
-            #log.debug(srv)
-            #srvDel = srvParseDel(srv)
-            #srvAdd = srvParseAdd(srv, srvDel)
             srv = interpreteSRV(content)
             srvAdd = srv['srvAggrAdd']
             srvDel = srv['srvAggrDel']
@@ -207,7 +182,6 @@ def interpreteDomainConfig(cf):
             domainconfig[domain]['srvAggrDel'] = srvDel
             log.debug(srvAdd)
             log.debug(srvDel)
-            #domainconfig[domain]['srv'] = [{'server': v.split(':')[0], 'prio': v.split(':')[1], 'service': k.split('.')[1], 'proto': k.split('.')[2], 'port': k.split('.')[3], 'weight': k.split('.')[4]} for k, v in content.items() if 'srv' == k.split('.')[0]]
         if 'soa' in [k.split('.')[0] for k in content.keys()]:
             domainconfig[domain]['soa'] = {k.split('.')[1]: v for k, v in content.items() if 'soa' == k.split('.')[0]}
         if 'caa' in content:
