@@ -12,7 +12,41 @@ import configparser
 from simplelogger import simplelogger as log
 
 
+def filterEntries(content, rrType):
+    return {k: v for k, v in content.items() if rrType in k}
+
+def parseNestedEntry(key, value, default = []):
+    keyList   = key.split('.')
+    valueList = value.split(':')
+    delList = list(keyList)
+    addList = list(default)
+    addList[:len(keyList)] = list(keyList)
+    for i, e in enumerate(valueList):
+        addList[-i] = e
+    if '+' == keyList[0][-1]:
+        delList = ['', '', '', '-1']
+    return {'addList': addList, 'delList': delList}
+
+def list2SRV(srvEntry, hasContent = True):
+    srvEntry.extend(['*'] * (6 - len(srvEntry)))
+    rv = {'server': srvEntry[0], 'service': srvEntry[1], 'proto': srvEntry[2], 'port': srvEntry[3], 'weight': srvEntry[4], 'prio': srvEntry[5]}
+    rv = {k: v for k, v in rv.items() if '*' != v}
+    if hasContent is False:
+        if 'server' in rv:
+            del rv['server']
+    return rv
+
+def interpreteSRV(content):
+    srvConf = filterEntries(content, 'srv')
+    srvParsedList = [parseNestedEntry(k, v, 6*['*']) for k, v in srvConf.items()]
+    srvAggrAdd = [list2SRV(e['addList']) for e in srvParsedList]
+    srvAggrDel = [list2SRV(e['delList'], False) for e in srvParsedList]
+    return {'srvAggrAdd': srvAggrAdd, 'srvAggrDel': srvAggrDel}
+
+
+
 def srvParseDel(srv):
+    log.debug(srv)
     defaultAggrDel = {'prio': '*', 'key': []}
     for i, e in enumerate(srv['aggrDelList']):
         aggrDel = dict(defaultAggrDel)
@@ -22,12 +56,17 @@ def srvParseDel(srv):
     log.debug(srv['aggrDelList'])
     srvAggrDel = [{'prio': e['prio'], 'service': e['key'][1], 'proto': e['key'][2], 'port': e['key'][3], 'weight': e['key'][4]} for e in srv['aggrDelList']]
     srvAggrDel = [{k: v for k, v in e.items() if '*' != str(v)} for e in srvAggrDel]
+    log.debug(srvAggrDel)
     return srvAggrDel
 
-def srvParseAdd(srv):
+def srvParseAdd(srv, srvDel = []):
     defaultAggrAdd = {'content': [], 'prio': '*', 'key': []}
     for i, e in enumerate(srv['aggrAddList']):
         aggrAdd = dict(defaultAggrAdd)
+        try:
+            aggrAdd.update(srvDel[i])
+        except:
+            log.info('too few entries on srv delete')
         aggrAdd.update(e)
         aggrAdd['content'].extend(6 * ['*'])
         aggrAdd['key'].extend(6 * ['*'])
@@ -157,10 +196,13 @@ def interpreteDomainConfig(cf):
             dmarc = {k.split('.')[1]: v for k, v in content.items() if 'dmarc' == k.split('.')[0]}
             domainconfig[domain]['dmarc'] = dmarc
         if 'srv' in [k.split('.')[0] for k in content.keys()]:
-            srv = prioParse(content, 'srv', True, 0, True, True)
-            log.debug(srv)
-            srvDel = srvParseDel(srv)
-            srvAdd = srvParseAdd(srv)
+            #srv = prioParse(content, 'srv', True, 0, True, True)
+            #log.debug(srv)
+            #srvDel = srvParseDel(srv)
+            #srvAdd = srvParseAdd(srv, srvDel)
+            srv = interpreteSRV(content)
+            srvAdd = srv['srvAggrAdd']
+            srvDel = srv['srvAggrDel']
             domainconfig[domain]['srvAggrAdd'] = srvAdd
             domainconfig[domain]['srvAggrDel'] = srvDel
             log.debug(srvAdd)
