@@ -15,15 +15,21 @@ from simplelogger import simplelogger as log
 def filterEntries(content, rrType):
     return {k: v for k, v in content.items() if rrType in k}
 
+def splitList(content):
+    return {k: e.strip() for k, v in content.items() for e in v.split(',')}
+
 def parseNestedEntry(key, value, default = []):
     keyList   = key.split('.')
+    if '+' == keyList[-1][-1]:
+        keyList[-1] = keyList[-1][:-1]
     valueList = value.split(':')
     delList = list(keyList)
     addList = list(default)
     addList[:len(keyList)] = list(keyList)
     for i, e in enumerate(valueList):
         addList[-i] = e
-    if '+' == keyList[0][-1]:
+    if '+' == keyList[-1][-1]:
+        return {'addList': addList}
         delList = ['', '', '', '-1']
     return {'addList': addList, 'delList': delList}
 
@@ -36,11 +42,29 @@ def list2SRV(srvEntry, hasContent = True):
             del rv['server']
     return rv
 
+def list2MX(mxEntry, hasContent = True):
+    mxEntry.extend(['*'] * (2 - len(mxEntry)))
+    rv = {'content': mxEntry[0], 'prio': mxEntry[1]}
+    rv = {k: v for k, v in rv.items() if '*' != v}
+    if hasContent is False:
+        if 'content' in rv:
+            del rv['content']
+    return rv
+
+
+
+def interpreteMX(content):
+    mxConf = splitList(filterEntries(content, 'mx'))
+    mxParsedList = [parseNestedEntry(k, v, ['*', '10']) for k, v in mxConf.items()]
+    mxAggrAdd = [list2MX(e['addList']) for e in mxParsedList]
+    mxAggrDel = [list2MX(e['delList'], False) for e in mxParsedList if 'delList' in e]
+    return {'mxAggrAdd': mxAggrAdd, 'mxAggrDel': mxAggrDel}
+
 def interpreteSRV(content):
     srvConf = filterEntries(content, 'srv')
     srvParsedList = [parseNestedEntry(k, v, ['*', '*', '*', '*', '50', '10']) for k, v in srvConf.items()]
     srvAggrAdd = [list2SRV(e['addList']) for e in srvParsedList]
-    srvAggrDel = [list2SRV(e['delList'], False) for e in srvParsedList]
+    srvAggrDel = [list2SRV(e['delList'], False) for e in srvParsedList if 'delList' in e]
     return {'srvAggrAdd': srvAggrAdd, 'srvAggrDel': srvAggrDel}
 
 def srvParseDel(srv):
@@ -154,11 +178,14 @@ def interpreteDomainConfig(cf):
             domainconfig[domain]['ip6+'] = domainconfig[domain]['ip6+'].replace(' ', '').split(',')
 
         if 'mx' in [k.split('.')[0] for k in content.keys()]:
-            mx = prioParse(content)
-            domainconfig[domain]['mxSet'] = mx['setList']
-            domainconfig[domain]['mxAdd'] = mx['addList']
-            domainconfig[domain]['mxAggrDel'] = mx['aggrDelList']
-            domainconfig[domain]['mxAggrAdd'] = mx['aggrAddList']
+            #mx = prioParse(content)
+            mx = interpreteMX(content)
+            log.debug(mx)
+            domainconfig[domain].update(mx)
+            #domainconfig[domain]['mxSet'] = mx['setList']
+            #domainconfig[domain]['mxAdd'] = mx['addList']
+            #domainconfig[domain]['mxAggrDel'] = mx['aggrDelList']
+            #domainconfig[domain]['mxAggrAdd'] = mx['aggrAddList']
 
         if 'tlsa' in content:
             tlsa = str(domainconfig[domain]['tlsa'])

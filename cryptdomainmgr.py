@@ -230,11 +230,11 @@ class ManagedDomain:
                 continue
             if 'mxAggrDel' in content:
                 delList = content['mxAggrDel']
-                for e in delList:
-                    del e['key']
+                #for e in delList:
+                #    del e['key']
                 presList = content['mxAggrAdd']
-                for e in presList:
-                    del e['key']
+                #for e in presList:
+                #    del e['key']
                 self.dnsup.delDictList({'name': name, 'type': 'MX'}, delList, presList)
 
 
