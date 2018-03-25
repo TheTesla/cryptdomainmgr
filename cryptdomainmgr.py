@@ -427,7 +427,8 @@ def createCert(domainList, email, keysize = 4096, extraFlags = []):
 def getCertSAN(filename):
     certFile = open(filename, 'rt').read()
     cert = crypto.load_certificate(crypto.FILETYPE_PEM, certFile)
-    san = [cert.get_extension(i).get_data().split('\x82\x17')[1:] for i in range(cert.get_extension_count()) if 'subjectAltName' == cert.get_extension(i).get_short_name()][0]
+    san = [cert.get_extension(i).get_data().split('\x82')[1:] for i in range(cert.get_extension_count()) if 'subjectAltName' == cert.get_extension(i).get_short_name()][0]
+    san = [e[1:] for e in san]
     return san
 
 
