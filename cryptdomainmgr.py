@@ -150,13 +150,6 @@ class ManagedDomain:
             if 'soa' in content:
                 self.dnsup.setSOAentry(name, content['soa'])
     
-    def setSRV(self):
-        for name, content in self.cr.domainconfig.items():
-            if 'DEFAULT' == name:
-                continue
-            if 'srv' in content:
-                self.dnsup.setSRV(name, content['srv'])
-
     def addSRV(self):
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
@@ -211,30 +204,13 @@ class ManagedDomain:
                 for mx in content['mxAggrAdd']:
                     self.dnsup.addMX(name, mx['content'], mx['prio']) 
             
-    def setMX(self):
-        for name, content in self.cr.domainconfig.items():
-            if 'DEFAULT' == name:
-                continue
-            if 'mxSet' in content:
-                for mx in content['mxSet']:
-                    self.dnsup.addMX(name, mx['content'], mx['addprio']) 
-                delList = [{'prio': e['delprio']} for e in content['mxSet']]
-                if '*' in [e['prio'] for e in delList]:
-                    delList = [{}]
-                presList = [{'prio': e['addprio'], 'content': e['content']} for e in content['mxSet']]
-                self.dnsup.delDictList({'name': name, 'type': 'MX'}, delList, presList)
-
     def delMX(self):
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
                 continue
             if 'mxAggrDel' in content:
                 delList = content['mxAggrDel']
-                #for e in delList:
-                #    del e['key']
                 presList = content['mxAggrAdd']
-                #for e in presList:
-                #    del e['key']
                 self.dnsup.delDictList({'name': name, 'type': 'MX'}, delList, presList)
 
 
