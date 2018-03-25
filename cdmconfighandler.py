@@ -48,36 +48,25 @@ def list2SRV(srvEntry, hasContent = True):
 def list2MX(mxEntry, hasContent = True):
     return list2dict(mxEntry, hasContent, ['content', 'prio'])
 
+def list2rrType(rrType, entry, hasContent = True):
+    if 'mx' == rrType:
+        return list2MX(entry, hasContent)
+    elif 'srv' == rrType:
+        return list2SRV(entry, hasContent)
+    log.error('rrType not supported')
 
-
+def interpreteRR(content, rrType = 'mx', defaultList = ['*', '10']):
+    conf = splitList(filterEntries(content, rrType))
+    parsedList = [parseNestedEntry(k, v, defaultList) for k, v in conf.items()]
+    aggrAdd = [list2rrType(rrType, e['addList']) for e in parsedList]
+    aggrDel = [list2rrType(rrType, e['delList'], False) for e in parsedList if 'delList' in e]
+    return {'{}AggrAdd'.format(rrType): aggrAdd, '{}AggrDel'.format(rrType): aggrDel}
 
 def interpreteMX(content):
-    mxConf = splitList(filterEntries(content, 'mx'))
-    mxParsedList = [parseNestedEntry(k, v, ['*', '10']) for k, v in mxConf.items()]
-    mxAggrAdd = [list2MX(e['addList']) for e in mxParsedList]
-    mxAggrDel = [list2MX(e['delList'], False) for e in mxParsedList if 'delList' in e]
-    return {'mxAggrAdd': mxAggrAdd, 'mxAggrDel': mxAggrDel}
+    return interpreteRR(content, 'mx', ['*', '10'])
 
 def interpreteSRV(content):
-    srvConf = filterEntries(content, 'srv')
-    srvParsedList = [parseNestedEntry(k, v, ['*', '*', '*', '*', '50', '10']) for k, v in srvConf.items()]
-    srvAggrAdd = [list2SRV(e['addList']) for e in srvParsedList]
-    srvAggrDel = [list2SRV(e['delList'], False) for e in srvParsedList if 'delList' in e]
-    return {'srvAggrAdd': srvAggrAdd, 'srvAggrDel': srvAggrDel}
-
-def srvParseDel(srv):
-    log.debug(srv)
-    defaultAggrDel = {'prio': '*', 'key': []}
-    for i, e in enumerate(srv['aggrDelList']):
-        aggrDel = dict(defaultAggrDel)
-        aggrDel.update(e)
-        aggrDel['key'].extend((5 - len(aggrDel['key'])) * ['*'])
-        srv['aggrDelList'][i] = aggrDel
-    log.debug(srv['aggrDelList'])
-    srvAggrDel = [{'prio': e['prio'], 'service': e['key'][1], 'proto': e['key'][2], 'port': e['key'][3], 'weight': e['key'][4]} for e in srv['aggrDelList']]
-    srvAggrDel = [{k: v for k, v in e.items() if '*' != str(v)} for e in srvAggrDel]
-    log.debug(srvAggrDel)
-    return srvAggrDel
+    return interpreteRR(content, 'srv', ['*', '*', '*', '*', '50', '10'])
 
 class ConfigReader:
     def __init__(self):
@@ -112,54 +101,6 @@ class ConfigReader:
         self.dkimconfig = interpreteDKIMConfig(self.cp)
         self.conflictingservices = getConflictingServices(self.certconfig)
 
-def prioParse(content, rrType='mx', removeSpaces=True, dotsLeft=0, keySplit=False, colonArgs=False):
-    setList = []
-    addList = []
-    aggrAddList = []
-    aggrDelList = []
-    for k, v in content.items():
-        if '+' == k[-1]:
-            addMode = True
-            k = k[:-1]
-        else:
-            addMode = False
-        ks = k.rsplit('.', dotsLeft + 1)
-        if rrType != k.split('.')[0]:
-            continue
-        log.debug(v)
-        if removeSpaces is True:
-            v = v.replace(' ', '')
-        vList = v.split(',')
-        for v in vList:
-            vs = v.split(':')
-            if keySplit is True:
-                ks[0] = ks[0].split('.')
-            if colonArgs is True:
-                args = vs
-            else:
-                args = vs[0]
-            log.debug(ks)
-            item = {'content': args, 'key': ks[0], 'delprio': '*', 'addprio': 10}
-            baseItem = {'content': args, 'key': ks[0]}
-            delItem = dict(baseItem)
-            del delItem['content']
-            addItem = dict(baseItem)
-            addItem['prio'] = 10 # default
-            if 2 == len(ks):
-                item['delprio'] = ks[1]
-                item['addprio'] = ks[1]
-                delItem['prio'] = ks[1]
-                addItem['prio'] = ks[1]
-            if 2 <= len(vs):
-                item['addprio'] = vs[1]
-                addItem['prio'] = vs[1]
-            aggrAddList.append(addItem)
-            if addMode is True:
-                addList.append(item)
-            else:
-                setList.append(item)
-                aggrDelList.append(delItem)
-    return {'addList': addList, 'setList': setList, 'aggrAddList': aggrAddList, 'aggrDelList': aggrDelList}
 
 def interpreteDomainConfig(cf):
     domainconfig = getConfigOf('domain', cf, True)
@@ -176,14 +117,9 @@ def interpreteDomainConfig(cf):
             domainconfig[domain]['ip6+'] = domainconfig[domain]['ip6+'].replace(' ', '').split(',')
 
         if 'mx' in [k.split('.')[0] for k in content.keys()]:
-            #mx = prioParse(content)
             mx = interpreteMX(content)
             log.debug(mx)
             domainconfig[domain].update(mx)
-            #domainconfig[domain]['mxSet'] = mx['setList']
-            #domainconfig[domain]['mxAdd'] = mx['addList']
-            #domainconfig[domain]['mxAggrDel'] = mx['aggrDelList']
-            #domainconfig[domain]['mxAggrAdd'] = mx['aggrAddList']
 
         if 'tlsa' in content:
             tlsa = str(domainconfig[domain]['tlsa'])
@@ -201,12 +137,7 @@ def interpreteDomainConfig(cf):
             domainconfig[domain]['dmarc'] = dmarc
         if 'srv' in [k.split('.')[0] for k in content.keys()]:
             srv = interpreteSRV(content)
-            srvAdd = srv['srvAggrAdd']
-            srvDel = srv['srvAggrDel']
-            domainconfig[domain]['srvAggrAdd'] = srvAdd
-            domainconfig[domain]['srvAggrDel'] = srvDel
-            log.debug(srvAdd)
-            log.debug(srvDel)
+            domainconfig[domain].update(srv)
         if 'soa' in [k.split('.')[0] for k in content.keys()]:
             domainconfig[domain]['soa'] = {k.split('.')[1]: v for k, v in content.items() if 'soa' == k.split('.')[0]}
         if 'caa' in content:
