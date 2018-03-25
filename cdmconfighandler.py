@@ -20,36 +20,34 @@ def splitList(content):
 
 def parseNestedEntry(key, value, default = []):
     keyList   = key.split('.')
+    valueList = value.split(':')
+    addList   = list(default)
+    rv = {}
     if '+' == keyList[-1][-1]:
         keyList[-1] = keyList[-1][:-1]
-    valueList = value.split(':')
-    delList = list(keyList)
-    addList = list(default)
+    else:
+        rv['delList'] = list(keyList)
     addList[:len(keyList)] = list(keyList)
     for i, e in enumerate(valueList):
         addList[-i] = e
-    if '+' == keyList[-1][-1]:
-        return {'addList': addList}
-        delList = ['', '', '', '-1']
-    return {'addList': addList, 'delList': delList}
+    rv['addList'] = addList
+    return rv 
+
+def list2dict(entry, hasContent, keys):
+    entry.extend(['*'] * (len(keys) - len(entry)))
+    rv = {e: entry[i] for i, e in enumerate(keys)}
+    rv = {k: v for k, v in rv.items() if '*' != v}
+    if hasContent is False:
+        if keys[0] in rv:
+            del rv[keys[0]]
+    return rv
 
 def list2SRV(srvEntry, hasContent = True):
-    srvEntry.extend(['*'] * (6 - len(srvEntry)))
-    rv = {'server': srvEntry[0], 'service': srvEntry[1], 'proto': srvEntry[2], 'port': srvEntry[3], 'weight': srvEntry[4], 'prio': srvEntry[5]}
-    rv = {k: v for k, v in rv.items() if '*' != v}
-    if hasContent is False:
-        if 'server' in rv:
-            del rv['server']
-    return rv
+    return list2dict(srvEntry, hasContent, ['server', 'service', 'proto', 'port', 'weight', 'prio'])
 
 def list2MX(mxEntry, hasContent = True):
-    mxEntry.extend(['*'] * (2 - len(mxEntry)))
-    rv = {'content': mxEntry[0], 'prio': mxEntry[1]}
-    rv = {k: v for k, v in rv.items() if '*' != v}
-    if hasContent is False:
-        if 'content' in rv:
-            del rv['content']
-    return rv
+    return list2dict(mxEntry, hasContent, ['content', 'prio'])
+
 
 
 
