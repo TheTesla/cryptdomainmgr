@@ -16,20 +16,30 @@ def filterEntries(content, rrType):
     return {k: v for k, v in content.items() if rrType in k}
 
 def splitList(content):
-    return {k: e.strip() for k, v in content.items() for e in v.split(',')}
+    return {k: [e.strip() for e in v.split(',')] for k, v in content.items()}
 
-def parseNestedEntry(key, value, default = []):
-    keyList   = key.split('.')
-    valueList = value.split(':')
+def parseNestedEntry(key, value, default = [], keySplitPattern = '.', valueSplitPattern = ':'):
+    if keySplitPattern is None:
+        keyList = [key]
+    else:
+        keyList   = key.split(keySplitPattern)
+    if valueSplitPattern is None:
+        valueList = [value]
+    else:
+        valueList = value.split(valueSplitPattern)
     addList   = list(default)
     rv = {}
+    log.debug(keyList)
     if '+' == keyList[-1][-1]:
         keyList[-1] = keyList[-1][:-1]
     else:
         rv['delList'] = list(keyList)
+    log.debug(keyList)
     addList[:len(keyList)] = list(keyList)
     for i, e in enumerate(valueList):
         addList[-i] = e
+    log.debug(addList)
+    log.debug(valueList)
     rv['addList'] = addList
     return rv 
 
@@ -48,16 +58,27 @@ def list2SRV(srvEntry, hasContent = True):
 def list2MX(mxEntry, hasContent = True):
     return list2dict(mxEntry, hasContent, ['content', 'prio'])
 
+def list2ip(ipEntry, hasContent = True):
+    return list2dict(ipEntry, hasContent, ['content'])
+
 def list2rrType(rrType, entry, hasContent = True):
     if 'mx' == rrType:
         return list2MX(entry, hasContent)
     elif 'srv' == rrType:
         return list2SRV(entry, hasContent)
+    elif 'ip4' == rrType:
+        return list2ip(entry, hasContent)
+    elif 'ip6' == rrType:
+        return list2ip(entry, hasContent)
     log.error('rrType not supported')
 
-def interpreteRR(content, rrType = 'mx', defaultList = ['*', '10']):
-    conf = splitList(filterEntries(content, rrType))
-    parsedList = [parseNestedEntry(k, v, defaultList) for k, v in conf.items()]
+def interpreteRR(content, rrType = 'mx', defaultList = ['*', '10'], keySplitPattern = '.', valueSplitPattern = ':'):
+    log.debug(content)
+    x = filterEntries(content, rrType)
+    log.debug(x)
+    conf = splitList(x)
+    log.debug(conf)
+    parsedList = [parseNestedEntry(k, e, defaultList, keySplitPattern, valueSplitPattern) for k, v in conf.items() for e in v]
     aggrAdd = [list2rrType(rrType, e['addList']) for e in parsedList]
     aggrDel = [list2rrType(rrType, e['delList'], False) for e in parsedList if 'delList' in e]
     return {'{}AggrAdd'.format(rrType): aggrAdd, '{}AggrDel'.format(rrType): aggrDel}
@@ -67,6 +88,13 @@ def interpreteMX(content):
 
 def interpreteSRV(content):
     return interpreteRR(content, 'srv', ['*', '*', '*', '*', '50', '10'])
+
+def interpreteA(content):
+    return interpreteRR(content, 'ip4', ['*'])
+
+def interpreteAAAA(content):
+    return interpreteRR(content, 'ip6', ['*'], None, None)
+
 
 class ConfigReader:
     def __init__(self):
@@ -107,6 +135,11 @@ def interpreteDomainConfig(cf):
     domainconfig = applyDefault(domainconfig) # must be here because following section depends on default values
 
     for domain, content in domainconfig.items():
+        ip4 = interpreteA(content)
+        domainconfig[domain].update(ip4)
+        ip6 = interpreteAAAA(content)
+        domainconfig[domain].update(ip6)
+
         if 'ip4' in content.keys():
             domainconfig[domain]['ip4'] = domainconfig[domain]['ip4'].replace(' ', '').split(',')
         if 'ip4+' in content.keys():

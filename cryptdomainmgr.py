@@ -187,14 +187,30 @@ class ManagedDomain:
             if 'ip6' in content:
                 self.dnsup.setAAAA(name, content['ip6']) 
 
+    def delIPs(self):
+        for name, content in self.cr.domainconfig.items():
+            if 'DEFAULT' == name:
+                continue
+            if 'ip4AggrDel' in content:
+                self.dnsup.delA(name, [e['content'] if 'content' in e else '*' for e in content['ip4AggrDel']], [e['content']  for e in content['ip4AggrAdd']]) 
+            if 'ip6AggrDel' in content:
+                self.dnsup.delAAAA(name, [e['content'] if 'content' in e else '*' for e in content['ip6AggrDel']], [e['content']  for e in content['ip6AggrAdd']]) 
+
+
     def addIPs(self): 
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
                 continue
-            if 'ip4+' in content:
-                self.dnsup.addA(name, content['ip4+']) 
-            if 'ip6+' in content:
-                self.dnsup.addAAAA(name, content['ip6+']) 
+            #if 'ip4+' in content:
+            #    self.dnsup.addA(name, content['ip4+']) 
+            #if 'ip6+' in content:
+            #    self.dnsup.addAAAA(name, content['ip6+']) 
+            if 'ip4AggrAdd' in content:
+                self.dnsup.addA(name, [e['content']  for e in content['ip4AggrAdd']]) 
+            if 'ip6AggrAdd' in content:
+                self.dnsup.addAAAA(name, [e['content']  for e in content['ip6AggrAdd']]) 
+
+            
 
     def addMX(self):
         for name, content in self.cr.domainconfig.items():
@@ -348,8 +364,9 @@ class ManagedDomain:
         # self.setSRV() # replaced by addSRV() and delSRV() 
         self.addSRV()
         self.delSRV()
-        self.setIPs()
+        #self.setIPs()
         self.addIPs()
+        self.delIPs()
         # self.setMX() # replaced by addMX() and delMX()
         self.addMX()
         self.delMX()
