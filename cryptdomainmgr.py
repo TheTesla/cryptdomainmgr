@@ -201,10 +201,6 @@ class ManagedDomain:
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
                 continue
-            #if 'ip4+' in content:
-            #    self.dnsup.addA(name, content['ip4+']) 
-            #if 'ip6+' in content:
-            #    self.dnsup.addAAAA(name, content['ip6+']) 
             if 'ip4AggrAdd' in content:
                 self.dnsup.addA(name, [e['content']  for e in content['ip4AggrAdd']]) 
             if 'ip6AggrAdd' in content:
@@ -217,18 +213,14 @@ class ManagedDomain:
             if 'DEFAULT' == name:
                 continue
             if 'mxAggrAdd' in content:
-                for mx in content['mxAggrAdd']:
-                    self.dnsup.addMX(name, mx['content'], mx['prio']) 
+                self.dnsup.addMX(name, content['mxAggrAdd'])
             
     def delMX(self):
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
                 continue
             if 'mxAggrDel' in content:
-                delList = content['mxAggrDel']
-                presList = content['mxAggrAdd']
-                self.dnsup.delDictList({'name': name, 'type': 'MX'}, delList, presList)
-
+                self.dnsup.delMX(name, content['mxAggrDel'], content['mxAggrAdd'])
 
     def addTLSA(self):
         self.setTLSA(True)
@@ -334,7 +326,6 @@ class ManagedDomain:
                 for keyFile in keyFiles:
                     log.info('  rm {}'.format(keyFile[1]))
                     rv = check_output(('rm', keyFile[1]))
-                # set records after deleting, to delete all records, where the files are already deleted 
                 self.setDKIM()
 
     def certPrepare(self):
