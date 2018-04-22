@@ -52,6 +52,9 @@ def list2dict(entry, hasContent, keys):
             del rv[keys[0]]
     return rv
 
+def list2CAA(caaEntry, hasContent = True):
+    return list2dict(caaEntry, hasContent, ['flag', 'url', 'tag'])
+
 def list2SRV(srvEntry, hasContent = True):
     return list2dict(srvEntry, hasContent, ['server', 'service', 'proto', 'port', 'weight', 'prio'])
 
@@ -70,6 +73,8 @@ def list2rrType(rrType, entry, hasContent = True):
         return list2ip(entry, hasContent)
     elif 'ip6' == rrType:
         return list2ip(entry, hasContent)
+    elif 'caa' == rrType:
+        return list2CAA(entry, hasContent)
     log.error('rrType not supported')
 
 def interpreteRR(content, rrType = 'mx', defaultList = ['*', '10'], keySplitPattern = '.', valueSplitPattern = ':'):
@@ -82,6 +87,9 @@ def interpreteRR(content, rrType = 'mx', defaultList = ['*', '10'], keySplitPatt
     aggrAdd = [list2rrType(rrType, e['addList']) for e in parsedList]
     aggrDel = [list2rrType(rrType, e['delList'], False) for e in parsedList if 'delList' in e]
     return {'{}AggrAdd'.format(rrType): aggrAdd, '{}AggrDel'.format(rrType): aggrDel}
+
+def interpreteCAA(content):
+    return interpreteRR(content, 'caa', ['*', '*', '*'], '.', ' ')
 
 def interpreteMX(content):
     return interpreteRR(content, 'mx', ['*', '10'])
@@ -139,20 +147,14 @@ def interpreteDomainConfig(cf):
         domainconfig[domain].update(ip4)
         ip6 = interpreteAAAA(content)
         domainconfig[domain].update(ip6)
+        mx = interpreteMX(content)
+        domainconfig[domain].update(mx)
+        srv = interpreteSRV(content)
+        domainconfig[domain].update(srv)
+        caa = interpreteCAA(content)
+        domainconfig[domain].update(caa)
+        log.debug(caa)
 
-        if 'ip4' in content.keys():
-            domainconfig[domain]['ip4'] = domainconfig[domain]['ip4'].replace(' ', '').split(',')
-        if 'ip4+' in content.keys():
-            domainconfig[domain]['ip4+'] = domainconfig[domain]['ip4+'].replace(' ', '').split(',')
-        if 'ip6' in content.keys():
-            domainconfig[domain]['ip6'] = domainconfig[domain]['ip6'].replace(' ', '').split(',')
-        if 'ip6+' in content.keys():
-            domainconfig[domain]['ip6+'] = domainconfig[domain]['ip6+'].replace(' ', '').split(',')
-
-        if 'mx' in [k.split('.')[0] for k in content.keys()]:
-            mx = interpreteMX(content)
-            log.debug(mx)
-            domainconfig[domain].update(mx)
 
         if 'tlsa' in content:
             tlsa = str(domainconfig[domain]['tlsa'])
@@ -168,15 +170,8 @@ def interpreteDomainConfig(cf):
         if 'dmarc' in [k.split('.')[0] for k in content.keys()]:
             dmarc = {k.split('.')[1]: v for k, v in content.items() if 'dmarc' == k.split('.')[0]}
             domainconfig[domain]['dmarc'] = dmarc
-        if 'srv' in [k.split('.')[0] for k in content.keys()]:
-            srv = interpreteSRV(content)
-            domainconfig[domain].update(srv)
         if 'soa' in [k.split('.')[0] for k in content.keys()]:
             domainconfig[domain]['soa'] = {k.split('.')[1]: v for k, v in content.items() if 'soa' == k.split('.')[0]}
-        if 'caa' in content:
-            domainconfig[domain]['caa'] = [(lambda x: {'flag': x[0], 'tag': x[1], 'url': x[2]})([f for f in e.split(' ') if '' != f]) for e in domainconfig[domain]['caa'].split(',')]
-        if 'caa+' in content:
-            domainconfig[domain]['caa+'] = [(lambda x: {'flag': x[0], 'tag': x[1], 'url': x[2]})([f for f in e.split(' ') if '' != f]) for e in domainconfig[domain]['caa+'].split(',')]
 
     log.debug(domainconfig)
     return domainconfig
@@ -193,8 +188,6 @@ def interpreteCertConfig(cf):
     certconfig = getConfigOf('certificate', cf)
     # apply general config defaults and the default section
     certconfig = applyDefault(certconfig, defaultCertConfig) # must be here because following section depends on default values
-
-
 
     for certSecName, content in certconfig.items():
         if 'generator' in content:

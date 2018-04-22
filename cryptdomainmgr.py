@@ -164,28 +164,27 @@ class ManagedDomain:
             if 'srvAggrDel' in content:
                 self.dnsup.delSRV(name, content['srvAggrDel'], content['srvAggrAdd']) 
 
+    def setSRV(self):
+        self.addSRV()
+        self.delSRV()
+
     def addCAA(self):
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
                 continue
-            if 'caa+' in content:
-                self.dnsup.addCAA(name, content['caa+'])
+            if 'caaAggrAdd' in content:
+                self.dnsup.addCAA(name, content['caaAggrAdd'])
+
+    def delCAA(self):
+        for name, content in self.cr.domainconfig.items():
+            if 'DEFAULT' == name:
+                continue
+            if 'caaAggrDel' in content:
+                self.dnsup.delCAA(name, content['caaAggrDel'], content['caaAggrAdd'])
 
     def setCAA(self):
-        for name, content in self.cr.domainconfig.items():
-            if 'DEFAULT' == name:
-                continue
-            if 'caa' in content:
-                self.dnsup.setCAA(name, content['caa'])
-
-    def setIPs(self): 
-        for name, content in self.cr.domainconfig.items():
-            if 'DEFAULT' == name:
-                continue
-            if 'ip4' in content:
-                self.dnsup.setA(name, content['ip4']) 
-            if 'ip6' in content:
-                self.dnsup.setAAAA(name, content['ip6']) 
+        self.addCAA()
+        self.delCAA()
 
     def delIPs(self):
         for name, content in self.cr.domainconfig.items():
@@ -196,7 +195,6 @@ class ManagedDomain:
             if 'ip6AggrDel' in content:
                 self.dnsup.delAAAA(name, [e['content'] if 'content' in e else '*' for e in content['ip6AggrDel']], [e['content']  for e in content['ip6AggrAdd']]) 
 
-
     def addIPs(self): 
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
@@ -206,7 +204,9 @@ class ManagedDomain:
             if 'ip6AggrAdd' in content:
                 self.dnsup.addAAAA(name, [e['content']  for e in content['ip6AggrAdd']]) 
 
-            
+    def setIPs(self): 
+        self.addIPs()
+        self.delIPs()
 
     def addMX(self):
         for name, content in self.cr.domainconfig.items():
@@ -221,6 +221,10 @@ class ManagedDomain:
                 continue
             if 'mxAggrDel' in content:
                 self.dnsup.delMX(name, content['mxAggrDel'], content['mxAggrAdd'])
+
+    def setMX(self):
+        self.addMX()
+        self.delMX()
 
     def addTLSA(self):
         self.setTLSA(True)
@@ -346,21 +350,21 @@ class ManagedDomain:
     def update(self, state = '', confFile = None):
         self.readConfig(confFile)
         self.setCAA()
-        self.addCAA()
+        #self.addCAA()
         self.setSOA()
         self.setSPF()
         self.addSPF()
         self.setADSP()
         self.setDMARC()
-        # self.setSRV() # replaced by addSRV() and delSRV() 
-        self.addSRV()
-        self.delSRV()
-        #self.setIPs()
-        self.addIPs()
-        self.delIPs()
-        # self.setMX() # replaced by addMX() and delMX()
-        self.addMX()
-        self.delMX()
+        self.setSRV() # contains addSRV() and delSRV() 
+        #self.addSRV()
+        #self.delSRV()
+        self.setIPs()
+        #self.addIPs()
+        #self.delIPs()
+        self.setMX() # contains addMX() and delMX()
+        #self.addMX()
+        #self.delMX()
         if 'prepare' == state:
             self.addDKIM()
             self.addTLSA()
