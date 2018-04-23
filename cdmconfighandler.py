@@ -103,6 +103,18 @@ def interpreteA(content):
 def interpreteAAAA(content):
     return interpreteRR(content, 'ip6', ['*'], None, None)
 
+def interpreteDictRR(content, rrType):
+    if rrType in [k.split('.')[0] for k in content.keys()]:
+        rrDict = {k.split('.')[1] if 1 < len(k.split('.')) else '' : v  for k, v in content.items() if rrType == k.split('.')[0]}
+        return {rrType: rrDict}
+    return {}
+
+def interpreteDMARC(content):
+    return interpreteDictRR(content, 'dmarc')
+
+def interpreteSOA(content):
+    return interpreteDictRR(content, 'soa')
+
 
 class ConfigReader:
     def __init__(self):
@@ -154,6 +166,10 @@ def interpreteDomainConfig(cf):
         caa = interpreteCAA(content)
         domainconfig[domain].update(caa)
         log.debug(caa)
+        dmarc = interpreteDMARC(content)
+        domainconfig[domain].update(dmarc)
+        soa = interpreteSOA(content)
+        domainconfig[domain].update(soa)
 
 
         if 'tlsa' in content:
@@ -167,11 +183,11 @@ def interpreteDomainConfig(cf):
             domainconfig[domain]['spf'] = domainconfig[domain]['spf'].replace(' ', '').split(',')
         if 'spf+' in content:
             domainconfig[domain]['spf+'] = domainconfig[domain]['spf+'].replace(' ', '').split(',')
-        if 'dmarc' in [k.split('.')[0] for k in content.keys()]:
-            dmarc = {k.split('.')[1]: v for k, v in content.items() if 'dmarc' == k.split('.')[0]}
-            domainconfig[domain]['dmarc'] = dmarc
-        if 'soa' in [k.split('.')[0] for k in content.keys()]:
-            domainconfig[domain]['soa'] = {k.split('.')[1]: v for k, v in content.items() if 'soa' == k.split('.')[0]}
+        #if 'dmarc' in [k.split('.')[0] for k in content.keys()]:
+        #    dmarc = {k.split('.')[1]: v for k, v in content.items() if 'dmarc' == k.split('.')[0]}
+        #    domainconfig[domain]['dmarc'] = dmarc
+        #if 'soa' in [k.split('.')[0] for k in content.keys()]:
+        #    domainconfig[domain]['soa'] = {k.split('.')[1]: v for k, v in content.items() if 'soa' == k.split('.')[0]}
 
     log.debug(domainconfig)
     return domainconfig

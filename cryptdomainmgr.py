@@ -134,7 +134,16 @@ class ManagedDomain:
             if 'DEFAULT' == name:
                 continue
             if 'dmarc' in content:
-                self.dnsup.setDMARCentry(name, content['dmarc'])
+                # following line means configuration:
+                # dmarc = 
+                # this deletes all entries not specified
+                if '' in content['dmarc'].keys():
+                    self.dnsup.setDMARC(name, content['dmarc'])
+                # if no configuration like:
+                # dmarc = 
+                # is specified, so only given dmarc subparameters are overwritten
+                else:
+                    self.dnsup.setDMARCentry(name, content['dmarc'])
 
     def setADSP(self):
         for name, content in self.cr.domainconfig.items():
