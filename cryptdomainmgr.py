@@ -335,7 +335,7 @@ class ManagedDomain:
                 keyFiles.sort()
                 if 2 > len(keyFiles):
                     return
-                del keyFiles[-1]
+                del keyFiles[-2:]
                 for keyFile in keyFiles:
                     log.info('  rm {}'.format(keyFile[1]))
                     rv = check_output(('rm', keyFile[1]))
