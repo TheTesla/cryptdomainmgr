@@ -33,6 +33,12 @@ Updating keys, certifcates and other needs 3 steps to prevent gaps in availabill
 * **certbot**: to get new certificate
 * **rspamd**: to create (and use) DKIM keys
 
+## Documentation
+
+* **Slides**: https://github.com/TheTesla/cryptdomainmgr-talk
+
+* **Talks**: Wireless-Meshup 2018, GPN2018
+
 ## Authors
 
 **Stefan Helmert** all work on this projekt
