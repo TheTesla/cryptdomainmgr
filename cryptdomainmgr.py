@@ -129,7 +129,7 @@ class ManagedDomain:
             if 'spf' in content:
                 self.dnsup.setSPF(name, content['spf'])
 
-    def setDMARC(self):
+    def setDMARCentries(self):
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
                 continue
@@ -137,13 +137,11 @@ class ManagedDomain:
                 # following line means configuration:
                 # dmarc = 
                 # this deletes all entries not specified
-                if '' in content['dmarc'].keys():
-                    self.dnsup.setDMARC(name, content['dmarc'])
                 # if no configuration like:
                 # dmarc = 
                 # is specified, so only given dmarc subparameters are overwritten
-                else:
-                    self.dnsup.setDMARCentry(name, content['dmarc'])
+                # all this is managed by dnsuptools:
+                self.dnsup.setDMARCentry(name, content['dmarc'])
 
     def setADSP(self):
         for name, content in self.cr.domainconfig.items():
@@ -359,21 +357,14 @@ class ManagedDomain:
     def update(self, state = '', confFile = None):
         self.readConfig(confFile)
         self.setCAA()
-        #self.addCAA()
         self.setSOA()
         self.setSPF()
         self.addSPF()
         self.setADSP()
-        self.setDMARC()
+        self.setDMARCentries()
         self.setSRV() # contains addSRV() and delSRV() 
-        #self.addSRV()
-        #self.delSRV()
         self.setIPs()
-        #self.addIPs()
-        #self.delIPs()
         self.setMX() # contains addMX() and delMX()
-        #self.addMX()
-        #self.delMX()
         if 'prepare' == state:
             self.addDKIM()
             self.addTLSA()
