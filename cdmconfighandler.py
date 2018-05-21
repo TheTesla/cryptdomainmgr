@@ -45,7 +45,7 @@ def parseNestedEntry(key, value, default = [], keySplitPattern = '.', valueSplit
     log.debug(addList)
     log.debug(valueList)
     if subtractMode is True:
-        rv['delList'] = addList
+        rv['delListWithContent'] = addList
     else:
         rv['addList'] = addList
     return rv 
@@ -106,6 +106,8 @@ def interpreteRR(content, rrType = 'mx', defaultList = ['*', '10'], keySplitPatt
     parsedList = [parseNestedEntry(k, e, defaultList, keySplitPattern, valueSplitPattern) for k, v in conf.items() for e in v]
     aggrAdd = [list2rrType(rrType, e['addList']) for e in parsedList if 'addList' in e]
     aggrDel = [list2rrType(rrType, e['delList'], False) for e in parsedList if 'delList' in e]
+    aggrDelWithContent = [list2rrType(rrType, e['delListWithContent']) for e in parsedList if 'delListWithContent' in e]
+    aggrDel.extend(aggrDelWithContent)
     return {'{}AggrAdd'.format(rrType): aggrAdd, '{}AggrDel'.format(rrType): aggrDel}
 
 def interpreteCAA(content):
@@ -183,6 +185,7 @@ def interpreteDomainConfig(cf):
 
     for domain, content in domainconfig.items():
         ip4 = interpreteA(content)
+        print(ip4)
         domainconfig[domain].update(ip4)
         ip6 = interpreteAAAA(content)
         domainconfig[domain].update(ip6)
