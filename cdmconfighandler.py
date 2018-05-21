@@ -30,8 +30,12 @@ def parseNestedEntry(key, value, default = [], keySplitPattern = '.', valueSplit
     addList   = list(default)
     rv = {}
     log.debug(keyList)
+    subtractMode = False
     if '+' == keyList[-1][-1]:
         keyList[-1] = keyList[-1][:-1]
+    elif '-' == keyList[-1][-1]:
+        keyList[-1] = keyList[-1][:-1]
+        subtractMode = True
     else:
         rv['delList'] = list(keyList)
     log.debug(keyList)
@@ -40,17 +44,30 @@ def parseNestedEntry(key, value, default = [], keySplitPattern = '.', valueSplit
         addList[-i] = e
     log.debug(addList)
     log.debug(valueList)
-    rv['addList'] = addList
+    if subtractMode is True:
+        rv['delList'] = addList
+    else:
+        rv['addList'] = addList
     return rv 
 
 def list2dict(entry, hasContent, keys):
     entry.extend(['*'] * (len(keys) - len(entry)))
-    rv = {e: entry[i] for i, e in enumerate(keys)}
+    rv = {key: entry[i] for i, key in enumerate(keys)}
     rv = {k: v for k, v in rv.items() if '*' != v}
     if hasContent is False:
         if keys[0] in rv:
             del rv[keys[0]]
     return rv
+
+def list2set(entry, hasContent):
+    if hasContent is False:
+        return set(entry[1:])
+    return set(entry)
+
+def list2SPF(spfEntry, hasContent = True):
+    #if hasContent is False:
+    #    return '*' 
+    return spfEntry[0]
 
 def list2CAA(caaEntry, hasContent = True):
     return list2dict(caaEntry, hasContent, ['flag', 'url', 'tag'])
@@ -75,7 +92,10 @@ def list2rrType(rrType, entry, hasContent = True):
         return list2ip(entry, hasContent)
     elif 'caa' == rrType:
         return list2CAA(entry, hasContent)
+    elif 'spf' == rrType:
+        return list2SPF(entry, hasContent)
     log.error('rrType not supported')
+    assert TypeError('rrType not supported')
 
 def interpreteRR(content, rrType = 'mx', defaultList = ['*', '10'], keySplitPattern = '.', valueSplitPattern = ':'):
     log.debug(content)
@@ -84,7 +104,7 @@ def interpreteRR(content, rrType = 'mx', defaultList = ['*', '10'], keySplitPatt
     conf = splitList(x)
     log.debug(conf)
     parsedList = [parseNestedEntry(k, e, defaultList, keySplitPattern, valueSplitPattern) for k, v in conf.items() for e in v]
-    aggrAdd = [list2rrType(rrType, e['addList']) for e in parsedList]
+    aggrAdd = [list2rrType(rrType, e['addList']) for e in parsedList if 'addList' in e]
     aggrDel = [list2rrType(rrType, e['delList'], False) for e in parsedList if 'delList' in e]
     return {'{}AggrAdd'.format(rrType): aggrAdd, '{}AggrDel'.format(rrType): aggrDel}
 
@@ -109,12 +129,19 @@ def interpreteDictRR(content, rrType):
         return {rrType: rrDict}
     return {}
 
+def interpreteSetRR(content, rrType, defaultList = ['*']):
+    rrList = interpreteRR(content, rrType, defaultList)
+    rrSet = {k: set(v) for k, v in rrList.items()}
+    return rrSet
+
 def interpreteDMARC(content):
     return interpreteDictRR(content, 'dmarc')
 
 def interpreteSOA(content):
     return interpreteDictRR(content, 'soa')
 
+def interpreteSPF(content):
+    return interpreteSetRR(content, 'spf', ['*'])
 
 class ConfigReader:
     def __init__(self):
@@ -170,7 +197,9 @@ def interpreteDomainConfig(cf):
         domainconfig[domain].update(dmarc)
         soa = interpreteSOA(content)
         domainconfig[domain].update(soa)
-
+        spf = interpreteSPF(content)
+        domainconfig[domain].update(spf)
+        print(spf)
 
         if 'tlsa' in content:
             tlsa = str(domainconfig[domain]['tlsa'])
@@ -179,10 +208,10 @@ def interpreteDomainConfig(cf):
             else:
                 tlsa = [[int(f) for f in e] for e in tlsa.replace(' ', '').split(',')]
             domainconfig[domain]['tlsa'] = tlsa
-        if 'spf' in content:
-            domainconfig[domain]['spf'] = domainconfig[domain]['spf'].replace(' ', '').split(',')
-        if 'spf+' in content:
-            domainconfig[domain]['spf+'] = domainconfig[domain]['spf+'].replace(' ', '').split(',')
+        #if 'spf' in content:
+        #    domainconfig[domain]['spf'] = domainconfig[domain]['spf'].replace(' ', '').split(',')
+        #if 'spf+' in content:
+        #    domainconfig[domain]['spf+'] = domainconfig[domain]['spf+'].replace(' ', '').split(',')
         #if 'dmarc' in [k.split('.')[0] for k in content.keys()]:
         #    dmarc = {k.split('.')[1]: v for k, v in content.items() if 'dmarc' == k.split('.')[0]}
         #    domainconfig[domain]['dmarc'] = dmarc

@@ -115,19 +115,25 @@ class ManagedDomain:
         return cert
 
 
-    def addSPF(self):
-        for name, content in self.cr.domainconfig.items():
-            if 'DEFAULT' == name:
-                continue
-            if 'spf+' in content:
-                self.dnsup.setSPFentry(name, content['spf+'])
+    #def addSPF(self):
+    #    for name, content in self.cr.domainconfig.items():
+    #        if 'DEFAULT' == name:
+    #            continue
+    #        if 'spf+' in content:
+    #            self.dnsup.setSPFentry(name, content['spf+'])
 
     def setSPF(self):
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
                 continue
-            if 'spf' in content:
-                self.dnsup.setSPF(name, content['spf'])
+            if 'spfAggrDel' in content and 'spfAggrAdd' in content:
+                self.dnsup.setSPFentry(name, content['spfAggrAdd'], content['spfAggrDel'])
+            elif 'spfAggrDel' in content:
+                self.dnsup.setSPFentry(name, {}, content['spfAggrDel'])
+            elif 'spfAggrAdd' in content:
+                self.dnsup.setSPFentry(name, content['spfAggrAdd'], {})
+
+            
 
     def setDMARCentries(self):
         for name, content in self.cr.domainconfig.items():
@@ -358,8 +364,8 @@ class ManagedDomain:
         self.readConfig(confFile)
         self.setCAA()
         self.setSOA()
-        self.setSPF()
-        self.addSPF()
+        self.setSPF() # add and del entries
+        #self.addSPF()
         self.setADSP()
         self.setDMARCentries()
         self.setSRV() # contains addSRV() and delSRV() 
