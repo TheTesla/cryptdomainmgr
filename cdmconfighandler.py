@@ -13,7 +13,7 @@ from simplelogger import simplelogger as log
 
 
 def filterEntries(content, rrType):
-    return {k: v for k, v in content.items() if rrType in k}
+    return {k: v for k, v in content.items() if rrType == k[:len(rrType)]}
 
 def splitList(content):
     return {k: [e.strip() for e in v.split(',')] for k, v in content.items()}
@@ -61,8 +61,8 @@ def list2set(entry, hasContent):
     return set(entry)
 
 def list2SPF(spfEntry, hasContent = True):
-    #if hasContent is False:
-    #    return '*' 
+    if hasContent is False:
+        return '*'
     return spfEntry[0]
 
 def list2CAA(caaEntry, hasContent = True):
@@ -126,7 +126,8 @@ def interpreteDictRR(content, rrType):
 
 def interpreteSetRR(content, rrType, defaultList = ['*']):
     rrList = interpreteRR(content, rrType, defaultList)
-    rrSet = {k: set(v) for k, v in rrList.items()}
+    rrSet = {k: set([e for e in v if '' != e]) for k, v in rrList.items()}
+    print(rrSet)
     return rrSet
 
 def interpreteDMARC(content):

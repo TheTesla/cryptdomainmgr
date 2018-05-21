@@ -114,14 +114,6 @@ class ManagedDomain:
         log.debug('  self.findCert = %s' % cert)
         return cert
 
-
-    #def addSPF(self):
-    #    for name, content in self.cr.domainconfig.items():
-    #        if 'DEFAULT' == name:
-    #            continue
-    #        if 'spf+' in content:
-    #            self.dnsup.setSPFentry(name, content['spf+'])
-
     def setSPF(self):
         for name, content in self.cr.domainconfig.items():
             if 'DEFAULT' == name:
@@ -132,8 +124,6 @@ class ManagedDomain:
                 self.dnsup.setSPFentry(name, {}, content['spfAggrDel'])
             elif 'spfAggrAdd' in content:
                 self.dnsup.setSPFentry(name, content['spfAggrAdd'], {})
-
-            
 
     def setDMARCentries(self):
         for name, content in self.cr.domainconfig.items():
@@ -365,7 +355,6 @@ class ManagedDomain:
         self.setCAA()
         self.setSOA()
         self.setSPF() # add and del entries
-        #self.addSPF()
         self.setADSP()
         self.setDMARCentries()
         self.setSRV() # contains addSRV() and delSRV() 
