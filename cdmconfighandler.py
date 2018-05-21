@@ -29,7 +29,6 @@ def parseNestedEntry(key, value, default = [], keySplitPattern = '.', valueSplit
         valueList = value.split(valueSplitPattern)
     addList   = list(default)
     rv = {}
-    log.debug(keyList)
     subtractMode = False
     if '+' == keyList[-1][-1]:
         keyList[-1] = keyList[-1][:-1]
@@ -38,12 +37,9 @@ def parseNestedEntry(key, value, default = [], keySplitPattern = '.', valueSplit
         subtractMode = True
     else:
         rv['delList'] = list(keyList)
-    log.debug(keyList)
     addList[:len(keyList)] = list(keyList)
     for i, e in enumerate(valueList):
         addList[-i] = e
-    log.debug(addList)
-    log.debug(valueList)
     if subtractMode is True:
         rv['delListWithContent'] = addList
     else:
@@ -98,11 +94,8 @@ def list2rrType(rrType, entry, hasContent = True):
     assert TypeError('rrType not supported')
 
 def interpreteRR(content, rrType = 'mx', defaultList = ['*', '10'], keySplitPattern = '.', valueSplitPattern = ':'):
-    log.debug(content)
     x = filterEntries(content, rrType)
-    log.debug(x)
     conf = splitList(x)
-    log.debug(conf)
     parsedList = [parseNestedEntry(k, e, defaultList, keySplitPattern, valueSplitPattern) for k, v in conf.items() for e in v]
     aggrAdd = [list2rrType(rrType, e['addList']) for e in parsedList if 'addList' in e]
     aggrDel = [list2rrType(rrType, e['delList'], False) for e in parsedList if 'delList' in e]
@@ -185,7 +178,6 @@ def interpreteDomainConfig(cf):
 
     for domain, content in domainconfig.items():
         ip4 = interpreteA(content)
-        print(ip4)
         domainconfig[domain].update(ip4)
         ip6 = interpreteAAAA(content)
         domainconfig[domain].update(ip6)
@@ -195,14 +187,12 @@ def interpreteDomainConfig(cf):
         domainconfig[domain].update(srv)
         caa = interpreteCAA(content)
         domainconfig[domain].update(caa)
-        log.debug(caa)
         dmarc = interpreteDMARC(content)
         domainconfig[domain].update(dmarc)
         soa = interpreteSOA(content)
         domainconfig[domain].update(soa)
         spf = interpreteSPF(content)
         domainconfig[domain].update(spf)
-        print(spf)
 
         if 'tlsa' in content:
             tlsa = str(domainconfig[domain]['tlsa'])
@@ -211,15 +201,6 @@ def interpreteDomainConfig(cf):
             else:
                 tlsa = [[int(f) for f in e] for e in tlsa.replace(' ', '').split(',')]
             domainconfig[domain]['tlsa'] = tlsa
-        #if 'spf' in content:
-        #    domainconfig[domain]['spf'] = domainconfig[domain]['spf'].replace(' ', '').split(',')
-        #if 'spf+' in content:
-        #    domainconfig[domain]['spf+'] = domainconfig[domain]['spf+'].replace(' ', '').split(',')
-        #if 'dmarc' in [k.split('.')[0] for k in content.keys()]:
-        #    dmarc = {k.split('.')[1]: v for k, v in content.items() if 'dmarc' == k.split('.')[0]}
-        #    domainconfig[domain]['dmarc'] = dmarc
-        #if 'soa' in [k.split('.')[0] for k in content.keys()]:
-        #    domainconfig[domain]['soa'] = {k.split('.')[1]: v for k, v in content.items() if 'soa' == k.split('.')[0]}
 
     log.debug(domainconfig)
     return domainconfig
