@@ -69,13 +69,14 @@ class ManagedDomain:
 
     def dnsupLoginConf(self):
         userDict = {k: v['user'] for k, v in self.cr.domainconfig.items() if 'user' in v}
-        self.dnsup.setUserDict(userDict)
+        self.dnsup.setHandler('inwx')
+        self.dnsup.handler.setUserDict(userDict)
         if 'DEFAULT' in userDict.keys():
             userDict['default'] = userDict['DEFAULT'] 
         passwdDict = {k: v['passwd'] for k, v in self.cr.domainconfig.items() if 'passwd' in v}
         if 'DEFAULT' in passwdDict.keys():
             passwdDict['default'] = passwdDict['DEFAULT'] 
-        self.dnsup.setPasswdDict(passwdDict)
+        self.dnsup.handler.setPasswdDict(passwdDict)
 
 
     def createCert(self):
