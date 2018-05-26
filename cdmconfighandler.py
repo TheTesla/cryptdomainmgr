@@ -127,7 +127,6 @@ def interpreteDictRR(content, rrType):
 def interpreteSetRR(content, rrType, defaultList = ['*']):
     rrList = interpreteRR(content, rrType, defaultList)
     rrSet = {k: set([e for e in v if '' != e]) for k, v in rrList.items()}
-    print(rrSet)
     return rrSet
 
 def interpreteDMARC(content):
