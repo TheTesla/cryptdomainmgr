@@ -43,3 +43,12 @@ Updating keys, certifcates and other needs 3 steps to prevent gaps in availabill
 
 **Stefan Helmert** all work on this projekt
 
+## Want to support the project?
+
+BURST: BURST-E56Y-7XQ7-C9E8-9XD55
+
+GRC: Rzsny83yz7ReKd9k9cF4L5T4B1VB8GzzaT
+
+CURE: BLLk87WviLrkAWZHT5eFSs7dStPXmHztDD
+
+ETH: 0xA6a71817CC4E00B0646852401e9C5Cab024946d2
