@@ -13,6 +13,26 @@ import handlercertbot as certmodule
 from subprocess import check_output
 from simpleloggerplus import simpleloggerplus as log
 
+
+def certPrepare(config, i=2):
+    if i != 2:
+        return
+    log.info('Certificate prepare')
+    #self.stop80()
+    createCert(config)
+    #self.start80()
+
+def certRollover(config, i=2):
+    if i != 2:
+        return
+    log.info('Certificate rollover')
+    copyCert(config)
+
+def certCleanup(config, i=2):
+    if i != 2:
+        return
+    log.info('Certificate cleanup')
+        
 def getCertSAN(filename):
     certFile = open(filename, 'rt').read()
     cert = crypto.load_certificate(crypto.FILETYPE_PEM, certFile)
