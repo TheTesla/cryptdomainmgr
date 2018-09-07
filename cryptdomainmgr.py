@@ -202,7 +202,7 @@ class ManagedDomain:
 
 
     def addDKIM(self, delete = False):
-        for dkimSecName, dkimContent in self.cr.dkimconfig.items():
+        for dkimSecName, dkimContent in self.cr.config['dkim'].items():
             if 'DEFAULT' == dkimSecName:
                 continue
             keys = findDKIMkeyTXT(dkimContent['keylocation'], dkimContent['keybasename'])
