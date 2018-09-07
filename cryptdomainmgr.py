@@ -15,7 +15,6 @@ import configparser
 import time
 from jinja2 import Template
 from cdmconfighandler import *
-from modules.certificate import certbot as certmodule
 from modules.certificate.main import prepare as certPrepare
 from modules.certificate.main import rollover as certRollover
 from modules.certificate.main import cleanup as certCleanup
