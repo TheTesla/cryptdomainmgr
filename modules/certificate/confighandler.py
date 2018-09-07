@@ -20,16 +20,19 @@ def applyDefault(config, defaultConfig={}):
     return newconfig
 
 # Default handling
-# DEFAULT section overwirtten by handler default configuration overwr. by explicit configuration
+# DEFAULT section overwritten by handler default configuration overwr. by explicit configuration
 
 
 def interpreteCertConfig(cr):
     defaultCertConfig = {'certname': 'fullchain.pem', 'keysize': 4096, 'extraflags': ''}
     certconfig = cr.getRawConfigOf('certificate')
+    #log.debug(certconfig)
     # apply general config defaults and the default section
     certconfig = applyDefault(certconfig, defaultCertConfig) # must be here because following section depends on default values
+    log.debug(certconfig)
 
     for certSecName, content in certconfig.items():
+        content = dict(content)
         if 'handler' in content:
             log.debug('handler in content')
             handler = __import__('modules.certificate.handler'+str(content['handler']), fromlist=('modules','certificate'))
