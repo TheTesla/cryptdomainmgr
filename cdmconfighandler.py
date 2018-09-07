@@ -50,11 +50,8 @@ class ConfigReader:
         interpreteCertConfig(self)
         interpreteDKIMConfig(self)
         log.debug(self.config)
-        self.conflictingservices = getConflictingServices(self.config['cert'])
 
-
-def getConflictingServices(certConfig):
-    return {f for e in certConfig.values() if 'conflictingservices' in e for f in e['conflictingservices']}
+    
 
 def getConfigOf(getSection, config, domainOldStyle=False):
     resConfig = {}

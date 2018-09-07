@@ -16,12 +16,27 @@ import time
 from jinja2 import Template
 from cdmconfighandler import *
 from modules.certificate import certbot as certmodule
-from modules.certificate.main import certPrepare, certRollover, certCleanup, getCertSAN, findCert
-from modules.dkim.main import dkimPrepare, dkimRollover, dkimCleanup
+from modules.certificate.main import prepare as certPrepare
+from modules.certificate.main import rollover as certRollover
+from modules.certificate.main import cleanup as certCleanup
+from modules.certificate.main import findCert
+from modules.dkim.main import prepare as dkimPrepare
+from modules.dkim.main import rollover as dkimRollover
+from modules.dkim.main import cleanup as dkimCleanup
+from modules.service.main import prepare as serviceprepare
+from modules.service.main import rollover as servicerollover
+from modules.service.main import cleanup as servicecleanup
 
 from simpleloggerplus import simpleloggerplus as log
 from dnsuptools import dnsuptools 
 from OpenSSL import crypto
+
+def getCertSAN(filename):
+    certFile = open(filename, 'rt').read()
+    cert = crypto.load_certificate(crypto.FILETYPE_PEM, certFile)
+    san = [cert.get_extension(i).get_data().split('\x82')[1:] for i in range(cert.get_extension_count()) if 'subjectAltName' == cert.get_extension(i).get_short_name()][0]
+    san = [e[1:] for e in san]
+    return san
 
 class ManagedDomain:
     def __init__(self):
@@ -187,14 +202,6 @@ class ManagedDomain:
                         self.dnsup.setTLSAfromCert(name, cert, content['tlsa'])
 
 
-#    def stop80(self):
-#        for server in self.cr.conflictingservices:
-#            rv = check_output(('systemctl', 'stop', str(server)))
-#
-#    def start80(self):
-#        for server in self.cr.conflictingservices:
-#            rv = check_output(('systemctl', 'start', str(server)))
-
     def addDKIM(self, delete = False):
         for dkimSecName, dkimContent in self.cr.dkimconfig.items():
             if 'DEFAULT' == dkimSecName:
@@ -213,113 +220,6 @@ class ManagedDomain:
     def setDKIM(self):
         self.addDKIM(True)
 
-#    def dkimPrepare(self, i=2):
-#        if i != 2:
-#            return
-#        log.info('DKIM prepare')
-#        for dkimSecName, dkimContent in self.cr.dkimconfig.items():
-#            if 'DEFAULT' == dkimSecName:
-#                continue
-#            log.info("Preparing DKIM key for dkim-section: \"{}\"".format(dkimSecName))
-#            if 'handler' not in dkimContent:
-#                continue
-#            if 'rspamd' == dkimContent['handler']:
-#                createDKIM(dkimContent['keylocation'], dkimContent['keybasename'], dkimContent['keysize'], dkimContent['signingconftemplatefile'], dkimContent['signingconftemporaryfile'])
-#            self.addDKIM()
-#
-#    def dkimRollover(self, i=2):
-#        if i != 2:
-#            return
-#        log.info('DKIM rollover')
-#        for dkimSecName, dkimContent in self.cr.dkimconfig.items():
-#            if 'DEFAULT' == dkimSecName:
-#                continue
-#            if 'handler' not in dkimContent:
-#                continue
-#            if 'rspamd' == dkimContent['handler']:
-#                log.info('using new dkim key, moving new config file')
-#                log.info('  {} -> {}'.format(dkimContent['signingconftemporaryfile'], dkimContent['signingconfdestinationfile']))
-#                rv = check_output(('mv', dkimContent['signingconftemporaryfile'], dkimContent['signingconfdestinationfile']))
-#                log.info('reloading rspamd')
-#                rv = check_output(('systemctl', 'reload', 'rspamd'))
-#
-#    def dkimCleanup(self, i=2):
-#        if i != 2:
-#            return
-#        log.info('DKIM cleanup')
-#        for dkimSecName, dkimContent in self.cr.dkimconfig.items():
-#            if 'DEFAULT' == dkimSecName:
-#                continue
-#            if 'handler' not in dkimContent:
-#                continue
-#            if 'rspamd' == dkimContent['handler']:
-#                keyFiles = findDKIMkey(dkimContent['keylocation'], dkimContent['keybasename'])
-#                keyFiles.sort()
-#                if 2 > len(keyFiles):
-#                    return
-#                del keyFiles[-2:]
-#                for keyFile in keyFiles:
-#                    log.info('  rm {}'.format(keyFile[1]))
-#                    rv = check_output(('rm', keyFile[1]))
-#                self.setDKIM()
-
-
-    def apache2Prepare(self, i=0):
-        if i == 1:
-            log.info('Apache2 prepare (stop)')
-            rv = check_output(('systemctl', 'stop', 'apache2'))
-        elif i == 9:
-            log.info('Apache2 prepare (start)')
-            rv = check_output(('systemctl', 'start', 'apache2'))
-
-    def apache2Rollover(self, i=9):
-        if i != 9:
-            return
-        log.info('Apache2 rollover (restart)')
-        rv = check_output(('systemctl', 'restart', 'apache2'))
-
-    def apache2Cleanup(self, i=0):
-        if i != 9:
-            return
-        log.info('Apache2 cleanup')
-
-
-    def rspamdPrepare(self, i=0):
-        if i != 9:
-            return
-        log.info('Rspamd prepare')
-
-    def rspamdRollover(self, i=9):
-        if i != 9:
-            return
-        log.info('Rspamd rollover (reload)')
-        rv = check_output(('systemctl', 'reload', 'rspamd'))
-
-    def rspamdCleanup(self, i=0):
-        if i != 9:
-            return
-        log.info('Rspamd cleanup')
-
-
-
-#    def certPrepare(self, i=2):
-#        if i != 2:
-#            return
-#        log.info('Certificate prepare')
-#        #self.stop80()
-#        createCert(self.cr.config)
-#        #self.start80()
-#
-#    def certRollover(self, i=2):
-#        if i != 2:
-#            return
-#        log.info('Certificate rollover')
-#        copyCert(self.cr.config)
-#
-#    def certCleanup(self, i=2):
-#        if i != 2:
-#            return
-#        log.info('Certificate cleanup')
 
     def domainPrepare(self, i=8):
         if i != 8:
@@ -340,10 +240,7 @@ class ManagedDomain:
         self.setTLSA()
         self.setDKIM()
 
-
-
-    def update(self, state = '', confFile = None):
-        self.readConfig(confFile)
+    def domainUpdate(self):
         self.setCAA()
         self.setSOA()
         self.setSPF() # add and del entries
@@ -352,6 +249,11 @@ class ManagedDomain:
         self.setSRV() # contains addSRV() and delSRV() 
         self.setIPs()
         self.setMX() # contains addMX() and delMX()
+
+
+    def update(self, state = '', confFile = None):
+        self.readConfig(confFile)
+        self.domainUpdate()
         if 'prepare' == state:
             self.addDKIM()
             self.addTLSA()
@@ -365,7 +267,7 @@ class ManagedDomain:
             certPrepare(self.cr.config, i)
             dkimPrepare(self.cr.config, i)
             self.domainPrepare(i)
-            self.apache2Prepare(i)
+            serviceprepare(self.cr.config,i)
 
     def rollover(self, confFile = None):
         self.readConfig(confFile)
@@ -373,7 +275,7 @@ class ManagedDomain:
             certRollover(self.cr.config, i)
             dkimRollover(self.cr.config, i)
             self.domainRollover(i)
-            self.apache2Rollover(i)
+            servicerollover(self.cr.config, i)
 
     def cleanup(self, confFile = None):
         self.readConfig(confFile)
@@ -381,7 +283,7 @@ class ManagedDomain:
             certCleanup(self.cr.config, i)
             dkimCleanup(self.cr.config, i)
             self.domainCleanup(i)
-            self.apache2Cleanup(i)
+            servicecleanup(self.cr.config, i)
 
 
 

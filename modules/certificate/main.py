@@ -14,32 +14,32 @@ from subprocess import check_output
 from simpleloggerplus import simpleloggerplus as log
 
 
-def certPrepare(config, i=2):
+def prepare(config, i=2):
     if i != 2:
         return
     log.info('Certificate prepare')
-    #self.stop80()
-    createCert(config)
-    #self.start80()
+    for certSecName, certConfig in config['cert'].items():
+        if 'DEFAULT' == certSecName:
+            continue
+        log.info('Create certificate for section \"{}\"'.format(certSecName))
+        if 'handler' not in certConfig:
+            continue
+        domains = [k for k,v in config['domain'].items() if 'certificate' in v and certSecName == v['certificate']]
+        log.info('  -> {}'.format(', '.join(domains)))
+        log.debug(certConfig)
+        certmodule.prepare(certConfig, domains, i) 
 
-def certRollover(config, i=2):
+def rollover(config, i=2):
     if i != 2:
         return
     log.info('Certificate rollover')
     copyCert(config)
 
-def certCleanup(config, i=2):
+def cleanup(config, i=2):
     if i != 2:
         return
     log.info('Certificate cleanup')
         
-def getCertSAN(filename):
-    certFile = open(filename, 'rt').read()
-    cert = crypto.load_certificate(crypto.FILETYPE_PEM, certFile)
-    san = [cert.get_extension(i).get_data().split('\x82')[1:] for i in range(cert.get_extension_count()) if 'subjectAltName' == cert.get_extension(i).get_short_name()][0]
-    san = [e[1:] for e in san]
-    return san
-
 def findCertHelper(path, curName = None, nameList = [], filename = 'fullchain.pem', cert = None):
     if path is None:
         return None
@@ -88,15 +88,15 @@ def findCert(name, content, config):
     log.debug('  findCert = %s' % cert)
     return cert
 
-def createCert(config):
-    for certSecName, certConfig in config['cert'].items():
-        if 'handler' not in certConfig:
-            continue
-        log.info('Create certificate for section \"{}\"'.format(certSecName))
-        domains = [k for k,v in config['domain'].items() if 'certificate' in v and certSecName == v['certificate']]
-        log.info('  -> {}'.format(', '.join(domains)))
-        log.debug(certConfig)
-        certmodule.createCert(domains, certConfig) 
+#def createCert(config):
+#    for certSecName, certConfig in config['cert'].items():
+#        if 'handler' not in certConfig:
+#            continue
+#        log.info('Create certificate for section \"{}\"'.format(certSecName))
+#        domains = [k for k,v in config['domain'].items() if 'certificate' in v and certSecName == v['certificate']]
+#        log.info('  -> {}'.format(', '.join(domains)))
+#        log.debug(certConfig)
+#        certmodule.createCert(domains, certConfig) 
 
 
 def copyCert(config):
