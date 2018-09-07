@@ -22,7 +22,7 @@ from modules.certificate.main import findCert
 from modules.dkim.main import prepare as dkimPrepare
 from modules.dkim.main import rollover as dkimRollover
 from modules.dkim.main import cleanup as dkimCleanup
-from modules.dkim.main import findDKIMkeyTXT
+from modules.dkim.handlerrspamd import findDKIMkeyTXT
 from modules.service.main import prepare as serviceprepare
 from modules.service.main import rollover as servicerollover
 from modules.service.main import cleanup as servicecleanup
