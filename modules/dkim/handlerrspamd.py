@@ -12,6 +12,7 @@ from subprocess import check_output
 from simpleloggerplus import simpleloggerplus as log
 from jinja2 import Template
 from parse import parse
+import time
 
 def prepare(dkimContent, i=2):
     if 'rspamd' == dkimContent['handler']:
