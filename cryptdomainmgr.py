@@ -96,6 +96,14 @@ class ManagedDomain:
             if 'adsp' in content:
                 self.dnsup.setADSP(name, content['adsp'])
 
+    def setACME(self):
+        for name, content in self.cr.config['domain'].items():
+            if 'DEFAULT' == name:
+                continue
+            if 'acme' in content:
+                print('acme')
+                self.dnsup.setACME(name, content['acme'])
+
     def setSOA(self):
         for name, content in self.cr.config['domain'].items():
             if 'DEFAULT' == name:
@@ -241,6 +249,7 @@ class ManagedDomain:
         self.setDKIM()
 
     def domainUpdate(self):
+        self.setACME()
         self.setCAA()
         self.setSOA()
         self.setSPF() # add and del entries
