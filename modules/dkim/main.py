@@ -14,7 +14,7 @@ from jinja2 import Template
 from parse import parse
 import handlerrspamd
 
-def prepare(config, i=2):
+def prepare(config, state, i=2):
     if i != 2:
         return
     log.info('DKIM prepare')
@@ -28,7 +28,7 @@ def prepare(config, i=2):
 #        if 'rspamd' == dkimContent['handler']:
 #            createDKIM(dkimContent['keylocation'], dkimContent['keybasename'], dkimContent['keysize'], dkimContent['signingconftemplatefile'], dkimContent['signingconftemporaryfile'])
 
-def rollover(config, i=2):
+def rollover(config, state, i=2):
     if i != 2:
         return
     log.info('DKIM rollover')
@@ -43,7 +43,7 @@ def rollover(config, i=2):
 #            log.info('  {} -> {}'.format(dkimContent['signingconftemporaryfile'], dkimContent['signingconfdestinationfile']))
 #            rv = check_output(('mv', dkimContent['signingconftemporaryfile'], dkimContent['signingconfdestinationfile']))
 
-def cleanup(config, i=2):
+def cleanup(config, state, i=2):
     if i != 2:
         return
     log.info('DKIM cleanup')

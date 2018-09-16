@@ -15,29 +15,35 @@ from subprocess import check_output
 from simpleloggerplus import simpleloggerplus as log
 
 
-def prepare(config, i=2):
+def prepare(config, state, i=2):
     if i != 2:
         return
     log.info('Certificate prepare')
+    subState = state.getSubstate('cert')
     for certSecName, certConfig in config['cert'].items():
         if 'DEFAULT' == certSecName:
             continue
         log.info('Create certificate for section \"{}\"'.format(certSecName))
         if 'handler' not in certConfig:
             continue
+        print(certSecName)
+        certState = subState.getSubstate(certSecName)
         domains = [k for k,v in config['domain'].items() if 'certificate' in v and certSecName == v['certificate']]
         log.info('  -> {}'.format(', '.join(domains)))
         log.debug(certConfig)
-        certmodule.prepare(certConfig, domains, i) 
-        certmodulenew.prepare(certConfig, domains, i) 
+        certmodule.prepare(certConfig, certState, domains, i) 
+        certmodulenew.prepare(certConfig, certState, domains, i) 
+        print('result')
+        print(certState.result)
+    state.printAll()
 
-def rollover(config, i=2):
+def rollover(config, state, i=2):
     if i != 2:
         return
     log.info('Certificate rollover')
     copyCert(config)
 
-def cleanup(config, i=2):
+def cleanup(config, state, i=2):
     if i != 2:
         return
     log.info('Certificate cleanup')

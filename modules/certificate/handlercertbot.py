@@ -13,7 +13,7 @@ from simpleloggerplus import simpleloggerplus as log
 
 defaultCertConfig = {'source': '/etc/letsencrypt/live', 'certname': 'fullchain.pem', 'keysize': 4096, 'extraflags': ''}
 
-def prepare(certConfig, domainList, i=2): 
+def prepare(certConfig, certState, domainList, i=2): 
     if 'certbot' != certConfig['handler']:
         return
     if 0 == len(domainList):

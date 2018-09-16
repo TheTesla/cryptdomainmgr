@@ -23,7 +23,7 @@ def applyDefault(config, defaultConfig={}):
 # DEFAULT section overwritten by handler default configuration overwr. by explicit configuration
 
 
-def interpreteCertConfig(cr):
+def interpreteCertConfig(cr, sh):
     defaultCertConfig = {'certname': 'fullchain.pem', 'keysize': 4096, 'extraflags': ''}
     certconfig = cr.getRawConfigOf('certificate')
     #log.debug(certconfig)

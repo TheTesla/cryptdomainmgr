@@ -13,7 +13,7 @@ from simpleloggerplus import simpleloggerplus as log
 
 defaultCertConfig = {'source': '/etc/dehydrated/certs', 'certname': 'fullchain.pem', 'keysize': 4096, 'extraflags': ''}
 
-def prepare(certConfig, domainList, i=2): 
+def prepare(certConfig, certState, domainList, i=2): 
     if 'dehydrated' != certConfig['handler']:
         return
     if 0 == len(domainList):
@@ -54,6 +54,7 @@ def prepare(certConfig, domainList, i=2):
     for d in domainList:
         args.extend(['-d', str(d)])
     log.debug(args)
+    certState.setOpStateRunning()
     rv = check_output(args)
 
     print(rv)
@@ -71,8 +72,14 @@ def prepare(certConfig, domainList, i=2):
             break
         res.append(e)
     print(res)
-    resDict = {e.split('=')[0]: e.split('=')[1] for e in res}
+    resDict = {e.split('=')[0].lower(): e.split('=')[1] for e in res}
     print(resDict)
+    
+    if 'running' == certState.opstate:
+        certState.registerResult(resDict)
+    certState.setOpStateDone()
+    print(certState.opstate)
+    print(certState.result)
 
     return rv
 

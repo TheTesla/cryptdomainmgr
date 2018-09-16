@@ -45,10 +45,10 @@ class ConfigReader:
     def updateConfig(self, config):
         self.config.update(config)
 
-    def interprete(self):
-        interpreteDomainConfig(self)
-        interpreteCertConfig(self)
-        interpreteDKIMConfig(self)
+    def interprete(self, sh):
+        interpreteDomainConfig(self, sh)
+        interpreteCertConfig(self, sh)
+        interpreteDKIMConfig(self, sh)
         log.debug(self.config)
 
     

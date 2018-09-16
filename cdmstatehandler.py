@@ -10,39 +10,58 @@
 class StateHandler:
     def __init__(self):
         self.state = {}
+        self.opstate = ''
+        self.result = {}
+        self.config = {}
+        self.substate = {}
+        self.setOpStateUninitialized()
 
-    def initPart(self, partName):
-        if str(partName) not in self.state:
-            self.state[str(partName)] = {}
+    def setOpState(self, opState):
+        self.opstate = str(opState)
 
-    def initSection(self, partName, sectionName):
-        self.initPart(partName)
-        if str(sectionName) not in self.state[str(partName)]:
-            self.state[str(partName)][str(sectionName)] = {}
-            self.setOpStateUninitialized(partName, sectionName)
+    # initial state
+    def setOpStateUninitialized(self):
+        self.setOpState("uninitialized")
 
-    def setOpState(self, partName, sectionName, opState):
-        self.state[str(partName)][str(sectionName)]["opstate"] = str(opState)
+    # waiting for results produced by other modules/handlers
+    def setOpStateWaiting(self):
+        self.setOpState("waiting")
 
-    def setOpStateUninitialized(self, partName, sectionName):
-        self.setOpState(partName, sectionName, "uninitialized")
+    # module/handler is doing work
+    def setOpStateRunning(self):
+        self.setOpState("running")
 
-    def setOpStateWaiting(self, partName, sectionName):
-        self.setOpState(partName, sectionName, "waiting")
-
-    def setOpStateRunning(self, partName, sectionName):
-        self.setOpState(partName, sectionName, "running")
-
-    def setOpStateDone(self, partName, sectionName):
-        self.setOpState(partName, sectionName, "done")
+    # module/handler is ready, results are written
+    def setOpStateDone(self):
+        self.setOpState("done")
 
     # should be the output after handler/module run is done
     # example: certificate source = /etc/dehydrated/certs/exampel.domain
-    def registerResult(self, partName, sectionName, result):
-        self.state[str(partName)][str(sectionName)]['result'] = result
+    def registerResult(self, result):
+        self.result = result
 
     # should be the output known before module run
     # exmaple: certificate = letsencrypt -> CAA[auto] = letsencrypt
-    def regsiterConfig((self, partName, sectionName, config): 
-        self.state[str(partName)][str(sectionName)]['config'] = config
+    def registerConfig(self, config): 
+        self.config = config
+
+    def registerSubstate(self, sectionName):
+        if str(sectionName) not in self.substate:
+            self.substate[str(sectionName)] = StateHandler()
+
+    def getSubstate(self, sectionName):
+        self.registerSubstate(sectionName)
+        return self.substate[str(sectionName)]
+
+    def printAll(self, indent=0):
+        print('{} opstate = {}'.format(indent * ' ', self.opstate))
+        print('{} result  = {}'.format(indent * ' ', self.result))
+        print('{} config  = {}'.format(indent * ' ', self.config))
+        for k, v in self.substate.items():
+            print('{} substate = {}'.format(indent * ' ', k))
+            v.printAll(indent+1)
+
+                
+
+
 

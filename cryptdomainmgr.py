@@ -15,6 +15,7 @@ import configparser
 import time
 from jinja2 import Template
 from cdmconfighandler import *
+from cdmstatehandler import *
 from modules.certificate.main import prepare as certPrepare
 from modules.certificate.main import rollover as certRollover
 from modules.certificate.main import cleanup as certCleanup
@@ -41,13 +42,14 @@ def getCertSAN(filename):
 class ManagedDomain:
     def __init__(self):
         self.cr = ConfigReader()
+        self.sh = StateHandler()
         self.dnsup = dnsuptools.DNSUpTools()
         self.confPar = configparser.ConfigParser()
 
     def readConfig(self, confFiles):
         self.cr.setFilenames(confFiles)
         self.cr.open()
-        self.cr.interprete()
+        self.cr.interprete(self.sh)
         self.dnsupLoginConf()
 
 
@@ -195,7 +197,10 @@ class ManagedDomain:
             if 'DEFAULT' == name:
                 continue
             if 'tlsa' in content:
-                cert = findCert(name, content, self.cr.config)
+                certState = self.sh.getSubstate('cert').getSubstate(content['certificate'])
+                #cert = findCert(name, content, self.cr.config)
+                print(certState.result)
+                cert = certState.result['fullchainfile']
                 if cert is None:
                     log.info('not deploying TLSA record for {} (no certificate)'.format(name))
                 else:
@@ -273,26 +278,29 @@ class ManagedDomain:
     def prepare(self, confFile = None):
         self.readConfig(confFile)
         for i in range(10):
-            certPrepare(self.cr.config, i)
-            dkimPrepare(self.cr.config, i)
+            certPrepare(self.cr.config, self.sh, i)
+            print('blub')
+            self.sh.printAll()
+            print(self.sh.getSubstate('cert').getSubstate('maincert').result)
+            dkimPrepare(self.cr.config, self.sh, i)
             self.domainPrepare(i)
-            serviceprepare(self.cr.config,i)
+            serviceprepare(self.cr.config, self.sh, i)
 
     def rollover(self, confFile = None):
         self.readConfig(confFile)
         for i in range(10):
-            certRollover(self.cr.config, i)
-            dkimRollover(self.cr.config, i)
+            certRollover(self.cr.config, self.sh, i)
+            dkimRollover(self.cr.config, self.sh, i)
             self.domainRollover(i)
-            servicerollover(self.cr.config, i)
+            servicerollover(self.cr.config, self.sh, i)
 
     def cleanup(self, confFile = None):
         self.readConfig(confFile)
         for i in range(10):
-            certCleanup(self.cr.config, i)
-            dkimCleanup(self.cr.config, i)
+            certCleanup(self.cr.config, self.sh, i)
+            dkimCleanup(self.cr.config, self.sh, i)
             self.domainCleanup(i)
-            servicecleanup(self.cr.config, i)
+            servicecleanup(self.cr.config, self.sh, i)
 
 
 
