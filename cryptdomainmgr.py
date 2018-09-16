@@ -19,7 +19,7 @@ from cdmstatehandler import *
 from modules.certificate.main import prepare as certPrepare
 from modules.certificate.main import rollover as certRollover
 from modules.certificate.main import cleanup as certCleanup
-from modules.certificate.main import findCert
+#from modules.certificate.main import findCert
 from modules.dkim.main import prepare as dkimPrepare
 from modules.dkim.main import rollover as dkimRollover
 from modules.dkim.main import cleanup as dkimCleanup
@@ -38,6 +38,10 @@ def getCertSAN(filename):
     san = [cert.get_extension(i).get_data().split('\x82')[1:] for i in range(cert.get_extension_count()) if 'subjectAltName' == cert.get_extension(i).get_short_name()][0]
     san = [e[1:] for e in san]
     return san
+
+def getFullchain(state, domainContent):
+    certState = state.getSubstate('cert').getSubstate(domainContent['certificate'])
+    return certState.result['fullchainfile']
 
 class ManagedDomain:
     def __init__(self):
@@ -103,7 +107,6 @@ class ManagedDomain:
             if 'DEFAULT' == name:
                 continue
             if 'acme' in content:
-                print('acme')
                 self.dnsup.setACME(name, content['acme'])
 
     def setSOA(self):
@@ -197,10 +200,7 @@ class ManagedDomain:
             if 'DEFAULT' == name:
                 continue
             if 'tlsa' in content:
-                certState = self.sh.getSubstate('cert').getSubstate(content['certificate'])
-                #cert = findCert(name, content, self.cr.config)
-                print(certState.result)
-                cert = certState.result['fullchainfile']
+                cert = getFullchain(self.sh, content)
                 if cert is None:
                     log.info('not deploying TLSA record for {} (no certificate)'.format(name))
                 else:
@@ -276,31 +276,34 @@ class ManagedDomain:
             self.setTLSA()
 
     def prepare(self, confFile = None):
+        self.sh.load()
         self.readConfig(confFile)
         for i in range(10):
             certPrepare(self.cr.config, self.sh, i)
-            print('blub')
-            self.sh.printAll()
-            print(self.sh.getSubstate('cert').getSubstate('maincert').result)
             dkimPrepare(self.cr.config, self.sh, i)
             self.domainPrepare(i)
             serviceprepare(self.cr.config, self.sh, i)
+        self.sh.save()
 
     def rollover(self, confFile = None):
+        self.sh.load()
         self.readConfig(confFile)
         for i in range(10):
             certRollover(self.cr.config, self.sh, i)
             dkimRollover(self.cr.config, self.sh, i)
             self.domainRollover(i)
-            servicerollover(self.cr.config, self.sh, i)
+            #servicerollover(self.cr.config, self.sh, i)
+        self.sh.save()
 
     def cleanup(self, confFile = None):
+        self.sh.load()
         self.readConfig(confFile)
         for i in range(10):
             certCleanup(self.cr.config, self.sh, i)
             dkimCleanup(self.cr.config, self.sh, i)
             self.domainCleanup(i)
-            servicecleanup(self.cr.config, self.sh, i)
+            #servicecleanup(self.cr.config, self.sh, i)
+        self.sh.save()
 
 
 

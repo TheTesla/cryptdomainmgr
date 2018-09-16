@@ -38,7 +38,7 @@ def prepare(certConfig, certState, domainList, i=2):
     if not os.path.isdir(os.path.join(certConfig['source'], '..')):
         os.makedirs(os.path.join(certConfig['source'], '..'))
 
-    confFilename = os.path.join(certConfig['source'],'../dehydrated.conf')
+    confFilename = os.path.normpath(os.path.join(certConfig['source'],'../dehydrated.conf'))
     confFile = open(confFilename, 'w')
     confFile.write('CA={}\n'.format(str(ca)))
     confFile.write('CONTACT_EMAIL={}\n'.format(str(email)))
@@ -57,29 +57,21 @@ def prepare(certConfig, certState, domainList, i=2):
     certState.setOpStateRunning()
     rv = check_output(args)
 
-    print(rv)
     res = []
     rv = rv.splitlines()
     for s, e in enumerate(rv):
-        print('t')
-        print(e)
         if '---- DEPLOYMENTRESULT ----' == e[:len('---- DEPLOYMENTRESULT ----')]:
             break
     for i, e in enumerate(rv[s+1:]):
-        print('e')
-        print(e)
         if '---- END DEPLOYMENTRESULT ----' == e[:len('---- END DEPLOYMENTRESULT ----')]:
             break
         res.append(e)
-    print(res)
     resDict = {e.split('=')[0].lower(): e.split('=')[1] for e in res}
-    print(resDict)
+    resDict['san'] = list(domainList)
     
     if 'running' == certState.opstate:
         certState.registerResult(resDict)
     certState.setOpStateDone()
-    print(certState.opstate)
-    print(certState.result)
 
     return rv
 
