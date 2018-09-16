@@ -10,6 +10,7 @@
 from OpenSSL import crypto
 import os
 import handlercertbot as certmodule
+import handlerdehydrated as certmodulenew
 from subprocess import check_output
 from simpleloggerplus import simpleloggerplus as log
 
@@ -28,6 +29,7 @@ def prepare(config, i=2):
         log.info('  -> {}'.format(', '.join(domains)))
         log.debug(certConfig)
         certmodule.prepare(certConfig, domains, i) 
+        certmodulenew.prepare(certConfig, domains, i) 
 
 def rollover(config, i=2):
     if i != 2:
