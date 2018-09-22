@@ -14,19 +14,22 @@ from jinja2 import Template
 from parse import parse
 import time
 
-def prepare(dkimContent, i=2):
-    if 'rspamd' == dkimContent['handler']:
-        createDKIM(dkimContent['keylocation'], dkimContent['keybasename'], dkimContent['keysize'], dkimContent['signingconftemplatefile'], dkimContent['signingconftemporaryfile'])
+def prepare(dkimConfig, dkimState, i=2):
+    if 'rspamd' == dkimConfig['handler']:
+        res = createDKIM(dkimConfig['keylocation'], dkimConfig['keybasename'], dkimConfig['keysize'], dkimConfig['signingconftemplatefile'], dkimConfig['signingconftemporaryfile'])
+        dkimState.registerResult({'prepare': res})
+        dkimState.setOpStateDone()
 
-def rollover(dkimContent, i=2):
-    if 'rspamd' == dkimContent['handler']:
+def rollover(dkimConfig, dkimState, i=2):
+    if 'rspamd' == dkimConfig['handler']:
         log.info('using new dkim key, moving new config file')
-        log.info('  {} -> {}'.format(dkimContent['signingconftemporaryfile'], dkimContent['signingconfdestinationfile']))
-        rv = check_output(('mv', dkimContent['signingconftemporaryfile'], dkimContent['signingconfdestinationfile']))
+        log.info('  {} -> {}'.format(dkimConfig['signingconftemporaryfile'], dkimConfig['signingconfdestinationfile']))
+        rv = check_output(('mv', dkimConfig['signingconftemporaryfile'], dkimConfig['signingconfdestinationfile']))
+        dkimState.setOpStateDone()
 
-def cleanup(dkimContent, i=2):
-    if 'rspamd' == dkimContent['handler']:
-        keyFiles = findDKIMkey(dkimContent['keylocation'], dkimContent['keybasename'])
+def cleanup(dkimConfig, dkimState, i=2):
+    if 'rspamd' == dkimConfig['handler']:
+        keyFiles = findDKIMkey(dkimConfig['keylocation'], dkimConfig['keybasename'])
         keyFiles.sort()
         if 2 > len(keyFiles):
             return
@@ -34,16 +37,18 @@ def cleanup(dkimContent, i=2):
         for keyFile in keyFiles:
             log.info('  rm {}'.format(keyFile[1]))
             rv = check_output(('rm', keyFile[1]))
+        dkimState.setOpStateDone()
 
 def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signingConfDestFile):
     keylocation = os.path.expanduser(keylocation)
     newKeyname = str(keybasename) + '_{:10d}'.format(int(time.time()))
     keyTxt = check_output(('rspamadm', 'dkim_keygen', '-b', str(int(keysize)), '-s', str(newKeyname), '-k', os.path.join(keylocation, newKeyname+'.key')))
-    f = open(os.path.join(keylocation, newKeyname+'.txt'), 'w')
+    keyPath = os.path.join(keylocation, newKeyname)
+    f = open(keyPath+'.txt', 'w')
     f.write(keyTxt)
     f.close()
-    rv = check_output(('chmod', '0440', os.path.join(keylocation, newKeyname) + '.key'))
-    rv = check_output(('chown', '_rspamd:_rspamd', os.path.join(keylocation, newKeyname) + '.key'))
+    rv = check_output(('chmod', '0440', keyPath+'.key'))
+    rv = check_output(('chown', '_rspamd:_rspamd', keyPath+'.key'))
     f = open(os.path.expanduser(signingConfTemplateFile), 'r')
     templateContent = f.read()
     f.close()
@@ -52,6 +57,7 @@ def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signi
     f = open(os.path.expanduser(signingConfDestFile), 'w')
     f.write(confDestContent)
     f.close()
+    return {'keytxtfile': keyPath+'.txt', 'keyfile': keyPath+'.key'}
 
 def findDKIMkeyTXT(keylocation, keybasename, fileending = 'txt'):
     return findDKIMkey(keylocation, keybasename, fileending)

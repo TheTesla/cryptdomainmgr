@@ -51,6 +51,15 @@ def cleanup(config, state, i=2):
     if i != 2:
         return
     log.info('Certificate cleanup')
+    subState = state.getSubstate('cert')
+    for certSecName, certConfig in config['cert'].items():
+        if 'DEFAULT' == certSecName:
+            continue
+        log.info('Create certificate for section \"{}\"'.format(certSecName))
+        if 'handler' not in certConfig:
+            continue
+        certState = subState.getSubstate(certSecName)
+        certState.setOpStateUninitialized()
 
 def copyCert(certConfig, certState):
     src = os.path.dirname(certState.result['fullchainfile'])

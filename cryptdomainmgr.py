@@ -43,6 +43,12 @@ def getFullchain(state, domainContent):
     certState = state.getSubstate('cert').getSubstate(domainContent['certificate'])
     return certState.result['fullchainfile']
 
+def isCertReady(state, domainContent):
+    certState = state.getSubstate('cert').getSubstate(domainContent['certificate'])
+    return 'done' == certState.opstate
+
+
+
 class ManagedDomain:
     def __init__(self):
         self.cr = ConfigReader()
@@ -200,6 +206,8 @@ class ManagedDomain:
             if 'DEFAULT' == name:
                 continue
             if 'tlsa' in content:
+                if not isCertReady(self.sh, content):
+                    return
                 cert = getFullchain(self.sh, content)
                 if cert is None:
                     log.info('not deploying TLSA record for {} (no certificate)'.format(name))
@@ -277,6 +285,7 @@ class ManagedDomain:
 
     def prepare(self, confFile = None):
         self.sh.load()
+        self.sh.resetOpStateRecursive()
         self.readConfig(confFile)
         for i in range(10):
             certPrepare(self.cr.config, self.sh, i)
@@ -287,6 +296,7 @@ class ManagedDomain:
 
     def rollover(self, confFile = None):
         self.sh.load()
+        self.sh.resetOpStateRecursive()
         self.readConfig(confFile)
         for i in range(10):
             certRollover(self.cr.config, self.sh, i)
@@ -297,6 +307,7 @@ class ManagedDomain:
 
     def cleanup(self, confFile = None):
         self.sh.load()
+        self.sh.resetOpStateRecursive()
         self.readConfig(confFile)
         for i in range(10):
             certCleanup(self.cr.config, self.sh, i)

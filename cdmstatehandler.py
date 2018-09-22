@@ -23,6 +23,11 @@ class StateHandler:
     def setOpState(self, opState):
         self.opstate = str(opState)
 
+    def resetOpStateRecursive(self):
+        self.setOpStateUninitialized()
+        for k, v in self.substate.items():
+            v.resetOpStateRecursive()
+
     # initial state
     def setOpStateUninitialized(self):
         self.setOpState("uninitialized")
