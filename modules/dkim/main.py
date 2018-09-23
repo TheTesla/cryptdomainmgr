@@ -19,11 +19,13 @@ def prepare(config, state):
     for dkimSecName, dkimConfig in config['dkim'].items():
         if 'DEFAULT' == dkimSecName:
             continue
-        log.info("Preparing DKIM key for dkim-section: \"{}\"".format(dkimSecName))
         if 'handler' not in dkimConfig:
             continue
         dkimState = subState.getSubstate(dkimSecName)
-        handlerrspamd.prepare(dkimConfig, dkimState, i)
+        if dkimState.isDone():
+            continue
+        log.info("Preparing DKIM key for dkim-section: \"{}\"".format(dkimSecName))
+        handlerrspamd.prepare(dkimConfig, dkimState)
 
 def rollover(config, state):
     subState = state.getSubstate('dkim')
@@ -33,6 +35,9 @@ def rollover(config, state):
         if 'handler' not in dkimConfig:
             continue
         dkimState = subState.getSubstate(dkimSecName)
+        if dkimState.isDone():
+            continue
+        log.info("Applying DKIM key for dkim-section: \"{}\"".format(dkimSecName))
         handlerrspamd.rollover(dkimConfig, dkimState)
 
 def cleanup(config, state):
@@ -43,5 +48,8 @@ def cleanup(config, state):
         if 'handler' not in dkimConfig:
             continue
         dkimState = subState.getSubstate(dkimSecName)
+        if dkimState.isDone():
+            continue
+        log.info("Cleanup DKIM key for dkim-section: \"{}\"".format(dkimSecName))
         handlerrspamd.cleanup(dkimConfig, dkimState)
 

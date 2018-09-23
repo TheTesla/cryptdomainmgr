@@ -49,10 +49,11 @@ def prepare(domainConfig, domainState, domainSecName, state):
     domainState.setOpStateWaiting()
     
     domainState.setOpStateRunning()
-    addTLSA(domainConfig, domainState, domainSecName, dnsup, state)
-    addDKIM(domainConfig, domainState, domainSecName, dnsup, state)
 
-    domainState.setOpStateDone()
+    tlsaReady = addTLSA(domainConfig, domainState, domainSecName, dnsup, state)
+    dkimReady = addDKIM(domainConfig, domainState, domainSecName, dnsup, state)
+    if tlsaReady and dkimReady:
+        domainState.setOpStateDone()
 
     return
 
@@ -81,10 +82,10 @@ def cleanup(domainConfig, domainState, domainSecName, state):
     domainState.setOpStateWaiting()
     
     domainState.setOpStateRunning()
-    setTLSA(domainConfig, domainState, domainSecName, dnsup, state)
-    setDKIM(domainConfig, domainState, domainSecName, dnsup, state)
-
-    domainState.setOpStateDone()
+    tlsaReady = setTLSA(domainConfig, domainState, domainSecName, dnsup, state)
+    dkimReady = setDKIM(domainConfig, domainState, domainSecName, dnsup, state)
+    if tlsaReady and dkimReady:
+        domainState.setOpStateDone()
 
     return
 
@@ -259,16 +260,16 @@ def setMX(domainConfig, domainState, domainSecName, dnsup):
 
 
 def addTLSA(domainConfig, domainState, domainSecName, dnsup, state):
-    setTLSA(domainConfig, domainState, domainSecName, dnsup, state, addOnly = True)
+    return setTLSA(domainConfig, domainState, domainSecName, dnsup, state, addOnly = True)
 
 def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, addOnly=False):
     rrState = domainState.getSubstate('settlsa')
     if rrState.isDone():
-        return
+        return True
     if 'tlsa' in domainConfig:
         rrState.setOpStateWaiting()
         if not isCertReady(state, domainConfig):
-            return
+            return False
         rrState.setOpStateRunning()
         cert = getFullchain(state, domainConfig)
         if cert is None:
@@ -284,17 +285,18 @@ def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, addOnly=Fals
             else:
                 dnsup.setTLSAfromCert(domainSecName, cert, domainConfig['tlsa'])
     rrState.setOpStateDone()
+    return True
 
 
 
 def addDKIM(domainConfig, domainState, domainSecName, dnsup, state, delete = False):
     rrState = domainState.getSubstate('adddkim')
     if rrState.isDone():
-        return 
+        return True
     if 'dkim' in domainConfig:
         rrState.setOpStateWaiting()
         if not isDKIMready(state, domainConfig):
-            return
+            return False
         rrState.setOpStateRunning()
         keys = findDKIMkeyTXT(dkimContent['keylocation'], dkimContent['keybasedomainSecName'])
         keys = [f[1] for f in keys]
@@ -307,10 +309,11 @@ def addDKIM(domainConfig, domainState, domainSecName, dnsup, state, delete = Fal
             else:
                 dnsup.addDKIMfromFile(domainSecName, keys)
     rrState.setOpStateDone()
+    return True
 
 
 def setDKIM(domainConfig, domainState, domainSecName, dnsup, state):
-    addDKIM(domainConfig, domainState, domainSecName, dnsup, state, True)
+    return addDKIM(domainConfig, domainState, domainSecName, dnsup, state, True)
 
 
 
