@@ -12,7 +12,6 @@ import os
 
 class StateHandler:
     def __init__(self):
-        self.state = {}
         self.opstate = ''
         self.result = {}
         self.config = {}
@@ -43,6 +42,9 @@ class StateHandler:
     # module/handler is ready, results are written
     def setOpStateDone(self):
         self.setOpState("done")
+
+    def isDone(self):
+        return 'done' == self.opstate
 
     # should be the output after handler/module run is done
     # example: certificate source = /etc/dehydrated/certs/exampel.domain

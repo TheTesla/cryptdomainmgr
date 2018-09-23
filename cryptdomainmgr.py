@@ -23,10 +23,13 @@ from modules.certificate.main import cleanup as certCleanup
 from modules.dkim.main import prepare as dkimPrepare
 from modules.dkim.main import rollover as dkimRollover
 from modules.dkim.main import cleanup as dkimCleanup
-from modules.dkim.handlerrspamd import findDKIMkeyTXT
+#from modules.dkim.handlerrspamd import findDKIMkeyTXT
 from modules.service.main import prepare as serviceprepare
 from modules.service.main import rollover as servicerollover
 from modules.service.main import cleanup as servicecleanup
+from modules.domain.main import prepare as domainPrepare
+from modules.domain.main import rollover as domainRollover
+from modules.domain.main import cleanup as domainCleanup
 
 from simpleloggerplus import simpleloggerplus as log
 from dnsuptools import dnsuptools 
@@ -67,6 +70,7 @@ class ManagedDomain:
     def dnsupLoginConf(self):
         userDict = {k: v['user'] for k, v in self.cr.config['domain'].items() if 'user' in v}
         self.dnsup.setHandler('inwx')
+        print(userDict)
         self.dnsup.handler.setUserDict(userDict)
         if 'DEFAULT' in userDict.keys():
             userDict['default'] = userDict['DEFAULT'] 
@@ -202,7 +206,9 @@ class ManagedDomain:
         self.setTLSA(True)
 
     def setTLSA(self, addOnly = False):
-        for name, content in self.cr.config['domain'].items():
+        domainConfig = self.cr.config['domain']
+        domainState =  self.sh.getSubstate['domain']
+        for name, content in domainConfig.items():
             if 'DEFAULT' == name:
                 continue
             if 'tlsa' in content:
@@ -288,10 +294,10 @@ class ManagedDomain:
         self.sh.resetOpStateRecursive()
         self.readConfig(confFile)
         for i in range(10):
-            certPrepare(self.cr.config, self.sh, i)
-            dkimPrepare(self.cr.config, self.sh, i)
-            self.domainPrepare(i)
-            serviceprepare(self.cr.config, self.sh, i)
+            certPrepare(self.cr.config, self.sh)
+            dkimPrepare(self.cr.config, self.sh)
+            domainPrepare(self.cr.config, self.sh)
+            serviceprepare(self.cr.config, self.sh)
         self.sh.save()
 
     def rollover(self, confFile = None):
@@ -299,9 +305,9 @@ class ManagedDomain:
         self.sh.resetOpStateRecursive()
         self.readConfig(confFile)
         for i in range(10):
-            certRollover(self.cr.config, self.sh, i)
-            dkimRollover(self.cr.config, self.sh, i)
-            self.domainRollover(i)
+            certRollover(self.cr.config, self.sh)
+            dkimRollover(self.cr.config, self.sh)
+            domainRollover(self.cr.config, self.sh)
             #servicerollover(self.cr.config, self.sh, i)
         self.sh.save()
 
@@ -310,9 +316,9 @@ class ManagedDomain:
         self.sh.resetOpStateRecursive()
         self.readConfig(confFile)
         for i in range(10):
-            certCleanup(self.cr.config, self.sh, i)
-            dkimCleanup(self.cr.config, self.sh, i)
-            self.domainCleanup(i)
+            certCleanup(self.cr.config, self.sh)
+            dkimCleanup(self.cr.config, self.sh)
+            domainCleanup(self.cr.config, self.sh)
             #servicecleanup(self.cr.config, self.sh, i)
         self.sh.save()
 
