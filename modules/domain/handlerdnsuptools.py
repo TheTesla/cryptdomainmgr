@@ -42,7 +42,6 @@ def prepare(domainConfig, domainState, domainSecName, state):
         return
     dnsup = dnsuptools.DNSUpTools()
     dnsup.setHandler(handlers[1])
-    print({domainSecName: domainConfig['user']})
     dnsup.handler.setUserDict({'default': domainConfig['user'], domainSecName: domainConfig['user']})
     dnsup.handler.setPasswdDict({'default': domainConfig['passwd'], domainSecName: domainConfig['passwd']})
     
@@ -76,7 +75,6 @@ def cleanup(domainConfig, domainState, domainSecName, state):
         return
     dnsup = dnsuptools.DNSUpTools()
     dnsup.setHandler(handlers[1])
-    print({domainSecName: domainConfig['user']})
     dnsup.handler.setUserDict({'default': domainConfig['user'], domainSecName: domainConfig['user']})
     dnsup.handler.setPasswdDict({'default': domainConfig['passwd'], domainSecName: domainConfig['passwd']})
     
@@ -273,7 +271,6 @@ def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, addOnly=Fals
             return
         rrState.setOpStateRunning()
         cert = getFullchain(state, domainConfig)
-        print(cert)
         if cert is None:
             log.info('not deploying TLSA record for {} (no certificate)'.format(domainSecName))
         else:
