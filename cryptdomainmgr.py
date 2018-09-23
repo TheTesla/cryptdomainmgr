@@ -77,8 +77,8 @@ class ManagedDomain:
 #            self.setTLSA()
 
     def prepare(self, confFile = None):
-        self.sh.load()
-        self.sh.resetOpStateRecursive()
+        #self.sh.load()
+        #self.sh.resetOpStateRecursive()
         self.readConfig(confFile)
         for i in range(10):
             certPrepare(self.cr.config, self.sh)

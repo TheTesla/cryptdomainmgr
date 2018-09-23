@@ -14,10 +14,7 @@ from jinja2 import Template
 from parse import parse
 import handlerrspamd
 
-def prepare(config, state, i=2):
-    if i != 2:
-        return
-    log.info('DKIM prepare')
+def prepare(config, state):
     subState = state.getSubstate('dkim')
     for dkimSecName, dkimConfig in config['dkim'].items():
         if 'DEFAULT' == dkimSecName:
@@ -28,10 +25,7 @@ def prepare(config, state, i=2):
         dkimState = subState.getSubstate(dkimSecName)
         handlerrspamd.prepare(dkimConfig, dkimState, i)
 
-def rollover(config, state, i=2):
-    if i != 2:
-        return
-    log.info('DKIM rollover')
+def rollover(config, state):
     subState = state.getSubstate('dkim')
     for dkimSecName, dkimConfig in config['dkim'].items():
         if 'DEFAULT' == dkimSecName:
@@ -39,12 +33,9 @@ def rollover(config, state, i=2):
         if 'handler' not in dkimConfig:
             continue
         dkimState = subState.getSubstate(dkimSecName)
-        handlerrspamd.rollover(dkimConfig, dkimState, i)
+        handlerrspamd.rollover(dkimConfig, dkimState)
 
-def cleanup(config, state, i=2):
-    if i != 2:
-        return
-    log.info('DKIM cleanup')
+def cleanup(config, state):
     subState = state.getSubstate('dkim')
     for dkimSecName, dkimConfig in config['dkim'].items():
         if 'DEFAULT' == dkimSecName:
@@ -52,5 +43,5 @@ def cleanup(config, state, i=2):
         if 'handler' not in dkimConfig:
             continue
         dkimState = subState.getSubstate(dkimSecName)
-        handlerrspamd.cleanup(dkimConfig, dkimState, i)
+        handlerrspamd.cleanup(dkimConfig, dkimState)
 

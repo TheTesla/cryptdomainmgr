@@ -14,20 +14,20 @@ from jinja2 import Template
 from parse import parse
 import time
 
-def prepare(dkimConfig, dkimState, i=2):
+def prepare(dkimConfig, dkimState):
     if 'rspamd' == dkimConfig['handler']:
         res = createDKIM(dkimConfig['keylocation'], dkimConfig['keybasename'], dkimConfig['keysize'], dkimConfig['signingconftemplatefile'], dkimConfig['signingconftemporaryfile'])
         dkimState.registerResult({'prepare': res})
         dkimState.setOpStateDone()
 
-def rollover(dkimConfig, dkimState, i=2):
+def rollover(dkimConfig, dkimState):
     if 'rspamd' == dkimConfig['handler']:
         log.info('using new dkim key, moving new config file')
         log.info('  {} -> {}'.format(dkimConfig['signingconftemporaryfile'], dkimConfig['signingconfdestinationfile']))
         rv = check_output(('mv', dkimConfig['signingconftemporaryfile'], dkimConfig['signingconfdestinationfile']))
         dkimState.setOpStateDone()
 
-def cleanup(dkimConfig, dkimState, i=2):
+def cleanup(dkimConfig, dkimState):
     if 'rspamd' == dkimConfig['handler']:
         keyFiles = findDKIMkey(dkimConfig['keylocation'], dkimConfig['keybasename'])
         keyFiles.sort()

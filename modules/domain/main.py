@@ -12,12 +12,11 @@ from simpleloggerplus import simpleloggerplus as log
 
 
 def update(config, state):
-    log.info('Domain update')
     subState = state.getSubstate('domain')
     for domainSecName, domainConfig in config['domain'].items():
         if 'DEFAULT' == domainSecName:
             continue
-        log.info('Create resource records for section \"{}\"'.format(domainSecName))
+        #log.info('Create resource records for section \"{}\"'.format(domainSecName))
         if 'handler' not in domainConfig:
             continue
         domainState = subState.getSubstate(domainSecName)
@@ -26,12 +25,12 @@ def update(config, state):
 
 
 def prepare(config, state):
-    log.info('Domain prepare')
+    #log.info('Domain prepare')
     subState = state.getSubstate('domain')
     for domainSecName, domainConfig in config['domain'].items():
         if 'DEFAULT' == domainSecName:
             continue
-        log.info('Create resource records for section \"{}\"'.format(domainSecName))
+        #log.info('Create resource records for section \"{}\"'.format(domainSecName))
         if 'handler' not in domainConfig:
             continue
         domainState = subState.getSubstate(domainSecName)
@@ -39,27 +38,26 @@ def prepare(config, state):
         domainmodule.prepare(domainConfig, domainState, domainSecName, state) 
 
 def rollover(config, state):
-    log.info('Domain rollover')
+    #log.info('Domain rollover')
     subState = state.getSubstate('domain')
     for domainSecName, domainConfig in config['domain'].items():
         if 'DEFAULT' == domainSecName:
             continue
-        log.info('Create resource records for section \"{}\"'.format(domainSecName))
+        #log.info('Create resource records for section \"{}\"'.format(domainSecName))
         if 'handler' not in domainConfig:
             continue
         domainState = subState.getSubstate(domainSecName)
         domainmodule.rollover(domainConfig, domainState, domainSecName, state) 
 
 def cleanup(config, state):
-    log.info('Domain cleanup')
+    #log.info('Domain cleanup')
     subState = state.getSubstate('domain')
     for domainSecName, domainConfig in config['domain'].items():
         if 'DEFAULT' == domainSecName:
             continue
-        log.info('Create resource records for section \"{}\"'.format(domainSecName))
+        #log.info('Create resource records for section \"{}\"'.format(domainSecName))
         if 'handler' not in domainConfig:
             continue
         domainState = subState.getSubstate(domainSecName)
         domainmodule.cleanup(domainConfig, domainState, domainSecName, state) 
-        #domainState.setOpStateUninitialized()
 

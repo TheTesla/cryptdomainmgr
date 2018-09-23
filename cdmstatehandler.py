@@ -46,6 +46,10 @@ class StateHandler:
     def isDone(self):
         return 'done' == self.opstate
 
+    def isSubDone(self):
+        return 0 == len([0 for k, v in self.substate.items() if not v.isDone()])
+
+
     # should be the output after handler/module run is done
     # example: certificate source = /etc/dehydrated/certs/exampel.domain
     def registerResult(self, result):
