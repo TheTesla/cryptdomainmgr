@@ -46,6 +46,7 @@ def rollover(config, state, i=2):
             continue
         certState = subState.getSubstate(certSecName)
         copyCert(certConfig, certState)
+        certState.setOpStateDone()
 
 def cleanup(config, state, i=2):
     if i != 2:
@@ -59,7 +60,8 @@ def cleanup(config, state, i=2):
         if 'handler' not in certConfig:
             continue
         certState = subState.getSubstate(certSecName)
-        certState.setOpStateUninitialized()
+        certState.setOpStateDone()
+        #certState.setOpStateUninitialized()
 
 def copyCert(certConfig, certState):
     src = os.path.dirname(certState.result['fullchainfile'])
