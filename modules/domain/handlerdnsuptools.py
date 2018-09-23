@@ -17,8 +17,8 @@ def update(domainConfig, domainState, domainSecName):
         return
     dnsup = dnsuptools.DNSUpTools()
     dnsup.setHandler(handlers[1])
-    dnsup.handler.setUserDict({domainSecName: domainConfig['user']})
-    dnsup.handler.setPasswdDict({domainSecName: domainConfig['passwd']})
+    dnsup.handler.setUserDict({'default': domainConfig['user'], domainSecName: domainConfig['user']})
+    dnsup.handler.setPasswdDict({'default': domainConfig['passwd'], domainSecName: domainConfig['passwd']})
     
     domainState.setOpStateRunning()
     
@@ -43,8 +43,8 @@ def prepare(domainConfig, domainState, domainSecName, state):
     dnsup = dnsuptools.DNSUpTools()
     dnsup.setHandler(handlers[1])
     print({domainSecName: domainConfig['user']})
-    dnsup.handler.setUserDict({domainSecName: domainConfig['user']})
-    dnsup.handler.setPasswdDict({domainSecName: domainConfig['passwd']})
+    dnsup.handler.setUserDict({'default': domainConfig['user'], domainSecName: domainConfig['user']})
+    dnsup.handler.setPasswdDict({'default': domainConfig['passwd'], domainSecName: domainConfig['passwd']})
     
     
     domainState.setOpStateWaiting()
@@ -77,8 +77,8 @@ def cleanup(domainConfig, domainState, domainSecName, state):
     dnsup = dnsuptools.DNSUpTools()
     dnsup.setHandler(handlers[1])
     print({domainSecName: domainConfig['user']})
-    dnsup.handler.setUserDict({domainSecName: domainConfig['user']})
-    dnsup.handler.setPasswdDict({domainSecName: domainConfig['passwd']})
+    dnsup.handler.setUserDict({'default': domainConfig['user'], domainSecName: domainConfig['user']})
+    dnsup.handler.setPasswdDict({'default': domainConfig['passwd'], domainSecName: domainConfig['passwd']})
     
     domainState.setOpStateWaiting()
     
