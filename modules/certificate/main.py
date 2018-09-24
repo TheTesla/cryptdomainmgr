@@ -29,7 +29,6 @@ def prepare(config, state):
         log.info('Create certificate for section \"{}\"'.format(certSecName))
         log.info('  -> {}'.format(', '.join(domains)))
         log.debug(certConfig)
-        #certmodule.prepare(certConfig, certState, domains) 
         certmodulenew.prepare(certConfig, certState, domains) 
 
 def rollover(config, state):

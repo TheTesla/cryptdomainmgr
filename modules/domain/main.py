@@ -21,6 +21,7 @@ def update(config, state):
         domainState = subState.getSubstate(domainSecName)
         log.info('Create resource records for section \"{}\"'.format(domainSecName))
         log.debug(domainConfig)
+        caaAuto(domainConfig, config)
         domainmodule.update(domainConfig, domainState, domainSecName) 
 
 
@@ -63,4 +64,12 @@ def cleanup(config, state):
             continue
         log.info('Create resource records for section \"{}\"'.format(domainSecName))
         domainmodule.cleanup(domainConfig, domainState, domainSecName, state) 
+
+
+def caaAuto(domainConfig, config):
+    if 'caa' not in domainConfig:
+        return
+    if 'auto' not in domainConfig['caa']:
+        return
+    domainConfig['caaAggrAdd'] = [e if e['flag'] != 'auto' else config['cert'][domainConfig['cert']]['caa'] for e in domainConfig['caaAggrAdd']]
 

@@ -35,8 +35,13 @@ def interpreteConfig(cr, sh):
         content = dict(content)
         if 'handler' in content:
             log.debug('handler in content')
-            handler = __import__('modules.certificate.handler'+str(content['handler']), fromlist=('modules','certificate'))
+            handlers = content['handler'].split('/')
+            handler = __import__('modules.certificate.handler'+str(handlers[0]), fromlist=('modules','certificate'))
             certconfig[certSecName].update(handler.defaultCertConfig)
+            certconfig[certSecName]['caa'] = {'url': 'letsencrypt.org', 'flag': '0', 'tag': 'issue'}
+            if 1 < len(handlers):
+                if 'letsencrypt' != handlers[1]:
+                    certconfig[certSecName]['caa'] = ''
         if 'keysize' in content:
             certconfig[certSecName]['keysize'] = int(content['keysize'])
         if 'extraflags' in content:
