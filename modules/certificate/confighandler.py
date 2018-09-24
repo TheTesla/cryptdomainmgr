@@ -25,7 +25,7 @@ def applyDefault(config, defaultConfig={}):
 
 def interpreteConfig(cr, sh):
     defaultCertConfig = {'certname': 'fullchain.pem', 'keysize': 4096, 'extraflags': ''}
-    certconfig = cr.getRawConfigOf('certificate')
+    certconfig = cr.getRawConfigOf('cert')
     #log.debug(certconfig)
     # apply general config defaults and the default section
     certconfig = applyDefault(certconfig, defaultCertConfig) # must be here because following section depends on default values

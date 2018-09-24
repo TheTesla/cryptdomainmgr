@@ -10,20 +10,15 @@
 
 from subprocess import check_output
 import os
-from parse import parse
-import configparser
 import time
-from jinja2 import Template
 from cdmconfighandler import *
 from cdmstatehandler import *
 from modules.certificate.main import prepare as certPrepare
 from modules.certificate.main import rollover as certRollover
 from modules.certificate.main import cleanup as certCleanup
-#from modules.certificate.main import findCert
 from modules.dkim.main import prepare as dkimPrepare
 from modules.dkim.main import rollover as dkimRollover
 from modules.dkim.main import cleanup as dkimCleanup
-#from modules.dkim.handlerrspamd import findDKIMkeyTXT
 from modules.service.main import prepare as servicePrepare
 from modules.service.main import rollover as serviceRollover
 from modules.service.main import cleanup as serviceCleanup
@@ -33,32 +28,11 @@ from modules.domain.main import cleanup as domainCleanup
 from modules.domain.main import update as domainUpdate
 
 from simpleloggerplus import simpleloggerplus as log
-from dnsuptools import dnsuptools 
-from OpenSSL import crypto
-
-def getCertSAN(filename):
-    certFile = open(filename, 'rt').read()
-    cert = crypto.load_certificate(crypto.FILETYPE_PEM, certFile)
-    san = [cert.get_extension(i).get_data().split('\x82')[1:] for i in range(cert.get_extension_count()) if 'subjectAltName' == cert.get_extension(i).get_short_name()][0]
-    san = [e[1:] for e in san]
-    return san
-
-def getFullchain(state, domainContent):
-    certState = state.getSubstate('cert').getSubstate(domainContent['certificate'])
-    return certState.result['fullchainfile']
-
-def isCertReady(state, domainContent):
-    certState = state.getSubstate('cert').getSubstate(domainContent['certificate'])
-    return 'done' == certState.opstate
-
-
 
 class ManagedDomain:
     def __init__(self):
         self.cr = ConfigReader()
         self.sh = StateHandler()
-        self.dnsup = dnsuptools.DNSUpTools()
-        self.confPar = configparser.ConfigParser()
 
     def readConfig(self, confFiles):
         self.cr.setFilenames(confFiles)

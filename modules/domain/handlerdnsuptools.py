@@ -97,15 +97,11 @@ def getCertSAN(filename):
     return san
 
 def getFullchain(state, domainContent):
-    certState = state.getSubstate('cert').getSubstate(domainContent['certificate'])
+    certState = state.getSubstate('cert').getSubstate(domainContent['cert'])
     return certState.result['fullchainfile']
 
-def isCertReady(state, domainContent):
-    certState = state.getSubstate('cert').getSubstate(domainContent['certificate'])
-    return certState.isDone()
-
-def isDKIMready(state, domainContent):
-    certState = state.getSubstate('dkim').getSubstate(domainContent['dkim'])
+def isReady(state, domainContent, sec):
+    certState = state.getSubstate(sec).getSubstate(domainContent[sec])
     return certState.isDone()
 
 def setSPF(domainConfig, domainState, domainSecName, dnsup):
@@ -268,7 +264,7 @@ def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, addOnly=Fals
         return True
     if 'tlsa' in domainConfig:
         rrState.setOpStateWaiting()
-        if not isCertReady(state, domainConfig):
+        if not isReady(state, domainConfig, 'cert'):
             return False
         rrState.setOpStateRunning()
         cert = getFullchain(state, domainConfig)
@@ -295,7 +291,7 @@ def addDKIM(domainConfig, domainState, domainSecName, dnsup, state, delete = Fal
         return True
     if 'dkim' in domainConfig:
         rrState.setOpStateWaiting()
-        if not isDKIMready(state, domainConfig):
+        if not isReady(state, domainConfig, 'dkim'):
             return False
         rrState.setOpStateRunning()
         keys = findDKIMkeyTXT(dkimContent['keylocation'], dkimContent['keybasedomainSecName'])
