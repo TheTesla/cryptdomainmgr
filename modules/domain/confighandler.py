@@ -135,7 +135,7 @@ def interpreteSOA(content):
 def interpreteSPF(content):
     return interpreteSetRR(content, 'spf', ['*'])
 
-def interpreteDomainConfig(cr, sh):
+def interpreteConfig(cr, sh):
     domainconfig = cr.getRawConfigOf('domain', True)
     domainconfig = applyDefault(domainconfig) # must be here because following section depends on default values
 

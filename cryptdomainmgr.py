@@ -24,9 +24,9 @@ from modules.dkim.main import prepare as dkimPrepare
 from modules.dkim.main import rollover as dkimRollover
 from modules.dkim.main import cleanup as dkimCleanup
 #from modules.dkim.handlerrspamd import findDKIMkeyTXT
-from modules.service.main import prepare as serviceprepare
-from modules.service.main import rollover as servicerollover
-from modules.service.main import cleanup as servicecleanup
+from modules.service.main import prepare as servicePrepare
+from modules.service.main import rollover as serviceRollover
+from modules.service.main import cleanup as serviceCleanup
 from modules.domain.main import prepare as domainPrepare
 from modules.domain.main import rollover as domainRollover
 from modules.domain.main import cleanup as domainCleanup
@@ -84,7 +84,7 @@ class ManagedDomain:
             certPrepare(self.cr.config, self.sh)
             dkimPrepare(self.cr.config, self.sh)
             domainPrepare(self.cr.config, self.sh)
-            serviceprepare(self.cr.config, self.sh)
+            servicePrepare(self.cr.config, self.sh)
         self.sh.save()
 
     def rollover(self, confFile = None):
@@ -95,7 +95,7 @@ class ManagedDomain:
             certRollover(self.cr.config, self.sh)
             dkimRollover(self.cr.config, self.sh)
             domainRollover(self.cr.config, self.sh)
-            #servicerollover(self.cr.config, self.sh, i)
+            serviceRollover(self.cr.config, self.sh)
         self.sh.save()
 
     def cleanup(self, confFile = None):
@@ -106,7 +106,7 @@ class ManagedDomain:
             certCleanup(self.cr.config, self.sh)
             dkimCleanup(self.cr.config, self.sh)
             domainCleanup(self.cr.config, self.sh)
-            #servicecleanup(self.cr.config, self.sh, i)
+            serviceCleanup(self.cr.config, self.sh)
         self.sh.save()
 
 

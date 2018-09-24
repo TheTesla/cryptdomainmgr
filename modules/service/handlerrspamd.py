@@ -10,19 +10,25 @@
 from simpleloggerplus import simpleloggerplus as log
 from subprocess import check_output
 
-def prepare(config, i=0):
-    if i != 9:
-        return
-    log.info('Rspamd prepare')
+def prepare(serviceConfig, serviceState, state):
+    pass
 
-def rollover(config, i=9):
-    if i != 9:
+def rollover(serviceConfig, serviceState, state):
+    serviceState.setOpStateWaiting()
+    if not isReady(serviceConfig, state, 'cert'):
         return
-    log.info('Rspamd rollover (reload)')
+    if not isReady(serviceConfig, state, 'dkim'):
+        return
+    serviceState.setOpStateRunning()
+    log.info('  -> Rspamd reload')
     rv = check_output(('systemctl', 'reload', 'rspamd'))
+    serviceState.setOpStateDone()
 
-def cleanup(config, i=0):
-    if i != 9:
-        return
-    log.info('Rspamd cleanup')
+def cleanup(serviceConfig, serviceState, state):
+    pass
 
+
+def isReady(serviceConfig, state, sec):
+    subState = state.getSubstate(sec)
+    return 0 == len([0 for e in serviceConfig[sec] if not subState.getSubstate(e).isDone()])
+    

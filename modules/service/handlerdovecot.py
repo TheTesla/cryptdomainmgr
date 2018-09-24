@@ -10,20 +10,23 @@
 from simpleloggerplus import simpleloggerplus as log
 from subprocess import check_output
 
-def prepare(config, i=0):
-    if i != 9:
-        return
-    log.info('Dovecot prepare')
+def prepare(serviceConfig, serviceState, serviceSecName, state):
+    pass
 
-def rollover(config, i=9):
-    if i != 9:
+def rollover(serviceConfig, serviceState, serviceSecName, state):
+    serviceState.setOpStateWaiting()
+    if not isReady(serviceConfig, state, 'cert'):
         return
-    log.info('Dovecot rollover (reload)')
+    serviceState.setOpStateRunning()
+    log.info('  -> Dovecot reload')
     rv = check_output(('systemctl', 'reload', 'dovecot'))
+    serviceState.setOpStateDone()
 
-def cleanup(config, i=0):
-    if i != 9:
-        return
-    log.info('Dovecot cleanup')
+def cleanup(serviceConfig, serviceState, serviceSecName, state):
+    pass
 
 
+def isReady(serviceConfig, state, sec):
+    subState = state.getSubstate(sec)
+    return 0 == len([0 for e in serviceConfig[sec] if not subState.getSubstate(e).isDone()])
+    

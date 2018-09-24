@@ -10,22 +10,24 @@
 from simpleloggerplus import simpleloggerplus as log
 from subprocess import check_output
 
-def prepare(config, i=0):
-    if i == 1:
-        log.info('Apache2 prepare (stop)')
-        rv = check_output(('systemctl', 'stop', 'apache2'))
-    elif i == 9:
-        log.info('Apache2 prepare (start)')
-        rv = check_output(('systemctl', 'start', 'apache2'))
+def prepare(serviceConfig, serviceState, state):
+    pass
 
-def rollover(config, i=9):
-    if i != 9:
+def rollover(serviceConfig, serviceState, state):
+    serviceState.setOpStateWaiting()
+    if not isReady(serviceConfig, state, 'cert'):
         return
-    log.info('Apache2 rollover (restart)')
-    rv = check_output(('systemctl', 'restart', 'apache2'))
+    serviceState.setOpStateRunning()
+    log.info('  -> Apache2 reload')
+    rv = check_output(('systemctl', 'reload', 'apache2'))
+    serviceState.setOpStateDone()
 
-def cleanup(config, i=0):
-    if i != 9:
-        return
-    log.info('Apache2 cleanup')
+def cleanup(serviceConfig, serviceState, state):
+    pass
 
+
+
+def isReady(serviceConfig, state, sec):
+    subState = state.getSubstate(sec)
+    return 0 == len([0 for e in serviceConfig[sec] if not subState.getSubstate(e).isDone()])
+    

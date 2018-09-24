@@ -12,21 +12,56 @@ import handlerrspamd
 import handlerdovecot
 import handlerpostfix
 
-def prepare(config, state, i=0):
-    handlerapache2.prepare(config, i)
-    handlerrspamd.prepare(config, i)
-    handlerpostfix.prepare(config, i)
-    handlerdovecot.prepare(config, i)
+from simpleloggerplus import simpleloggerplus as log
 
-def rollover(config, state, i=9):
-    handlerapache2.rollover(config, i)
-    handlerrspamd.rollover(config, i)
-    handlerpostfix.rollover(config, i)
-    handlerdovecot.rollover(config, i)
+def prepare(config, state):
+    subState = state.getSubstate('service')
+    for serviceSecName, serviceConfig in config['service'].items():
+        if 'DEFAULT' == serviceSecName:
+            continue
+        serviceState = subState.getSubstate(serviceSecName)
+        if serviceState.isDone():
+            continue
+        log.info('Prepare service for section \"{}\"'.format(serviceSecName))
+        log.debug(serviceConfig)
+        handler = __import__('modules.service.handler'+str(serviceSecName), fromlist=('modules','service'))
+        resolveAuto(serviceConfig, config, ['cert', 'dkim'])
+        handler.prepare(serviceConfig, serviceState, state) 
 
-def cleanup(config, state, i=0):
-    handlerapache2.cleanup(config, i)
-    handlerrspamd.cleanup(config, i)
-    handlerpostfix.cleanup(config, i)
-    handlerdovecot.cleanup(config, i)
+def rollover(config, state):
+    subState = state.getSubstate('service')
+    for serviceSecName, serviceConfig in config['service'].items():
+        if 'DEFAULT' == serviceSecName:
+            continue
+        serviceState = subState.getSubstate(serviceSecName)
+        if serviceState.isDone():
+            continue
+        log.info('Rollover service for section \"{}\"'.format(serviceSecName))
+        log.debug(serviceConfig)
+        handler = __import__('modules.service.handler'+str(serviceSecName), fromlist=('modules','service'))
+        resolveAuto(serviceConfig, config, ['cert', 'dkim'])
+        handler.rollover(serviceConfig, serviceState, state) 
+
+def cleanup(config, state):
+    subState = state.getSubstate('service')
+    for serviceSecName, serviceConfig in config['service'].items():
+        if 'DEFAULT' == serviceSecName:
+            continue
+        serviceState = subState.getSubstate(serviceSecName)
+        if serviceState.isDone():
+            continue
+        log.info('Cleanup service for section \"{}\"'.format(serviceSecName))
+        log.debug(serviceConfig)
+        handler = __import__('modules.service.handler'+str(serviceSecName), fromlist=('modules','service'))
+        resolveAuto(serviceConfig, config, ['cert', 'dkim'])
+        handler.cleanup(serviceConfig, serviceState, state) 
+
+def autoSec(secList, config, section):
+    if 'auto' in secList:
+       return [secName for secName, content in config[section].items() if 'DEFAULT' != secName]
+    return secList
+
+def resolveAuto(serviceConfig, config, depends):
+    for e in depends:
+        serviceConfig[e] = autoSec(serviceConfig[e], config, e)
 
