@@ -2,17 +2,17 @@
 
 deploy_challenge() {
     local DOMAIN="${1}" TOKEN_FILENAME="${2}" TOKEN_VALUE="${3}"
-
     cd ../cryptdomainmgr
-    python update.py inwxcred.conf <(echo -e "[domain:$DOMAIN]\nacme=$TOKEN_VALUE\n")
+    declare -A TABLE=$DOMAINACCESSTABLE
+    python update.py <(echo -e "[domain:$DOMAIN]\n${TABLE[$DOMAIN]}\nacme=$TOKEN_VALUE\n")
 
 }
 
 clean_challenge() {
     local DOMAIN="${1}" TOKEN_FILENAME="${2}" TOKEN_VALUE="${3}"
-
     cd ../cryptdomainmgr
-    python update.py inwxcred.conf <(echo -e "[domain:$DOMAIN]\nacme=\n")
+    declare -A TABLE=$DOMAINACCESSTABLE
+    python update.py <(echo -e "[domain:$DOMAIN]\n${TABLE[$DOMAIN]}\nacme=\n")
 }
 
 deploy_cert() {
@@ -77,7 +77,14 @@ deploy_ocsp() {
 unchanged_cert() {
     local DOMAIN="${1}" KEYFILE="${2}" CERTFILE="${3}" FULLCHAINFILE="${4}" CHAINFILE="${5}"
 
-    echo -e "$DOMAIN\n$KEYFILE\n$CERTFILE\n$FULLCHAINFILE\n$CHAINFILE\n"
+    echo "---- DEPLOYMENTRESULT ----"
+    echo "DOMAIN=$DOMAIN"
+    echo "KEYFILE=$KEYFILE"
+    echo "CERTFILE=$CERTFILE"
+    echo "FULLCHAINFILE=$FULLCHAINFILE"
+    echo "CHAINFILE=$CHAINFILE"
+    echo "---- END DEPLOYMENTRESULT ----"
+
     # This hook is called once for each certificate that is still
     # valid and therefore wasn't reissued.
     #

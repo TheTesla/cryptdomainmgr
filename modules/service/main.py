@@ -63,5 +63,7 @@ def autoSec(secList, config, section):
 
 def resolveAuto(serviceConfig, config, depends):
     for e in depends:
+        if e not in config:
+            continue
         serviceConfig[e] = autoSec(serviceConfig[e], config, e)
 

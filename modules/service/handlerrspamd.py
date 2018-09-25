@@ -15,8 +15,6 @@ def prepare(serviceConfig, serviceState, state):
 
 def rollover(serviceConfig, serviceState, state):
     serviceState.setOpStateWaiting()
-    if not isReady(serviceConfig, state, 'cert'):
-        return
     if not isReady(serviceConfig, state, 'dkim'):
         return
     serviceState.setOpStateRunning()

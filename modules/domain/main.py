@@ -19,6 +19,8 @@ def update(config, state):
         if 'handler' not in domainConfig:
             continue
         domainState = subState.getSubstate(domainSecName)
+        if domainState.isDone():
+            continue
         log.info('Create resource records for section \"{}\"'.format(domainSecName))
         log.debug(domainConfig)
         caaAuto(domainConfig, config)

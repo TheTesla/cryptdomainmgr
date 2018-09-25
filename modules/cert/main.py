@@ -13,6 +13,7 @@ import os
 import handlerdehydrated as certmodulenew
 from subprocess import check_output
 from simpleloggerplus import simpleloggerplus as log
+from string import replace
 
 
 def prepare(config, state):
@@ -29,7 +30,12 @@ def prepare(config, state):
         log.info('Create certificate for section \"{}\"'.format(certSecName))
         log.info('  -> {}'.format(', '.join(domains)))
         log.debug(certConfig)
-        certmodulenew.prepare(certConfig, certState, domains) 
+        domainAccessTableStr = ""
+        for d in domains:
+            domainConfig = config['domain'][d]
+            domainAccessTableStr += ' ["{}"]="handler={}\\nuser={}\\npasswd={}"'.format(d, domainConfig['handler'], domainConfig['user'], domainConfig['passwd'])
+        domainAccessTable = '({} )'.format(domainAccessTableStr)
+        certmodulenew.prepare(certConfig, certState, domains, domainAccessTable) 
 
 def rollover(config, state):
     subState = state.getSubstate('cert')

@@ -10,10 +10,10 @@
 import configparser
 
 from simpleloggerplus import simpleloggerplus as log
-from modules.certificate.confighandler import interpreteConfig as interpreteCertConfig
-from modules.dkim.confighandler import interpreteConfig as interpreteDKIMConfig
-from modules.domain.confighandler import interpreteConfig as interpreteDomainConfig
-from modules.service.confighandler import interpreteConfig as interpreteServiceConfig
+#from modules.certificate.confighandler import interpreteConfig as interpreteCertConfig
+#from modules.dkim.confighandler import interpreteConfig as interpreteDKIMConfig
+#from modules.domain.confighandler import interpreteConfig as interpreteDomainConfig
+#from modules.service.confighandler import interpreteConfig as interpreteServiceConfig
 
 class ConfigReader:
     def __init__(self):
@@ -47,12 +47,20 @@ class ConfigReader:
         self.config.update(config)
 
     def interprete(self, sh):
-        interpreteDomainConfig(self, sh)
-        interpreteCertConfig(self, sh)
-        interpreteDKIMConfig(self, sh)
-        interpreteServiceConfig(self, sh)
+        self.sections = getSections(self.cp)
+        log.info('Interpreting config sections')
+        for secName in self.sections:
+            log.info('  - {}'.format(secName))
+            handler = __import__('modules.'+str(secName)+'.confighandler', fromlist=('modules'))
+            handler.interpreteConfig(self, sh)
+        #interpreteDomainConfig(self, sh)
+        #interpreteCertConfig(self, sh)
+        #interpreteDKIMConfig(self, sh)
+        #interpreteServiceConfig(self, sh)
         log.debug(self.config)
 
+def getSections(config):
+    return set([k.split(':')[0] for k, v in config.items() if k != 'DEFAULT'])
     
 
 def getConfigOf(getSection, config, domainOldStyle=False):
