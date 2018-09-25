@@ -56,8 +56,8 @@ def cleanup(config, state):
         if certState.isDone():
             continue
         log.info('Cleanup certificate for section \"{}\"'.format(certSecName))
+        delOldCert(certConfig, certState)
         certState.setOpStateDone()
-        #certState.setOpStateUninitialized()
 
 def copyCert(certConfig, certState):
     src = os.path.dirname(certState.result['fullchainfile'])
@@ -65,4 +65,23 @@ def copyCert(certConfig, certState):
         dest = os.path.join(certConfig['destination'], name)
         log.info('  {} -> {}'.format(src, dest))
         rv = check_output(('cp', '-rfLT', str(src), str(dest)))
+
+def delOldCert(certConfig, certState):
+    preserve = ['fullchainfile', 'certfile', 'keyfile', 'chainfile']
+    preserveFiles = set([certState.result[e] for e in preserve])
+    preserveFiles.update(set([os.path.realpath(e) for e in preserveFiles]))
+    dirs = set([os.path.dirname(e) for e in preserveFiles])
+    dirs = [e for e in dirs if os.path.isdir(e)]
+    allFiles = set([os.path.join(d, f) for d in dirs for f in os.listdir(d)])
+    allFiles = set([e for e in allFiles if os.path.isfile(e)])
+    removeFiles = allFiles - preserveFiles
+    for e in removeFiles:
+        log.info('  rm {}'.format(e))
+        rv = check_output(('rm', str(e)))
+
+
+
+
+
+
 
