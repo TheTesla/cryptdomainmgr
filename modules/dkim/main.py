@@ -7,12 +7,7 @@
 #
 #######################################################################
 
-import os
-from subprocess import check_output
 from simpleloggerplus import simpleloggerplus as log
-from jinja2 import Template
-from parse import parse
-import handlerrspamd
 
 def prepare(config, state):
     subState = state.getSubstate('dkim')
@@ -25,7 +20,9 @@ def prepare(config, state):
         if dkimState.isDone():
             continue
         log.info("Preparing DKIM key for dkim-section: \"{}\"".format(dkimSecName))
-        handlerrspamd.prepare(dkimConfig, dkimState)
+        handlerNames = dkimConfig['handler'].split('/')
+        handler = __import__('modules.dkim.handler'+str(handlerNames[0]), fromlist=('modules','dkim'))
+        handler.prepare(dkimConfig, dkimState)
 
 def rollover(config, state):
     subState = state.getSubstate('dkim')
@@ -38,7 +35,9 @@ def rollover(config, state):
         if dkimState.isDone():
             continue
         log.info("Applying DKIM key for dkim-section: \"{}\"".format(dkimSecName))
-        handlerrspamd.rollover(dkimConfig, dkimState)
+        handlerNames = dkimConfig['handler'].split('/')
+        handler = __import__('modules.dkim.handler'+str(handlerNames[0]), fromlist=('modules','dkim'))
+        handler.rollover(dkimConfig, dkimState)
 
 def cleanup(config, state):
     subState = state.getSubstate('dkim')
@@ -51,5 +50,7 @@ def cleanup(config, state):
         if dkimState.isDone():
             continue
         log.info("Cleanup DKIM key for dkim-section: \"{}\"".format(dkimSecName))
-        handlerrspamd.cleanup(dkimConfig, dkimState)
+        handlerNames = dkimConfig['handler'].split('/')
+        handler = __import__('modules.dkim.handler'+str(handlerNames[0]), fromlist=('modules','dkim'))
+        handler.cleanup(dkimConfig, dkimState)
 

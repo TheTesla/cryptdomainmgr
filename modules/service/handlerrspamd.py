@@ -11,7 +11,7 @@ from simpleloggerplus import simpleloggerplus as log
 from subprocess import check_output
 
 def prepare(serviceConfig, serviceState, state):
-    pass
+    serviceState.setOpStateDone()
 
 def rollover(serviceConfig, serviceState, state):
     serviceState.setOpStateWaiting()
@@ -23,7 +23,7 @@ def rollover(serviceConfig, serviceState, state):
     serviceState.setOpStateDone()
 
 def cleanup(serviceConfig, serviceState, state):
-    pass
+    serviceState.setOpStateDone()
 
 
 def isReady(serviceConfig, state, sec):

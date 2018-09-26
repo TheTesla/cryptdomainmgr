@@ -9,7 +9,6 @@
 
 from OpenSSL import crypto
 import os
-import handlerdehydrated as certmodulenew
 from subprocess import check_output
 from simpleloggerplus import simpleloggerplus as log
 from string import replace
@@ -39,7 +38,9 @@ def prepare(config, state):
         log.info('  -> {}'.format(', '.join(domains)))
         log.debug(certConfig)
         domainAccessTable = createDomainAccessTable(config, domains)
-        certmodulenew.prepare(certConfig, certState, domains, domainAccessTable) 
+        handlerNames = certConfig['handler'].split('/')
+        handler = __import__('modules.cert.handler'+str(handlerNames[0]), fromlist=('modules','cert'))
+        handler.prepare(certConfig, certState, domains, domainAccessTable) 
 
 def rollover(config, state):
     subState = state.getSubstate('cert')

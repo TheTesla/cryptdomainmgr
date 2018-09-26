@@ -7,7 +7,6 @@
 #
 #######################################################################
 
-import handlerdnsuptools as domainmodule
 from simpleloggerplus import simpleloggerplus as log
 
 
@@ -24,7 +23,9 @@ def update(config, state):
         log.info('Create resource records for section \"{}\"'.format(domainSecName))
         log.debug(domainConfig)
         caaAuto(domainConfig, config)
-        domainmodule.update(domainConfig, domainState, domainSecName) 
+        handlerNames = domainConfig['handler'].split('/')
+        handler = __import__('modules.domain.handler'+str(handlerNames[0]), fromlist=('modules','domain'))
+        handler.update(domainConfig, domainState, domainSecName) 
 
 
 def prepare(config, state):
@@ -39,7 +40,9 @@ def prepare(config, state):
             continue
         log.info('Create resource records for section \"{}\"'.format(domainSecName))
         log.debug(domainConfig)
-        domainmodule.prepare(domainConfig, domainState, domainSecName, state) 
+        handlerNames = domainConfig['handler'].split('/')
+        handler = __import__('modules.domain.handler'+str(handlerNames[0]), fromlist=('modules','domain'))
+        handler.prepare(domainConfig, domainState, domainSecName, state) 
 
 def rollover(config, state):
     subState = state.getSubstate('domain')
@@ -52,7 +55,9 @@ def rollover(config, state):
         if domainState.isDone():
             continue
         log.info('Create resource records for section \"{}\"'.format(domainSecName))
-        domainmodule.rollover(domainConfig, domainState, domainSecName, state) 
+        handlerNames = domainConfig['handler'].split('/')
+        handler = __import__('modules.domain.handler'+str(handlerNames[0]), fromlist=('modules','domain'))
+        handler.rollover(domainConfig, domainState, domainSecName, state) 
 
 def cleanup(config, state):
     subState = state.getSubstate('domain')
@@ -65,7 +70,9 @@ def cleanup(config, state):
         if domainState.isDone():
             continue
         log.info('Create resource records for section \"{}\"'.format(domainSecName))
-        domainmodule.cleanup(domainConfig, domainState, domainSecName, state) 
+        handlerNames = domainConfig['handler'].split('/')
+        handler = __import__('modules.domain.handler'+str(handlerNames[0]), fromlist=('modules','domain'))
+        handler.cleanup(domainConfig, domainState, domainSecName, state) 
 
 
 def caaAuto(domainConfig, config):
