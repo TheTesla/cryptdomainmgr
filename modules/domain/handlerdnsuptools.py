@@ -11,6 +11,10 @@ from dnsuptools import dnsuptools
 from simpleloggerplus import simpleloggerplus as log
 from OpenSSL import crypto
 
+def getAccessParams(domainConfig):
+    if 'dnsuptools/inwx' == domainConfig['handler']:
+        return ['handler', 'user', 'passwd']
+
 def update(domainConfig, domainState, domainSecName):
     handlers = domainConfig['handler'].split('/')
     if 'dnsuptools' != handlers[0]:

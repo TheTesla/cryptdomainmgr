@@ -10,10 +10,6 @@
 import configparser
 
 from simpleloggerplus import simpleloggerplus as log
-#from modules.certificate.confighandler import interpreteConfig as interpreteCertConfig
-#from modules.dkim.confighandler import interpreteConfig as interpreteDKIMConfig
-#from modules.domain.confighandler import interpreteConfig as interpreteDomainConfig
-#from modules.service.confighandler import interpreteConfig as interpreteServiceConfig
 
 class ConfigReader:
     def __init__(self):
@@ -53,10 +49,6 @@ class ConfigReader:
             log.info('  - {}'.format(secName))
             handler = __import__('modules.'+str(secName)+'.confighandler', fromlist=('modules'))
             handler.interpreteConfig(self, sh)
-        #interpreteDomainConfig(self, sh)
-        #interpreteCertConfig(self, sh)
-        #interpreteDKIMConfig(self, sh)
-        #interpreteServiceConfig(self, sh)
         log.debug(self.config)
 
 def getSections(config):

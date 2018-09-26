@@ -7,10 +7,6 @@
 #
 #######################################################################
 
-
-from subprocess import check_output
-import os
-import time
 from cdmconfighandler import *
 from cdmstatehandler import *
 from simpleloggerplus import simpleloggerplus as log
@@ -29,16 +25,8 @@ class ManagedDomain:
     def update(self, state = '', confFile = None):
         self.readConfig(confFile)
         runPhase(self.cr, self.sh, 'update')
-#        if 'prepare' == state:
-#            self.addDKIM()
-#            self.addTLSA()
-#        elif 'cleanup' == state:
-#            self.setDKIM()
-#            self.setTLSA()
 
     def prepare(self, confFile = None):
-        #self.sh.load()
-        #self.sh.resetOpStateRecursive()
         self.readConfig(confFile)
         runPhase(self.cr, self.sh, 'prepare')
         self.sh.save()

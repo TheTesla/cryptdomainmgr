@@ -135,6 +135,11 @@ def interpreteSOA(content):
 def interpreteSPF(content):
     return interpreteSetRR(content, 'spf', ['*'])
 
+def interpreteHandler(content):
+    handlerNames = content['handler'].split('/')
+    handler = __import__('modules.domain.handler{}'.format(handlerNames[0]), fromlist=('modules', 'domain'))
+    return {'accessparams': handler.getAccessParams(content)}
+
 def interpreteConfig(cr, sh):
     domainconfig = cr.getRawConfigOf('domain', True)
     domainconfig = applyDefault(domainconfig) # must be here because following section depends on default values
@@ -156,6 +161,8 @@ def interpreteConfig(cr, sh):
         domainconfig[domain].update(soa)
         spf = interpreteSPF(content)
         domainconfig[domain].update(spf)
+        hc = interpreteHandler(content)
+        domainconfig[domain].update(hc)
 
         if 'tlsa' in content:
             tlsa = str(domainconfig[domain]['tlsa'])

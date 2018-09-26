@@ -9,11 +9,19 @@
 
 from OpenSSL import crypto
 import os
-#import handlercertbot as certmodule
 import handlerdehydrated as certmodulenew
 from subprocess import check_output
 from simpleloggerplus import simpleloggerplus as log
 from string import replace
+
+
+def createDomainAccessTable(config, domains):
+    domainAccessTableStr = ""
+    for d in domains:
+        domainConfig = config['domain'][d]
+        paramKeys = domainConfig['accessparams']
+        domainAccessTableStr += ' ["{}"]="'.format(d) + '\\n'.join(["{}={}".format(k, domainConfig[k]) for k in paramKeys])+'"'
+    return '({} )'.format(domainAccessTableStr)
 
 
 def prepare(config, state):
@@ -30,11 +38,7 @@ def prepare(config, state):
         log.info('Create certificate for section \"{}\"'.format(certSecName))
         log.info('  -> {}'.format(', '.join(domains)))
         log.debug(certConfig)
-        domainAccessTableStr = ""
-        for d in domains:
-            domainConfig = config['domain'][d]
-            domainAccessTableStr += ' ["{}"]="handler={}\\nuser={}\\npasswd={}"'.format(d, domainConfig['handler'], domainConfig['user'], domainConfig['passwd'])
-        domainAccessTable = '({} )'.format(domainAccessTableStr)
+        domainAccessTable = createDomainAccessTable(config, domains)
         certmodulenew.prepare(certConfig, certState, domains, domainAccessTable) 
 
 def rollover(config, state):
