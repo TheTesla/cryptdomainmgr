@@ -104,6 +104,10 @@ def getFullchain(state, domainContent):
     certState = state.getSubstate('cert').getSubstate(domainContent['cert'])
     return certState.result['fullchainfile']
 
+def getDKIMkeys(state, domainContent):
+    dkimState = state.getSubstate('dkim').getSubstate(domainContent['dkim'])
+    return dkimState.result
+
 def isReady(state, domainContent, sec):
     certState = state.getSubstate(sec).getSubstate(domainContent[sec])
     return certState.isDone()
@@ -298,23 +302,17 @@ def addDKIM(domainConfig, domainState, domainSecName, dnsup, state, delete = Fal
         if not isReady(state, domainConfig, 'dkim'):
             return False
         rrState.setOpStateRunning()
-        keys = findDKIMkeyTXT(dkimContent['keylocation'], dkimContent['keybasedomainSecName'])
-        keys = [f[1] for f in keys]
-        domainsOfSameDKIM = {k:v for k, v in domainConfig.items() if 'dkim' in v and dkimSecName == v['dkim']}
-        log.debug(keys)
-        for domainSecName, domainConfig in domainsOfSameDKIM.items():
-            log.debug((domainSecName, keys))
-            if delete is True:
-                dnsup.setDKIMfromFile(domainSecName, keys)
-            else:
-                dnsup.addDKIMfromFile(domainSecName, keys)
+        dkim = getDKIMkeys(state, domainConfig)
+        if delete is True:
+            dnsup.setDKIM(domainSecName, {'filename': dkim['keytxtfile']})
+        else:
+            dnsup.addDKIM(domainSecName, {'filename': dkim['keytxtfile']})
     rrState.setOpStateDone()
     return True
 
 
 def setDKIM(domainConfig, domainState, domainSecName, dnsup, state):
     return addDKIM(domainConfig, domainState, domainSecName, dnsup, state, True)
-
 
 
 

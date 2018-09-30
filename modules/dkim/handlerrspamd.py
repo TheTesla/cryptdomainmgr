@@ -17,7 +17,7 @@ import time
 def prepare(dkimConfig, dkimState):
     if 'rspamd' == dkimConfig['handler']:
         res = createDKIM(dkimConfig['keylocation'], dkimConfig['keybasename'], dkimConfig['keysize'], dkimConfig['signingconftemplatefile'], dkimConfig['signingconftemporaryfile'])
-        dkimState.registerResult({'prepare': res})
+        dkimState.registerResult(res)
         dkimState.setOpStateDone()
 
 def rollover(dkimConfig, dkimState):
@@ -42,6 +42,7 @@ def cleanup(dkimConfig, dkimState):
 def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signingConfDestFile):
     keylocation = os.path.expanduser(keylocation)
     newKeyname = str(keybasename) + '_{:10d}'.format(int(time.time()))
+    rv = check_output(('mkdir', '-p', keylocation))
     keyTxt = check_output(('rspamadm', 'dkim_keygen', '-b', str(int(keysize)), '-s', str(newKeyname), '-k', os.path.join(keylocation, newKeyname+'.key')))
     keyPath = os.path.join(keylocation, newKeyname)
     f = open(keyPath+'.txt', 'w')
