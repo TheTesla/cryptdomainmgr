@@ -19,10 +19,16 @@ def applyDefault(config, defaultConfig={}):
 
 
 def interpreteConfig(cr, sh):
-    defaultDKIMConfig = {'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingconftemporaryfile': '/etc/rspamd/dkim_signing_new.conf', 'signingconftemplatefile': '/etc/rspamd/local.d/dkim_signing.conf'}
+    defaultDKIMConfig = {'keysize': 2048, 'keybasename': 'key'}
     dkimconfig = cr.getRawConfigOf('dkim')
     # apply general config defaults and the default section
     dkimconfig = applyDefault(dkimconfig, defaultDKIMConfig) # must be here because following section depends on default values
+    for dkimSecName, content in dkimconfig.items():
+        content = dict(content)
+        if 'handler' in content:
+            handlerNames = content['handler'].split('/')
+            handler = __import__('modules.dkim.handler'+str(handlerNames[0]), fromlist=('modules','dkim'))
+            dkimconfig[dkimSecName].update(handler.defaultDKIMConfig)
     cr.updateConfig({'dkim': dkimconfig})
     return dkimconfig
 

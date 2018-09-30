@@ -14,6 +14,8 @@ from jinja2 import Template
 from parse import parse
 import time
 
+defaultDKIMConfig = {'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingconftemporaryfile': '/etc/rspamd/dkim_signing_new.conf', 'signingconftemplatefile': '/etc/rspamd/local.d/dkim_signing.conf'}
+
 def prepare(dkimConfig, dkimState):
     if 'rspamd' == dkimConfig['handler']:
         res = createDKIM(dkimConfig['keylocation'], dkimConfig['keybasename'], dkimConfig['keysize'], dkimConfig['signingconftemplatefile'], dkimConfig['signingconftemporaryfile'])
@@ -42,6 +44,7 @@ def cleanup(dkimConfig, dkimState):
 def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signingConfDestFile):
     keylocation = os.path.expanduser(keylocation)
     newKeyname = str(keybasename) + '_{:10d}'.format(int(time.time()))
+    log.info('  -> {}'.format(newKeyname))
     rv = check_output(('mkdir', '-p', keylocation))
     keyTxt = check_output(('rspamadm', 'dkim_keygen', '-b', str(int(keysize)), '-s', str(newKeyname), '-k', os.path.join(keylocation, newKeyname+'.key')))
     keyPath = os.path.join(keylocation, newKeyname)
