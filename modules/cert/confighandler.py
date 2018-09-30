@@ -36,7 +36,6 @@ def interpreteConfig(cr, sh):
             handlerNames = content['handler'].split('/')
             handler = __import__('modules.cert.handler'+str(handlerNames[0]), fromlist=('modules','cert'))
             certconfig[certSecName].update(handler.defaultCertConfig)
-            certconfig[certSecName]['caa'] = {'url': 'letsencrypt.org', 'flag': '0', 'tag': 'issue'}
             if 1 < len(handlerNames):
                 if 'letsencrypt' != handlerNames[1]:
                     certconfig[certSecName]['caa'] = ''

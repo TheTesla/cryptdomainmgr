@@ -11,7 +11,7 @@ import os
 from subprocess import check_output
 from simpleloggerplus import simpleloggerplus as log
 
-defaultCertConfig = {'source': '/etc/dehydrated/certs', 'certname': 'fullchain.pem', 'keysize': 4096, 'extraflags': ''}
+defaultCertConfig = {'source': '/etc/dehydrated/certs', 'certname': 'fullchain.pem', 'keysize': 4096, 'extraflags': '', 'caa': {'url': 'letsencrypt.org', 'flag': '0', 'tag': 'issue'}}
 
 def prepare(certConfig, certState, domainList, domainAccessTable): 
     if 'dehydrated' != certConfig['handler']:

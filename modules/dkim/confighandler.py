@@ -17,6 +17,8 @@ def applyDefault(config, defaultConfig={}):
         newconfig[section].update(content)
     return newconfig
 
+# Default handling
+# DEFAULT section overwritten by handler default configuration overwr. by explicit configuration
 
 def interpreteConfig(cr, sh):
     defaultDKIMConfig = {'keysize': 2048, 'keybasename': 'key'}
@@ -29,6 +31,7 @@ def interpreteConfig(cr, sh):
             handlerNames = content['handler'].split('/')
             handler = __import__('modules.dkim.handler'+str(handlerNames[0]), fromlist=('modules','dkim'))
             dkimconfig[dkimSecName].update(handler.defaultDKIMConfig)
+            dkimconfig[dkimSecName].update(content)
     cr.updateConfig({'dkim': dkimconfig})
     return dkimconfig
 
