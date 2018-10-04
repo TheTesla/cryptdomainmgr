@@ -105,12 +105,14 @@ def getFullchain(state, domainContent):
     return certState.result['fullchainfile']
 
 def getDKIMkeys(state, domainContent):
-    dkimState = state.getSubstate('dkim').getSubstate(domainContent['dkim'])
+    if type(domainContent) is list:
+        return [getDKIMkeys(state, e) for e in domainContent]
+    dkimState = state.getSubstate('dkim').getSubstate(domainContent)
     return dkimState.result
 
 def isReady(state, domainContent, sec):
-    certState = state.getSubstate(sec).getSubstate(domainContent[sec])
-    return certState.isDone()
+    secState = state.getSubstate(sec).getSubstate(domainContent[sec])
+    return secState.isDone()
 
 def setSPF(domainConfig, domainState, domainSecName, dnsup):
     rrState = domainState.getSubstate('setspf')
@@ -297,16 +299,18 @@ def addDKIM(domainConfig, domainState, domainSecName, dnsup, state, delete = Fal
     rrState = domainState.getSubstate('adddkim')
     if rrState.isDone():
         return True
-    if 'dkim' in domainConfig:
+    if 'dkimAggrAdd' in domainConfig:
         rrState.setOpStateWaiting()
-        if not isReady(state, domainConfig, 'dkim'):
+        dkimReady = [1 for e in domainConfig['dkimAggrAdd'] if 'op' in e if 'auto' == e['op'] if not state.getSubstate('dkim').getSubstate(e['content']).isDone()]
+        if not 0 == len(dkimReady):
             return False
         rrState.setOpStateRunning()
-        dkim = getDKIMkeys(state, domainConfig)
+        dkimAdd = [{'filename': getDKIMkeys(state, e['content'])['keytxtfile']} for e in domainConfig['dkimAggrAdd'] if 'op' in e if 'auto' == e['op']]
         if delete is True:
-            dnsup.setDKIM(domainSecName, {'filename': dkim['keytxtfile']})
+            dkimDel = [{'keybasename': getDKIMkeys(state, e['content'])['keybasename']} if 'content' in e else {} for e in domainConfig['dkimAggrDel']]
+            dnsup.delDKIM(domainSecName, dkimDel, dkimAdd)
         else:
-            dnsup.addDKIM(domainSecName, {'filename': dkim['keytxtfile']})
+            dnsup.addDKIM(domainSecName, dkimAdd)
     rrState.setOpStateDone()
     return True
 

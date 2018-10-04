@@ -74,6 +74,9 @@ def list2MX(mxEntry, hasContent = True):
 def list2ip(ipEntry, hasContent = True):
     return list2dict(ipEntry, hasContent, ['content'])
 
+def list2dkim(dkimEntry, hasContent = True):
+    return list2dict(dkimEntry, hasContent, ['op', 'content'])
+
 def list2rrType(rrType, entry, hasContent = True):
     if 'mx' == rrType:
         return list2MX(entry, hasContent)
@@ -83,6 +86,8 @@ def list2rrType(rrType, entry, hasContent = True):
         return list2ip(entry, hasContent)
     elif 'ip6' == rrType:
         return list2ip(entry, hasContent)
+    elif 'dkim' == rrType:
+        return list2dkim(entry, hasContent)
     elif 'caa' == rrType:
         return list2CAA(entry, hasContent)
     elif 'spf' == rrType:
@@ -114,6 +119,9 @@ def interpreteA(content):
 
 def interpreteAAAA(content):
     return interpreteRR(content, 'ip6', ['*'], None, None)
+
+def interpreteDKIM(content):
+    return interpreteRR(content, 'dkim', ['*', '*'])
 
 def interpreteDictRR(content, rrType):
     if rrType in [k.split('.')[0] for k in content.keys()]:
@@ -149,6 +157,8 @@ def interpreteConfig(cr, sh):
         domainconfig[domain].update(ip4)
         ip6 = interpreteAAAA(content)
         domainconfig[domain].update(ip6)
+        dkim = interpreteDKIM(content)
+        domainconfig[domain].update(dkim)
         mx = interpreteMX(content)
         domainconfig[domain].update(mx)
         srv = interpreteSRV(content)

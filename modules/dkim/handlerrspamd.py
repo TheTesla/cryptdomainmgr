@@ -61,7 +61,7 @@ def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signi
     f = open(os.path.expanduser(signingConfDestFile), 'w')
     f.write(confDestContent)
     f.close()
-    return {'keytxtfile': keyPath+'.txt', 'keyfile': keyPath+'.key'}
+    return {'keytxtfile': keyPath+'.txt', 'keyfile': keyPath+'.key', 'keybasename': str(keybasename), 'keyname': str(newKeyname)}
 
 def findDKIMkeyTXT(keylocation, keybasename, fileending = 'txt'):
     return findDKIMkey(keylocation, keybasename, fileending)
