@@ -286,10 +286,14 @@ def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, addOnly=Fals
             log.info('  -> found certificate: {} for: {}'.format(cert, ', '.join(sanList)))
             if domainSecName not in sanList:
                 log.error('{} not in certificate {}'.format(domainSecName, cert))
+            tlsaAdd = [dict(e, filename=cert) for e in domainConfig['tlsaAggrAdd'] if 'op' in e if 'auto' == e['op']]
             if addOnly is True:
-                dnsup.addTLSAfromCert(domainSecName, cert, domainConfig['tlsa'])
+                #dnsup.addTLSAfromCert(domainSecName, cert, domainConfig['tlsa'])
+                dnsup.addTLSA(domainSecName, tlsaAdd)
             else:
-                dnsup.setTLSAfromCert(domainSecName, cert, domainConfig['tlsa'])
+                #dnsup.setTLSAfromCert(domainSecName, cert, domainConfig['tlsa'])
+                tlsaDel = domainConfig['tlsaAggrDel']
+                dnsup.delTLSA(domainSecName, tlsaDel, tlsaAdd)
     rrState.setOpStateDone()
     return True
 

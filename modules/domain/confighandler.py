@@ -77,6 +77,9 @@ def list2ip(ipEntry, hasContent = True):
 def list2dkim(dkimEntry, hasContent = True):
     return list2dict(dkimEntry, hasContent, ['op', 'content'])
 
+def list2tlsa(tlsaEntry, hasContent = True):
+    return list2dict(tlsaEntry, hasContent, ['op', 'proto', 'port', 'matchingtype', 'selector', 'usage'])
+
 def list2rrType(rrType, entry, hasContent = True):
     if 'mx' == rrType:
         return list2MX(entry, hasContent)
@@ -88,6 +91,8 @@ def list2rrType(rrType, entry, hasContent = True):
         return list2ip(entry, hasContent)
     elif 'dkim' == rrType:
         return list2dkim(entry, hasContent)
+    elif 'tlsa' == rrType:
+        return list2tlsa(entry, hasContent)
     elif 'caa' == rrType:
         return list2CAA(entry, hasContent)
     elif 'spf' == rrType:
@@ -122,6 +127,9 @@ def interpreteAAAA(content):
 
 def interpreteDKIM(content):
     return interpreteRR(content, 'dkim', ['*', '*'])
+
+def interpreteTLSA(content):
+    return interpreteRR(content, 'tlsa', ['*', 'tcp', '*', '3', '0', '1'])
 
 def interpreteDictRR(content, rrType):
     if rrType in [k.split('.')[0] for k in content.keys()]:
@@ -159,6 +167,8 @@ def interpreteConfig(cr, sh):
         domainconfig[domain].update(ip6)
         dkim = interpreteDKIM(content)
         domainconfig[domain].update(dkim)
+        tlsa = interpreteTLSA(content)
+        domainconfig[domain].update(tlsa)
         mx = interpreteMX(content)
         domainconfig[domain].update(mx)
         srv = interpreteSRV(content)
@@ -174,13 +184,13 @@ def interpreteConfig(cr, sh):
         hc = interpreteHandler(content)
         domainconfig[domain].update(hc)
 
-        if 'tlsa' in content:
-            tlsa = str(domainconfig[domain]['tlsa'])
-            if 'auto' == tlsa:
-                tlsa = [[3, 0, 1], [3, 0, 2], [3, 1, 1], [3, 1, 2], [2, 0, 1], [2, 0, 2], [2, 1, 1], [2, 1, 2]]
-            else:
-                tlsa = [[int(f) for f in e] for e in tlsa.replace(' ', '').split(',')]
-            domainconfig[domain]['tlsa'] = tlsa
+        #if 'tlsa' in content:
+        #    tlsa = str(domainconfig[domain]['tlsa'])
+        #    if 'auto' == tlsa:
+        #        tlsa = [[3, 0, 1], [3, 0, 2], [3, 1, 1], [3, 1, 2], [2, 0, 1], [2, 0, 2], [2, 1, 1], [2, 1, 2]]
+        #    else:
+        #        tlsa = [[int(f) for f in e] for e in tlsa.replace(' ', '').split(',')]
+        #    domainconfig[domain]['tlsa'] = tlsa
 
     log.debug(domainconfig)
     cr.updateConfig({'domain': domainconfig})
