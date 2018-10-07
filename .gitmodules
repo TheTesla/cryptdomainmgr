@@ -1,6 +1,6 @@
 [submodule "dehydrated"]
-	path = modules/certificate/dehydrated
+	path = modules/cert/dehydrated
 	url = https://github.com/lukas2511/dehydrated.git
 [submodule "dnsuptools"]
-	path = dnsuptools
+	path = modules/domain/dnsuptools
 	url = https://github.com/TheTesla/dnsuptools.git
