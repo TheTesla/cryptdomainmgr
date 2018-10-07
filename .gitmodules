@@ -1,12 +1,6 @@
-[submodule "certbot"]
-	path = certbot
-	url = https://github.com/certbot/certbot.git
 [submodule "dehydrated"]
 	path = modules/certificate/dehydrated
 	url = https://github.com/lukas2511/dehydrated.git
 [submodule "dnsuptools"]
 	path = dnsuptools
 	url = https://github.com/TheTesla/dnsuptools.git
-[submodule "simplelogger"]
-	path = simplelogger
-	url = https://github.com/TheTesla/simplelogger.git
