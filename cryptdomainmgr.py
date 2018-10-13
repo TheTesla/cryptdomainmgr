@@ -20,6 +20,8 @@ class ManagedDomain:
         self.cr.setFilenames(confFiles)
         self.cr.open()
         self.cr.interprete(self.sh)
+        if 'cdm' in self.cr.config:
+            self.sh.registerConfig(self.cr.config['cdm'])
 
 
     def update(self, state = '', confFile = None):

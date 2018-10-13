@@ -9,6 +9,7 @@
 
 import json
 import os
+from modules.common.cdmfilehelper import makeDir
 
 class StateHandler:
     def __init__(self):
@@ -17,7 +18,6 @@ class StateHandler:
         self.config = {}
         self.substate = {}
         self.setOpStateUninitialized()
-        self.filename = 'state.json'
 
     def setOpState(self, opState):
         self.opstate = str(opState)
@@ -89,13 +89,14 @@ class StateHandler:
 
     def save(self, filename=None):
         if filename is None:
-            filename = self.filename
+            filename = os.path.join(self.config['statedir'], 'state.json')
+        makeDir(os.path.dirname(filename))
         with open(filename, 'w') as jsonfile:
             json.dump(self.toDict(), jsonfile)
 
     def load(self, filename=None):
         if filename is None:
-            filename = self.filename
+            filename = os.path.join(self.config['statedir'], 'state.json')
         if not os.path.isfile(filename):
             return
         with open(filename, 'r') as jsonfile:

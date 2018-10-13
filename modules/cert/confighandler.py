@@ -7,17 +7,9 @@
 #
 #######################################################################
 
+from ..common.cdmconfighelper import applyDefault
 from simpleloggerplus import simpleloggerplus as log
 
-def applyDefault(config, defaultConfig={}):
-    default = dict(defaultConfig)
-    if 'DEFAULT' in config:
-        default.update(config['DEFAULT'])
-    newconfig = {}
-    for section, content in config.items():
-        newconfig[section] = dict(default)
-        newconfig[section].update(content)
-    return newconfig
 
 # Default handling
 # DEFAULT section overwritten by handler default configuration overwr. by explicit configuration
