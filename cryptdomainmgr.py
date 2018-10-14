@@ -11,6 +11,21 @@ from cdmconfighandler import *
 from cdmstatehandler import *
 from simpleloggerplus import simpleloggerplus as log
 
+def getNextPhase(currentPhase):
+    if 'prepare' == currentPhase:
+        return 'rollover'
+    if 'rollover' == currentPhase:
+        return 'cleanup'
+    return 'prepare'
+
+def getCurrentPhase(state, forcePhase='next'):
+    if 'next' != str(forcePhase):
+        return forcePhase
+    if 'nextphase' in state.result:
+        return state.result['nextphase']
+    return 'prepare'
+
+
 class ManagedDomain:
     def __init__(self):
         self.cr = ConfigReader()
@@ -19,36 +34,25 @@ class ManagedDomain:
     def readConfig(self, confFiles):
         self.cr.setFilenames(confFiles)
         self.cr.open()
+        if 'cdm' not in self.cr.cp:
+            self.cr.cp['cdm'] = {}
         self.cr.interprete(self.sh)
-        if 'cdm' in self.cr.config:
-            self.sh.registerConfig(self.cr.config['cdm'])
+        self.sh.registerConfig(self.cr.config['cdm'])
 
-
-    def update(self, state = '', confFile = None):
+    def run(self, confFile=None, forcePhase='next'):
         self.readConfig(confFile)
-        runPhase(self.cr, self.sh, 'update')
-
-    def prepare(self, confFile = None):
-        self.readConfig(confFile)
-        runPhase(self.cr, self.sh, 'prepare')
-        self.sh.save()
-
-    def rollover(self, confFile = None):
         self.sh.load()
         self.sh.resetOpStateRecursive()
-        self.readConfig(confFile)
-        runPhase(self.cr, self.sh, 'rollover')
-        self.sh.save()
-
-    def cleanup(self, confFile = None):
-        self.sh.load()
-        self.sh.resetOpStateRecursive()
-        self.readConfig(confFile)
-        runPhase(self.cr, self.sh, 'cleanup')
+        currentPhase = getCurrentPhase(self.sh, forcePhase)
+        log.info('Running phase: {}'.format(currentPhase))
+        runPhase(self.cr, self.sh, currentPhase)
+        nextphase = getNextPhase(currentPhase)
+        self.sh.registerResult({'nextphase': nextphase})
         self.sh.save()
 
 
 def runPhase(cr, sh, phase):
+    sh.setOpStateRunning()
     handler = {secName: __import__('modules.'+str(secName)+'.main', fromlist=('modules')) for secName in cr.sections}
     for i in range(10):
         for k, v in handler.items():
@@ -56,6 +60,7 @@ def runPhase(cr, sh, phase):
                 continue
             f = getattr(v, phase)
             f(cr.config, sh)
+    sh.setOpStateDone()
 
 
 

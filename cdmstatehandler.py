@@ -94,6 +94,13 @@ class StateHandler:
         with open(filename, 'w') as jsonfile:
             json.dump(self.toDict(), jsonfile)
 
+    def delete(self, filename=None):
+        if filename is None:
+            filename = os.path.join(self.config['statedir'], 'state.json')
+        if not os.path.isfile(filename):
+            return
+        os.remove(filename)
+
     def load(self, filename=None):
         if filename is None:
             filename = os.path.join(self.config['statedir'], 'state.json')

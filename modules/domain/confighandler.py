@@ -132,17 +132,6 @@ def interpreteDKIM(content):
 def interpreteTLSA(content):
     return interpreteRR(content, 'tlsa', ['*', 'tcp', '*', '3', '0', '1'])
 
-def interpreteDictRR(content, rrType):
-    if rrType in [k.split('.')[0] for k in content.keys()]:
-        rrDict = {k.split('.')[1] if 1 < len(k.split('.')) else '' : v  for k, v in content.items() if rrType == k.split('.')[0]}
-        return {rrType: rrDict}
-    return {}
-
-def interpreteSetRR(content, rrType, defaultList = ['*']):
-    rrList = interpreteRR(content, rrType, defaultList)
-    rrSet = {k: set([e for e in v if '' != e]) for k, v in rrList.items()}
-    return rrSet
-
 def interpreteDMARC(content):
     return interpreteDictRR(content, 'dmarc')
 
@@ -157,42 +146,23 @@ def interpreteHandler(content):
     handler = __import__('modules.domain.handler{}'.format(handlerNames[0]), fromlist=('modules', 'domain'))
     return {'accessparams': handler.getAccessParams(content)}
 
+def interpreteDictRR(content, rrType):
+    if rrType in [k.split('.')[0] for k in content.keys()]:
+        rrDict = {k.split('.')[1] if 1 < len(k.split('.')) else '' : v  for k, v in content.items() if rrType == k.split('.')[0]}
+        return {rrType: rrDict}
+    return {}
+
+def interpreteSetRR(content, rrType, defaultList = ['*']):
+    rrList = interpreteRR(content, rrType, defaultList)
+    rrSet = {k: set([e for e in v if '' != e]) for k, v in rrList.items()}
+    return rrSet
+
 def interpreteConfig(cr, sh):
     domainconfig = cr.getRawConfigOf('domain', True)
     domainconfig = applyDefault(domainconfig) # must be here because following section depends on default values
-
     for domain, content in domainconfig.items():
-        ip4 = interpreteA(content)
-        domainconfig[domain].update(ip4)
-        ip6 = interpreteAAAA(content)
-        domainconfig[domain].update(ip6)
-        dkim = interpreteDKIM(content)
-        domainconfig[domain].update(dkim)
-        tlsa = interpreteTLSA(content)
-        domainconfig[domain].update(tlsa)
-        mx = interpreteMX(content)
-        domainconfig[domain].update(mx)
-        srv = interpreteSRV(content)
-        domainconfig[domain].update(srv)
-        caa = interpreteCAA(content)
-        domainconfig[domain].update(caa)
-        dmarc = interpreteDMARC(content)
-        domainconfig[domain].update(dmarc)
-        soa = interpreteSOA(content)
-        domainconfig[domain].update(soa)
-        spf = interpreteSPF(content)
-        domainconfig[domain].update(spf)
-        hc = interpreteHandler(content)
-        domainconfig[domain].update(hc)
-
-        #if 'tlsa' in content:
-        #    tlsa = str(domainconfig[domain]['tlsa'])
-        #    if 'auto' == tlsa:
-        #        tlsa = [[3, 0, 1], [3, 0, 2], [3, 1, 1], [3, 1, 2], [2, 0, 1], [2, 0, 2], [2, 1, 1], [2, 1, 2]]
-        #    else:
-        #        tlsa = [[int(f) for f in e] for e in tlsa.replace(' ', '').split(',')]
-        #    domainconfig[domain]['tlsa'] = tlsa
-
+        for f in ['A', 'AAAA', 'DKIM', 'TLSA', 'MX', 'SRV', 'CAA', 'DMARC', 'SOA', 'SPF', 'Handler']:
+            domainconfig[domain].update((globals()['interprete{}'.format(f)](content)))
     log.debug(domainconfig)
     cr.updateConfig({'domain': domainconfig})
     return domainconfig
