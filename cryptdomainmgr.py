@@ -31,16 +31,17 @@ class ManagedDomain:
         self.cr = ConfigReader()
         self.sh = StateHandler()
 
-    def readConfig(self, confFiles):
+    def readConfig(self, confFiles=[], confContent=''):
         self.cr.setFilenames(confFiles)
+        self.cr.setContentList(confContent)
         self.cr.open()
         if 'cdm' not in self.cr.cp:
             self.cr.cp['cdm'] = {}
         self.cr.interprete(self.sh)
         self.sh.registerConfig(self.cr.config['cdm'])
 
-    def run(self, confFile=None, forcePhase='next'):
-        self.readConfig(confFile)
+    def run(self, confFile=None, forcePhase='next', confContent=''):
+        self.readConfig(confFile, confContent)
         self.sh.load()
         self.sh.resetOpStateRecursive()
         currentPhase = getCurrentPhase(self.sh, forcePhase)

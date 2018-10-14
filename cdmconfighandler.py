@@ -8,16 +8,24 @@
 #######################################################################
 
 import configparser
-
+import io
 from simpleloggerplus import simpleloggerplus as log
 
 class ConfigReader:
     def __init__(self):
         self.cp = configparser.ConfigParser()
         self.filenameList = []
+        self.contentList = []
         self.conflictingservices = {}
         self.config = {}
 
+    def setContentList(self, contentList):
+        if contentList is None:
+            return
+        if type(contentList) is str:
+            contentList = [contentList]
+        self.contentList = contentList
+        
     def setFilenames(self, filenames):
         if filenames is None:
             return
@@ -35,6 +43,8 @@ class ConfigReader:
     def open(self):
         self.cp = configparser.ConfigParser()
         self.cp.read(self.filenameList)
+        for e in self.contentList:
+            self.cp.readfp(io.BytesIO(e))
 
     def getRawConfigOf(self, getSection, domainOldStyle=False):
         return getConfigOf(getSection, self.cp, domainOldStyle)

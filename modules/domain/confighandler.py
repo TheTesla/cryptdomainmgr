@@ -142,6 +142,8 @@ def interpreteSPF(content):
     return interpreteSetRR(content, 'spf', ['*'])
 
 def interpreteHandler(content):
+    if 'handler' not in content:
+        return {}
     handlerNames = content['handler'].split('/')
     handler = __import__('modules.domain.handler{}'.format(handlerNames[0]), fromlist=('modules', 'domain'))
     return {'accessparams': handler.getAccessParams(content)}
