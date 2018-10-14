@@ -86,8 +86,8 @@ def cleanup(domainConfig, domainState, domainSecName, state):
     domainState.setOpStateWaiting()
     
     domainState.setOpStateRunning()
-    tlsaReady = setTLSA(domainConfig, domainState, domainSecName, dnsup, state)
-    dkimReady = setDKIM(domainConfig, domainState, domainSecName, dnsup, state)
+    tlsaReady = delTLSA(domainConfig, domainState, domainSecName, dnsup, state)
+    dkimReady = delDKIM(domainConfig, domainState, domainSecName, dnsup, state)
     if tlsaReady and dkimReady:
         domainState.setOpStateDone()
 
@@ -266,9 +266,12 @@ def setMX(domainConfig, domainState, domainSecName, dnsup):
 
 
 def addTLSA(domainConfig, domainState, domainSecName, dnsup, state):
-    return setTLSA(domainConfig, domainState, domainSecName, dnsup, state, addOnly = True)
+    return setTLSA(domainConfig, domainState, domainSecName, dnsup, state, add=True, delete=False)
 
-def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, addOnly=False):
+def delTLSA(domainConfig, domainState, domainSecName, dnsup, state):
+    return setTLSA(domainConfig, domainState, domainSecName, dnsup, state, add=False, delete=True)
+
+def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, add=True, delete=True):
     rrState = domainState.getSubstate('settlsa')
     if rrState.isDone():
         return True
@@ -287,11 +290,9 @@ def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, addOnly=Fals
             if domainSecName not in sanList:
                 log.error('{} not in certificate {}'.format(domainSecName, cert))
             tlsaAdd = [dict(e, filename=cert) for e in domainConfig['tlsaAggrAdd'] if 'op' in e if 'auto' == e['op']]
-            if addOnly is True:
-                #dnsup.addTLSAfromCert(domainSecName, cert, domainConfig['tlsa'])
+            if add is True:
                 dnsup.addTLSA(domainSecName, tlsaAdd)
-            else:
-                #dnsup.setTLSAfromCert(domainSecName, cert, domainConfig['tlsa'])
+            if delete is True:
                 tlsaDel = domainConfig['tlsaAggrDel']
                 dnsup.delTLSA(domainSecName, tlsaDel, tlsaAdd)
     rrState.setOpStateDone()
@@ -299,7 +300,13 @@ def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, addOnly=Fals
 
 
 
-def addDKIM(domainConfig, domainState, domainSecName, dnsup, state, delete = False):
+def addDKIM(domainConfig, domainState, domainSecName, dnsup, state):
+    return setDKIM(domainConfig, domainState, domainSecName, dnsup, state, add=True, delete=False)
+
+def delDKIM(domainConfig, domainState, domainSecName, dnsup, state):
+    return setDKIM(domainConfig, domainState, domainSecName, dnsup, state, add=False, delete=True)
+
+def setDKIM(domainConfig, domainState, domainSecName, dnsup, state, add=True, delete=True):
     rrState = domainState.getSubstate('adddkim')
     if rrState.isDone():
         return True
@@ -310,17 +317,14 @@ def addDKIM(domainConfig, domainState, domainSecName, dnsup, state, delete = Fal
             return False
         rrState.setOpStateRunning()
         dkimAdd = [{'filename': getDKIMkeys(state, e['content'])['keytxtfile']} for e in domainConfig['dkimAggrAdd'] if 'op' in e if 'auto' == e['op']]
+        if add is True:
+            dnsup.addDKIM(domainSecName, dkimAdd)
         if delete is True:
             dkimDel = [{'keybasename': getDKIMkeys(state, e['content'])['keybasename']} if 'content' in e else {} for e in domainConfig['dkimAggrDel']]
             dnsup.delDKIM(domainSecName, dkimDel, dkimAdd)
-        else:
-            dnsup.addDKIM(domainSecName, dkimAdd)
     rrState.setOpStateDone()
     return True
 
-
-def setDKIM(domainConfig, domainState, domainSecName, dnsup, state):
-    return addDKIM(domainConfig, domainState, domainSecName, dnsup, state, True)
 
 
 

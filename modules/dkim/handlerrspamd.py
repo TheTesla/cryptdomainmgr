@@ -15,7 +15,8 @@ from parse import parse
 import time
 from ..common.cdmfilehelper import makeDir
 
-defaultDKIMConfig = {'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingconftemporaryfile': '/etc/rspamd/dkim_signing_new.conf', 'signingconftemplatefile': '/etc/rspamd/local.d/dkim_signing.conf'}
+here = os.path.dirname(os.path.realpath(__file__))
+defaultDKIMConfig = {'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingconftemporaryfile': '/etc/rspamd/dkim_signing_new.conf', 'signingconfdestinationfile': '/etc/rspamd/local.d/dkim_signing.conf', 'signingconftemplatefile': os.path.join(here, 'dkim_signing_template.conf')}
 
 def prepare(dkimConfig, dkimState):
     if 'rspamd' == dkimConfig['handler']:
