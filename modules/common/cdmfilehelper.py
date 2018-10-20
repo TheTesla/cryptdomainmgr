@@ -12,7 +12,7 @@ import os
 def makeDir(dirname):
     try:
         os.makedirs(dirname)
-    except OSError, e:
+    except OSError as e:
         if e.errno != os.errno.EEXIST:
             raise   
         pass

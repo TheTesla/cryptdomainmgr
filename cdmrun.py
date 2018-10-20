@@ -12,7 +12,7 @@ from cryptdomainmgr import ManagedDomain
 
 if '__main__' == __name__:
     parser = argparse.ArgumentParser(description='Cryptdomainmgr handles interleaved certificate, tlsa, dkim renewal and domain update.')
-    parser.add_argument('config_files', metavar='configfiles', type=str, nargs='?', default=[], help='list of configuration files')
+    parser.add_argument('config_files', metavar='configfiles', type=str, nargs='*', default=[], help='list of configuration files')
     parser.add_argument('--next', dest='phase', action='store_const', const='next', help='Runs rollover if previous run was prepare or cleanup if rollover or prepare if cleanup/first run.') 
     parser.add_argument('--update', dest='phase', action='store_const', const='update', help='Running update sets all static records including A and AAAA regualrly not having an expire date. This should be run as very first time e. g. to upload CAA records.') 
     parser.add_argument('--prepare', dest='phase', action='store_const', const='prepare', help='Creates new certificates and dkim keys. Publishes new TLSA and DKIM records.') 
