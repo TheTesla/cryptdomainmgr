@@ -11,7 +11,6 @@ from OpenSSL import crypto
 import os
 from subprocess import check_output
 from simpleloggerplus import simpleloggerplus as log
-from string import replace
 
 
 def createDomainAccessTable(config, domains):

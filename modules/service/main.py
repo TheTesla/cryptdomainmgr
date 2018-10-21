@@ -7,10 +7,10 @@
 #
 #######################################################################
 
-import handlerapache2
-import handlerrspamd
-import handlerdovecot
-import handlerpostfix
+from . import handlerapache2
+from . import handlerrspamd
+from . import handlerdovecot
+from . import handlerpostfix
 
 from simpleloggerplus import simpleloggerplus as log
 
