@@ -1,0 +1,6 @@
+[submodule "dnsuptools"]
+	path = dnsuptools
+	url = git@github.com:TheTesla/dnsuptools.git
+[submodule "cryptdomainmgr"]
+	path = cryptdomainmgr
+	url = git@github.com:TheTesla/cryptdomainmgr.git
