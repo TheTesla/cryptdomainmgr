@@ -4,7 +4,7 @@ deploy_challenge() {
     local DOMAIN="${1}" TOKEN_FILENAME="${2}" TOKEN_VALUE="${3}"
     cd ../cryptdomainmgr
     declare -A TABLE=$DOMAINACCESSTABLE
-    python cdmrun.py --update <(echo -e "[domain:$DOMAIN]\n${TABLE[$DOMAIN]}\nacme=$TOKEN_VALUE\n")
+    python cryptdomainmgr.py --update <(echo -e "[domain:$DOMAIN]\n${TABLE[$DOMAIN]}\nacme=$TOKEN_VALUE\n")
 
 }
 
@@ -12,7 +12,7 @@ clean_challenge() {
     local DOMAIN="${1}" TOKEN_FILENAME="${2}" TOKEN_VALUE="${3}"
     cd ../cryptdomainmgr
     declare -A TABLE=$DOMAINACCESSTABLE
-    python cdmrun.py --update <(echo -e "[domain:$DOMAIN]\n${TABLE[$DOMAIN]}\nacme=\n")
+    python cryptdomainmgr.py --update <(echo -e "[domain:$DOMAIN]\n${TABLE[$DOMAIN]}\nacme=\n")
 }
 
 deploy_cert() {

@@ -7,61 +7,27 @@
 #
 #######################################################################
 
-from cdmconfighandler import *
-from cdmstatehandler import *
-from simpleloggerplus import simpleloggerplus as log
+import argparse
+from cryptdomainmgr import ManagedDomain
 
-def getNextPhase(currentPhase):
-    if 'prepare' == currentPhase:
-        return 'rollover'
-    if 'rollover' == currentPhase:
-        return 'cleanup'
-    return 'prepare'
+if '__main__' == __name__:
+    parser = argparse.ArgumentParser(description='Cryptdomainmgr handles interleaved certificate, tlsa, dkim renewal and domain update.')
+    parser.add_argument('config_files', metavar='configfiles', type=str, nargs='*', default=[], help='list of configuration files')
+    parser.add_argument('--next', dest='phase', action='store_const', const='next', help='Runs rollover if previous run was prepare or cleanup if rollover or prepare if cleanup/first run.') 
+    parser.add_argument('--update', dest='phase', action='store_const', const='update', help='Running update sets all static records including A and AAAA regualrly not having an expire date. This should be run as very first time e. g. to upload CAA records.') 
+    parser.add_argument('--prepare', dest='phase', action='store_const', const='prepare', help='Creates new certificates and dkim keys. Publishes new TLSA and DKIM records.') 
+    parser.add_argument('--rollover', dest='phase', action='store_const', const='rollover', help='Applies new certificates and dkim keys.') 
+    parser.add_argument('--cleanup', dest='phase', action='store_const', const='cleanup', help='Removes old unused records and files.') 
+    parser.add_argument('--config-content', dest='configcontent', type=str, default='', help='configuration content as argument instead of configuration files')
+    
+    
+    args = parser.parse_args()
+    print(args)
+    configcontent = str(args.configcontent).replace(' ', '\n')
 
-def getCurrentPhase(state, forcePhase='next'):
-    if 'next' != str(forcePhase):
-        return forcePhase
-    if 'nextphase' in state.result:
-        return state.result['nextphase']
-    return 'prepare'
-
-
-class ManagedDomain:
-    def __init__(self):
-        self.cr = ConfigReader()
-        self.sh = StateHandler()
-
-    def readConfig(self, confFiles=[], confContent=''):
-        self.cr.setFilenames(confFiles)
-        self.cr.setContentList(confContent)
-        self.cr.open()
-        if 'cdm' not in self.cr.cp:
-            self.cr.cp['cdm'] = {}
-        self.cr.interprete(self.sh)
-        self.sh.registerConfig(self.cr.config['cdm'])
-
-    def run(self, confFile=None, forcePhase='next', confContent=''):
-        self.readConfig(confFile, confContent)
-        self.sh.load()
-        self.sh.resetOpStateRecursive()
-        currentPhase = getCurrentPhase(self.sh, forcePhase)
-        log.info('Running phase: {}'.format(currentPhase))
-        runPhase(self.cr, self.sh, currentPhase)
-        nextphase = getNextPhase(currentPhase)
-        self.sh.registerResult({'nextphase': nextphase})
-        self.sh.save()
-
-
-def runPhase(cr, sh, phase):
-    sh.setOpStateRunning()
-    handler = {secName: __import__('modules.'+str(secName)+'.main', fromlist=('modules')) for secName in cr.sections}
-    for i in range(10):
-        for k, v in handler.items():
-            if not hasattr(v, phase):
-                continue
-            f = getattr(v, phase)
-            f(cr.config, sh)
-    sh.setOpStateDone()
+    
+    mgr = ManagedDomain()
+    mgr.run(args.config_files, args.phase, configcontent)
 
 
 
