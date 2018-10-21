@@ -7,7 +7,7 @@
 #
 #######################################################################
 
-from .dnsuptools import dnsuptools 
+from dnsuptools import dnsuptools 
 from simpleloggerplus import simpleloggerplus as log
 from OpenSSL import crypto
 
