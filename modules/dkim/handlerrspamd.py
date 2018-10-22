@@ -13,7 +13,7 @@ from simpleloggerplus import simpleloggerplus as log
 from jinja2 import Template
 from parse import parse
 import time
-from ..common.cdmfilehelper import makeDir
+from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 
 here = os.path.dirname(os.path.realpath(__file__))
 defaultDKIMConfig = {'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingconftemporaryfile': '/etc/rspamd/dkim_signing_new.conf', 'signingconfdestinationfile': '/etc/rspamd/local.d/dkim_signing.conf', 'signingconftemplatefile': os.path.join(here, 'dkim_signing_template.conf')}

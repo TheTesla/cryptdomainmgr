@@ -7,8 +7,8 @@
 #
 #######################################################################
 
-from .cdmconfighandler import *
-from .cdmstatehandler import *
+from cryptdomainmgr.cdmconfighandler import *
+from cryptdomainmgr.cdmstatehandler import *
 from simpleloggerplus import simpleloggerplus as log
 
 def getNextPhase(currentPhase):
@@ -54,7 +54,7 @@ class ManagedDomain:
 
 def runPhase(cr, sh, phase):
     sh.setOpStateRunning()
-    handler = {secName: __import__('modules.'+str(secName)+'.main', fromlist=('modules')) for secName in cr.sections}
+    handler = {secName: __import__('cryptdomainmgr.modules.'+str(secName)+'.main', fromlist=('cryptdomainmgr','modules')) for secName in cr.sections}
     for i in range(10):
         for k, v in handler.items():
             if not hasattr(v, phase):

@@ -7,10 +7,10 @@
 #
 #######################################################################
 
-from . import handlerapache2
-from . import handlerrspamd
-from . import handlerdovecot
-from . import handlerpostfix
+from cryptdomainmgr import handlerapache2
+from cryptdomainmgr import handlerrspamd
+from cryptdomainmgr import handlerdovecot
+from cryptdomainmgr import handlerpostfix
 
 from simpleloggerplus import simpleloggerplus as log
 
@@ -24,7 +24,7 @@ def prepare(config, state):
             continue
         log.info('Prepare service for section \"{}\"'.format(serviceSecName))
         log.debug(serviceConfig)
-        handler = __import__('modules.service.handler'+str(serviceSecName), fromlist=('modules','service'))
+        handler = __import__('cryptdomainmgr.modules.service.handler'+str(serviceSecName), fromlist=('cryptdomainmgr', 'modules','service'))
         resolveAuto(serviceConfig, config, ['cert', 'dkim'])
         handler.prepare(serviceConfig, serviceState, state) 
 
@@ -38,7 +38,7 @@ def rollover(config, state):
             continue
         log.info('Rollover service for section \"{}\"'.format(serviceSecName))
         log.debug(serviceConfig)
-        handler = __import__('modules.service.handler'+str(serviceSecName), fromlist=('modules','service'))
+        handler = __import__('cryptdomainmgr.modules.service.handler'+str(serviceSecName), fromlist=('cryptdomainmgr', 'modules','service'))
         resolveAuto(serviceConfig, config, ['cert', 'dkim'])
         handler.rollover(serviceConfig, serviceState, state) 
 
@@ -52,7 +52,7 @@ def cleanup(config, state):
             continue
         log.info('Cleanup service for section \"{}\"'.format(serviceSecName))
         log.debug(serviceConfig)
-        handler = __import__('modules.service.handler'+str(serviceSecName), fromlist=('modules','service'))
+        handler = __import__('cryptdomainmgr.modules.service.handler'+str(serviceSecName), fromlist=('cryptdomainmgr', 'modules','service'))
         resolveAuto(serviceConfig, config, ['cert', 'dkim'])
         handler.cleanup(serviceConfig, serviceState, state) 
 

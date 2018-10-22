@@ -7,7 +7,7 @@
 #
 #######################################################################
 
-from ..common.cdmconfighelper import applyDefault
+from cryptdomainmgr.modules.common.cdmconfighelper import applyDefault
 
 
 # Default handling
@@ -24,7 +24,7 @@ def interpreteConfig(cr, sh):
             content['keybasename'] = str(dkimSecName)
         if 'handler' in content:
             handlerNames = content['handler'].split('/')
-            handler = __import__('modules.dkim.handler'+str(handlerNames[0]), fromlist=('modules','dkim'))
+            handler = __import__('cryptdomainmgr.modules.dkim.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr','modules','dkim'))
             dkimconfig[dkimSecName].update(handler.defaultDKIMConfig)
             dkimconfig[dkimSecName].update(content)
     cr.updateConfig({'dkim': dkimconfig})

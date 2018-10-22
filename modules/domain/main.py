@@ -24,7 +24,7 @@ def update(config, state):
         log.debug(domainConfig)
         caaAuto(domainConfig, config)
         handlerNames = domainConfig['handler'].split('/')
-        handler = __import__('modules.domain.handler'+str(handlerNames[0]), fromlist=('modules','domain'))
+        handler = __import__('cryptdomainmgr.modules.domain.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','domain'))
         handler.update(domainConfig, domainState, domainSecName) 
 
 
@@ -41,7 +41,7 @@ def prepare(config, state):
         log.info('Create resource records for section \"{}\"'.format(domainSecName))
         log.debug(domainConfig)
         handlerNames = domainConfig['handler'].split('/')
-        handler = __import__('modules.domain.handler'+str(handlerNames[0]), fromlist=('modules','domain'))
+        handler = __import__('cryptdomainmgr.modules.domain.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','domain'))
         handler.prepare(domainConfig, domainState, domainSecName, state) 
 
 def rollover(config, state):
@@ -56,7 +56,7 @@ def rollover(config, state):
             continue
         log.info('Create resource records for section \"{}\"'.format(domainSecName))
         handlerNames = domainConfig['handler'].split('/')
-        handler = __import__('modules.domain.handler'+str(handlerNames[0]), fromlist=('modules','domain'))
+        handler = __import__('cryptdomainmgr.modules.domain.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','domain'))
         handler.rollover(domainConfig, domainState, domainSecName, state) 
 
 def cleanup(config, state):
@@ -71,7 +71,7 @@ def cleanup(config, state):
             continue
         log.info('Create resource records for section \"{}\"'.format(domainSecName))
         handlerNames = domainConfig['handler'].split('/')
-        handler = __import__('modules.domain.handler'+str(handlerNames[0]), fromlist=('modules','domain'))
+        handler = __import__('cryptdomainmgr.modules.domain.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','domain'))
         handler.cleanup(domainConfig, domainState, domainSecName, state) 
 
 

@@ -58,7 +58,7 @@ class ConfigReader:
         log.info('Interpreting config sections')
         for secName in self.sections:
             log.info('  - {}'.format(secName))
-            handler = __import__('modules.'+str(secName)+'.confighandler', fromlist=('modules'))
+            handler = __import__('cryptdomainmgr.modules.'+str(secName)+'.confighandler', fromlist=('cryptdomainmgr','modules'))
             handler.interpreteConfig(self, sh)
         log.debug(self.config)
 

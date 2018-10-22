@@ -7,7 +7,7 @@
 #
 #######################################################################
 
-from ..common.cdmconfighelper import applyDefault
+from cryptdomainmgr.modules.common.cdmconfighelper import applyDefault
 from simpleloggerplus import simpleloggerplus as log
 
 def filterEntries(content, rrType):
@@ -145,7 +145,7 @@ def interpreteHandler(content):
     if 'handler' not in content:
         return {}
     handlerNames = content['handler'].split('/')
-    handler = __import__('modules.domain.handler{}'.format(handlerNames[0]), fromlist=('modules', 'domain'))
+    handler = __import__('cryptdomainmgr.modules.domain.handler{}'.format(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules', 'domain'))
     return {'accessparams': handler.getAccessParams(content)}
 
 def interpreteDictRR(content, rrType):

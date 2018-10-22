@@ -7,7 +7,7 @@
 #
 #######################################################################
 
-from ..common.cdmconfighelper import applyDefault
+from cryptdomainmgr.modules.common.cdmconfighelper import applyDefault
 from simpleloggerplus import simpleloggerplus as log
 
 

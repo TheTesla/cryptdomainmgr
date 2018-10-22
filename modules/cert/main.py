@@ -38,7 +38,7 @@ def prepare(config, state):
         log.debug(certConfig)
         domainAccessTable = createDomainAccessTable(config, domains)
         handlerNames = certConfig['handler'].split('/')
-        handler = __import__('modules.cert.handler'+str(handlerNames[0]), fromlist=('modules','cert'))
+        handler = __import__('cryptdomainmgr.modules.cert.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','cert'))
         handler.prepare(certConfig, certState, domains, domainAccessTable) 
 
 def rollover(config, state):

@@ -7,7 +7,7 @@
 #
 #######################################################################
 
-from ..common.cdmconfighelper import applyDefault
+from cryptdomainmgr.modules.common.cdmconfighelper import applyDefault
 from simpleloggerplus import simpleloggerplus as log
 
 
@@ -26,7 +26,7 @@ def interpreteConfig(cr, sh):
         if 'handler' in content:
             log.debug('handler in content')
             handlerNames = content['handler'].split('/')
-            handler = __import__('modules.cert.handler'+str(handlerNames[0]), fromlist=('modules','cert'))
+            handler = __import__('cryptdomainmgr.modules.cert.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr','modules','cert'))
             certconfig[certSecName].update(handler.defaultCertConfig)
             if 1 < len(handlerNames):
                 if 'letsencrypt' != handlerNames[1]:

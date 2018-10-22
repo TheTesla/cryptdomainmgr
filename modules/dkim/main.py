@@ -21,7 +21,7 @@ def prepare(config, state):
             continue
         log.info("Preparing DKIM key for dkim-section: \"{}\"".format(dkimSecName))
         handlerNames = dkimConfig['handler'].split('/')
-        handler = __import__('modules.dkim.handler'+str(handlerNames[0]), fromlist=('modules','dkim'))
+        handler = __import__('cryptdomainmgr.modules.dkim.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr','modules','dkim'))
         handler.prepare(dkimConfig, dkimState)
 
 def rollover(config, state):
@@ -36,7 +36,7 @@ def rollover(config, state):
             continue
         log.info("Applying DKIM key for dkim-section: \"{}\"".format(dkimSecName))
         handlerNames = dkimConfig['handler'].split('/')
-        handler = __import__('modules.dkim.handler'+str(handlerNames[0]), fromlist=('modules','dkim'))
+        handler = __import__('cryptdomainmgr.modules.dkim.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr','modules','dkim'))
         handler.rollover(dkimConfig, dkimState)
 
 def cleanup(config, state):
@@ -51,6 +51,6 @@ def cleanup(config, state):
             continue
         log.info("Cleanup DKIM key for dkim-section: \"{}\"".format(dkimSecName))
         handlerNames = dkimConfig['handler'].split('/')
-        handler = __import__('modules.dkim.handler'+str(handlerNames[0]), fromlist=('modules','dkim'))
+        handler = __import__('cryptdomainmgr.modules.dkim.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr','modules','dkim'))
         handler.cleanup(dkimConfig, dkimState)
 
