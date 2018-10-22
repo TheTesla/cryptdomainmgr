@@ -8,7 +8,7 @@
 #######################################################################
 
 import argparse
-from cdmcore import ManagedDomain
+from .cdmcore import ManagedDomain
 
 if '__main__' == __name__:
     parser = argparse.ArgumentParser(description='Cryptdomainmgr handles interleaved certificate, tlsa, dkim renewal and domain update.')

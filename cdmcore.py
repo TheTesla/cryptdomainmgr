@@ -7,8 +7,8 @@
 #
 #######################################################################
 
-from cdmconfighandler import *
-from cdmstatehandler import *
+from .cdmconfighandler import *
+from .cdmstatehandler import *
 from simpleloggerplus import simpleloggerplus as log
 
 def getNextPhase(currentPhase):

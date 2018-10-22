@@ -9,7 +9,7 @@
 
 import json
 import os
-from modules.common.cdmfilehelper import makeDir
+from .modules.common.cdmfilehelper import makeDir
 
 class StateHandler:
     def __init__(self):
