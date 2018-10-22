@@ -6,8 +6,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="dnsuptools",
-    version="0.0.1",
+    name="cryptdomainmgr",
+    version="0.0.9",
     author="Stefan Helmert",
     author_email="stefan.helmert@t-online.de",
     description="Software managing certificate, dkim and domain updates automagically.",
@@ -19,12 +19,13 @@ setuptools.setup(
         "Jinja2",
         "simpleloggerplus",
         "pyOpenSSL",
+        "dnsuptools",
         "parse"
     ],
     license = 'https://www.fsf.org/licensing/licenses/agpl-3.0.html',
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: AGPLv3 License",
+        "License :: OSI Approved :: GNU Affero General Public License v3",
         "Operating System :: OS Independent",
     ],
 )
