@@ -7,11 +7,6 @@
 #
 #######################################################################
 
-from cryptdomainmgr import handlerapache2
-from cryptdomainmgr import handlerrspamd
-from cryptdomainmgr import handlerdovecot
-from cryptdomainmgr import handlerpostfix
-
 from simpleloggerplus import simpleloggerplus as log
 
 def prepare(config, state):
