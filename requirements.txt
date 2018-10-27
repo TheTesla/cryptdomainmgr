@@ -1,5 +1,5 @@
+dnsuptools==0.0.5
 Jinja2==2.10
 simpleloggerplus==0.0.2
 pyOpenSSL==18.0.0
-dnsuptools==0.0.5
 parse==1.9.0

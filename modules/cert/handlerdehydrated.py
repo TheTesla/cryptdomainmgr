@@ -10,6 +10,7 @@
 import os
 from subprocess import check_output
 from simpleloggerplus import simpleloggerplus as log
+from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 
 defaultCertConfig = {'source': '/etc/dehydrated/certs', 'certname': 'fullchain.pem', 'keysize': 4096, 'extraflags': '', 'caa': {'url': 'letsencrypt.org', 'flag': '0', 'tag': 'issue'}}
 
@@ -35,8 +36,7 @@ def prepare(certConfig, certState, domainList, domainAccessTable):
     else:
         ca = "https://acme-v02.api.letsencrypt.org/directory"
 
-    if not os.path.isdir(os.path.join(certConfig['source'], '..')):
-        os.makedirs(os.path.join(certConfig['source'], '..'))
+    makeDir(os.path.realpath(os.path.join(certConfig['source'], '..')))
 
     confFilename = os.path.normpath(os.path.join(certConfig['source'],'../dehydrated.conf'))
     confFile = open(confFilename, 'w')
