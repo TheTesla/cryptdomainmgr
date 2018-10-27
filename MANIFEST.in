@@ -1,0 +1,4 @@
+include cryptdomainmgr/modules/cert/dehydrated/*
+include cryptdomainmgr/modules/cert/hook.sh
+include cryptdomainmgr/modules/dkim/dkim_signing_template.conf
+

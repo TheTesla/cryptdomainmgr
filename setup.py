@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="cryptdomainmgr",
-    version="0.0.9",
+    version="0.0.14",
     author="Stefan Helmert",
     author_email="stefan.helmert@t-online.de",
     description="Software managing certificate, dkim and domain updates automagically.",
@@ -15,15 +15,18 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/TheTesla/cryptdomainmgrpypi",
     packages=setuptools.find_packages(),
+    include_package_data=True,
     install_requires=[
         "Jinja2",
         "simpleloggerplus",
         "pyOpenSSL",
         "dnsuptools",
-        "parse"
+        "parse",
+        "configparser"
     ],
     license = 'https://www.fsf.org/licensing/licenses/agpl-3.0.html',
     classifiers=[
+        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Operating System :: OS Independent",

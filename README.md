@@ -30,8 +30,12 @@ Updating keys, certifcates and other needs 3 steps to prevent gaps in availabill
 ## Needed Plugins and Dependencies
 
 * **dnsuptools**: to interface with DNS API -- updating DNS entries
-* **certbot**: to get new certificate
+* **dehydrated**: to get new certificate
 * **rspamd**: to create (and use) DKIM keys
+
+## Install
+  
+
 
 ## Documentation
 
