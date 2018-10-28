@@ -8,7 +8,7 @@
 #######################################################################
 
 from simpleloggerplus import simpleloggerplus as log
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 
 def prepare(serviceConfig, serviceState, state):
     serviceState.setOpStateDone()
@@ -19,7 +19,11 @@ def rollover(serviceConfig, serviceState, state):
         return
     serviceState.setOpStateRunning()
     log.info('  -> Rspamd reload')
-    rv = check_output(('systemctl', 'reload', 'rspamd'))
+    try:
+        rv = check_output(('systemctl', 'reload', 'rspamd'))
+    except CalledProcessError as e:
+        log.error(e.output)
+        raise(e)
     serviceState.setOpStateDone()
 
 def cleanup(serviceConfig, serviceState, state):

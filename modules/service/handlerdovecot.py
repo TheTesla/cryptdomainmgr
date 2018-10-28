@@ -8,7 +8,7 @@
 #######################################################################
 
 from simpleloggerplus import simpleloggerplus as log
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 
 def prepare(serviceConfig, serviceState, serviceSecName, state):
     serviceState.setOpStateDone()
@@ -19,7 +19,11 @@ def rollover(serviceConfig, serviceState, serviceSecName, state):
         return
     serviceState.setOpStateRunning()
     log.info('  -> Dovecot reload')
-    rv = check_output(('systemctl', 'reload', 'dovecot'))
+    try:
+        rv = check_output(('systemctl', 'reload', 'dovecot'))
+    except CalledProcessError as e:
+        log.error(e.output)
+        raise(e)
     serviceState.setOpStateDone()
 
 def cleanup(serviceConfig, serviceState, serviceSecName, state):
