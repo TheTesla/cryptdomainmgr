@@ -22,10 +22,11 @@ if '__main__' == __name__:
     
     
     args = parser.parse_args()
-    print(args)
     configcontent = str(args.configcontent).replace(' ', '\n')
-
     
+    if args.phase is None:
+        args.phase = 'next'
+
     mgr = ManagedDomain()
     mgr.run(args.config_files, args.phase, configcontent)
 
