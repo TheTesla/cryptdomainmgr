@@ -8,7 +8,7 @@
 #######################################################################
 
 import os
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 from simpleloggerplus import simpleloggerplus as log
 from jinja2 import Template
 from parse import parse
@@ -28,7 +28,11 @@ def rollover(dkimConfig, dkimState):
     if 'rspamd' == dkimConfig['handler']:
         log.info('using new dkim key, moving new config file')
         log.info('  {} -> {}'.format(dkimConfig['signingconftemporaryfile'], dkimConfig['signingconfdestinationfile']))
-        rv = check_output(('mv', dkimConfig['signingconftemporaryfile'], dkimConfig['signingconfdestinationfile']))
+        try:
+            rv = check_output(('mv', dkimConfig['signingconftemporaryfile'], dkimConfig['signingconfdestinationfile']))
+        except CalledProcessError as e:
+            log.error(e.output)
+            raise(e)
         dkimState.setOpStateDone()
 
 def cleanup(dkimConfig, dkimState):
@@ -40,7 +44,11 @@ def cleanup(dkimConfig, dkimState):
         del keyFiles[-2:]
         for keyFile in keyFiles:
             log.info('  rm {}'.format(keyFile[1]))
-            rv = check_output(('rm', keyFile[1]))
+            try:
+                rv = check_output(('rm', keyFile[1]))
+            except CalledProcessError as e:
+                log.error(e.output)
+                raise(e)
         dkimState.setOpStateDone()
 
 def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signingConfDestFile):
@@ -48,13 +56,25 @@ def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signi
     newKeyname = str(keybasename) + '_{:10d}'.format(int(time.time()))
     log.info('  -> {}'.format(newKeyname))
     makeDir(keylocation)
-    keyTxt = str(check_output(('rspamadm', 'dkim_keygen', '-b', str(int(keysize)), '-s', str(newKeyname), '-k', os.path.join(keylocation, newKeyname+'.key'))))
+    try:
+        keyTxt = str(check_output(('rspamadm', 'dkim_keygen', '-b', str(int(keysize)), '-s', str(newKeyname), '-k', os.path.join(keylocation, newKeyname+'.key'))))
+    except CalledProcessError as e:
+        log.error(e.output)
+        raise(e)
     keyPath = os.path.join(keylocation, newKeyname)
     f = open(keyPath+'.txt', 'w')
     f.write(keyTxt)
     f.close()
-    rv = check_output(('chmod', '0440', keyPath+'.key'))
-    rv = check_output(('chown', '_rspamd:_rspamd', keyPath+'.key'))
+    try:
+        rv = check_output(('chmod', '0440', keyPath+'.key'))
+    except CalledProcessError as e:
+        log.error(e.output)
+        raise(e)
+    try:
+        rv = check_output(('chown', '_rspamd:_rspamd', keyPath+'.key'))
+    except CalledProcessError as e:
+        log.error(e.output)
+        raise(e)
     f = open(os.path.expanduser(signingConfTemplateFile), 'r')
     templateContent = f.read()
     f.close()

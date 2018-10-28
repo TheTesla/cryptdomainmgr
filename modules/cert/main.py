@@ -9,7 +9,7 @@
 
 from OpenSSL import crypto
 import os
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 from simpleloggerplus import simpleloggerplus as log
 
 
@@ -74,7 +74,11 @@ def copyCert(certConfig, certState):
     for name in certState.result['san']:
         dest = os.path.join(certConfig['destination'], name)
         log.info('  {} -> {}'.format(src, dest))
-        rv = check_output(('cp', '-rfLT', str(src), str(dest)))
+        try:
+            rv = check_output(('cp', '-rfLT', str(src), str(dest)))
+        except CalledProcessError as e:
+            log.error(e.output)
+            raise(e)
 
 def delOldCert(certConfig, certState):
     preserve = ['fullchainfile', 'certfile', 'keyfile', 'chainfile']
@@ -87,7 +91,11 @@ def delOldCert(certConfig, certState):
     removeFiles = allFiles - preserveFiles
     for e in removeFiles:
         log.info('  rm {}'.format(e))
-        rv = check_output(('rm', str(e)))
+        try:
+            rv = check_output(('rm', str(e)))
+        except CalledProcessError as e:
+            log.error(e.output)
+            raise(e)
 
 
 
