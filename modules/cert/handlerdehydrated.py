@@ -8,7 +8,7 @@
 #######################################################################
 
 import os
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 from simpleloggerplus import simpleloggerplus as log
 from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 
@@ -55,7 +55,12 @@ def prepare(certConfig, certState, domainList, domainAccessTable):
         args.extend(['-d', str(d)])
     log.debug(args)
     certState.setOpStateRunning()
-    rv = check_output(args, env=dict(os.environ, DOMAINACCESSTABLE=domainAccessTable))
+    try:
+        rv = check_output(args, env=dict(os.environ, DOMAINACCESSTABLE=domainAccessTable))
+        log.info(rv)
+    except CalledProcessError as e:
+        log.error(e.output)
+        raise(e)
 
     res = []
     rv = rv.splitlines()
