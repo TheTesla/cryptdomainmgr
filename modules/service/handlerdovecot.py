@@ -10,10 +10,10 @@
 from simpleloggerplus import simpleloggerplus as log
 from subprocess import check_output, CalledProcessError
 
-def prepare(serviceConfig, serviceState, serviceSecName, state):
+def prepare(serviceConfig, serviceState, state):
     serviceState.setOpStateDone()
 
-def rollover(serviceConfig, serviceState, serviceSecName, state):
+def rollover(serviceConfig, serviceState, state):
     serviceState.setOpStateWaiting()
     if not isReady(serviceConfig, state, 'cert'):
         return
@@ -26,7 +26,7 @@ def rollover(serviceConfig, serviceState, serviceSecName, state):
         raise(e)
     serviceState.setOpStateDone()
 
-def cleanup(serviceConfig, serviceState, serviceSecName, state):
+def cleanup(serviceConfig, serviceState, state):
     serviceState.setOpStateDone()
 
 
