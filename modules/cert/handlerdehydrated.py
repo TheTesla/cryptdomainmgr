@@ -15,7 +15,7 @@ from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 defaultCertConfig = {'source': '/etc/dehydrated/certs', 'certname': 'fullchain.pem', 'keysize': 4096, 'extraflags': '', 'caa': {'url': 'letsencrypt.org', 'flag': '0', 'tag': 'issue'}}
 
 def prepare(certConfig, certState, domainList, domainAccessTable): 
-    if 'dehydrated' != certConfig['handler']:
+    if 'dehydrated' != certConfig['handler'].split('/')[0]:
         return
     if 0 == len(domainList):
         return

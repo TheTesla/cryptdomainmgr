@@ -19,13 +19,13 @@ here = os.path.dirname(os.path.realpath(__file__))
 defaultDKIMConfig = {'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingconftemporaryfile': '/etc/rspamd/dkim_signing_new.conf', 'signingconfdestinationfile': '/etc/rspamd/local.d/dkim_signing.conf', 'signingconftemplatefile': os.path.join(here, 'dkim_signing_template.conf')}
 
 def prepare(dkimConfig, dkimState):
-    if 'rspamd' == dkimConfig['handler']:
+    if 'rspamd' == dkimConfig['handler'].split('/')[0]:
         res = createDKIM(dkimConfig['keylocation'], dkimConfig['keybasename'], dkimConfig['keysize'], dkimConfig['signingconftemplatefile'], dkimConfig['signingconftemporaryfile'])
         dkimState.registerResult(res)
         dkimState.setOpStateDone()
 
 def rollover(dkimConfig, dkimState):
-    if 'rspamd' == dkimConfig['handler']:
+    if 'rspamd' == dkimConfig['handler'].split('/')[0]:
         log.info('using new dkim key, moving new config file')
         log.info('  {} -> {}'.format(dkimConfig['signingconftemporaryfile'], dkimConfig['signingconfdestinationfile']))
         try:
@@ -36,7 +36,7 @@ def rollover(dkimConfig, dkimState):
         dkimState.setOpStateDone()
 
 def cleanup(dkimConfig, dkimState):
-    if 'rspamd' == dkimConfig['handler']:
+    if 'rspamd' == dkimConfig['handler'].split('/')[0]:
         keyFiles = findDKIMkey(dkimConfig['keylocation'], dkimConfig['keybasename'])
         keyFiles.sort()
         if 2 > len(keyFiles):
