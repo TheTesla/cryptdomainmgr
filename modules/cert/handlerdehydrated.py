@@ -11,6 +11,7 @@ import os
 from subprocess import check_output, CalledProcessError
 from simpleloggerplus import simpleloggerplus as log
 from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
+import time
 
 defaultCertConfig = {'source': '/etc/dehydrated/certs', 'certname': 'fullchain.pem', 'keysize': 4096, 'extraflags': '', 'caa': {'url': 'letsencrypt.org', 'flag': '0', 'tag': 'issue'}}
 
@@ -60,6 +61,7 @@ def prepare(certConfig, certState, domainList, domainAccessTable):
         log.info(rv)
     except CalledProcessError as e:
         log.error(e.output)
+        time.sleep(1)
         raise(e)
 
     res = []

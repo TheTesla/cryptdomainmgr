@@ -275,7 +275,7 @@ def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, add=True, de
     rrState = domainState.getSubstate('settlsa')
     if rrState.isDone():
         return True
-    if 'tlsa' in domainConfig:
+    if 'cert' in domainConfig and ('tlsaAggrAdd' in domainConfig or 'tlsaAggrDel' in domainConfig):
         rrState.setOpStateWaiting()
         if not isReady(state, domainConfig, 'cert'):
             return False
@@ -310,7 +310,7 @@ def setDKIM(domainConfig, domainState, domainSecName, dnsup, state, add=True, de
     rrState = domainState.getSubstate('adddkim')
     if rrState.isDone():
         return True
-    if 'dkimAggrAdd' in domainConfig:
+    if 'dkimAggrAdd' in domainConfig or 'dkimAggrDel' in domainConfig:
         rrState.setOpStateWaiting()
         dkimReady = [1 for e in domainConfig['dkimAggrAdd'] if 'op' in e if 'auto' == e['op'] if not state.getSubstate('dkim').getSubstate(e['content']).isDone()]
         if not 0 == len(dkimReady):
