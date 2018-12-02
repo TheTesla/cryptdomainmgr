@@ -8,6 +8,7 @@
 #######################################################################
 
 from simpleloggerplus import simpleloggerplus as log
+from cryptdomainmgr.modules.common.cdmconfighelper import getStateDir
 
 def prepare(config, state):
     subState = state.getSubstate('dkim')
@@ -22,7 +23,8 @@ def prepare(config, state):
         log.info("Preparing DKIM key for dkim-section: \"{}\"".format(dkimSecName))
         handlerNames = dkimConfig['handler'].split('/')
         handler = __import__('cryptdomainmgr.modules.dkim.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr','modules','dkim'))
-        handler.prepare(dkimConfig, dkimState)
+        statedir = getStateDir(config, 'dkim', dkimSecName)
+        handler.prepare(dkimConfig, dkimState, statedir)
 
 def rollover(config, state):
     subState = state.getSubstate('dkim')

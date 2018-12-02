@@ -25,6 +25,6 @@ def getStateDir(config, section=None, handler=None):
     if section is not None:
         statedir = os.path.join(statedir, '{}'.format(section))
     if handler is not None:
-        statedir = os.path.join(statedir, 'handler{}'.format(handler))
+        statedir = os.path.join(statedir, '{}'.format(handler))
     return statedir
 

@@ -18,18 +18,18 @@ from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 here = os.path.dirname(os.path.realpath(__file__))
 defaultDKIMConfig = {'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingconftemporaryfile': '/etc/rspamd/dkim_signing_new.conf', 'signingconfdestinationfile': '/etc/rspamd/local.d/dkim_signing.conf', 'signingconftemplatefile': os.path.join(here, 'dkim_signing_template.conf')}
 
-def prepare(dkimConfig, dkimState):
+def prepare(dkimConfig, dkimState, statedir):
     if 'rspamd' == dkimConfig['handler'].split('/')[0]:
-        res = createDKIM(dkimConfig['keylocation'], dkimConfig['keybasename'], dkimConfig['keysize'], dkimConfig['signingconftemplatefile'], dkimConfig['signingconftemporaryfile'])
+        res = createDKIM(dkimConfig['keylocation'], dkimConfig['keybasename'], dkimConfig['keysize'], dkimConfig['signingconftemplatefile'], os.path.join(statedir, 'conf', 'dkim_signing_new.conf'))
         dkimState.registerResult(res)
         dkimState.setOpStateDone()
 
 def rollover(dkimConfig, dkimState):
-    if 'rspamd' == dkimConfig['handler'].split('/')[0]:
+    if 'rspamd' == dkimConfig['handler'].split('/')[0]: 
         log.info('using new dkim key, moving new config file')
-        log.info('  {} -> {}'.format(dkimConfig['signingconftemporaryfile'], dkimConfig['signingconfdestinationfile']))
+        log.info('  {} -> {}'.format(dkimState.result['signingconftemporaryfile'], dkimConfig['signingconfdestinationfile']))
         try:
-            rv = check_output(('mv', dkimConfig['signingconftemporaryfile'], dkimConfig['signingconfdestinationfile']))
+            rv = check_output(('cp', dkimState.result['signingconftemporaryfile'], dkimConfig['signingconfdestinationfile']))
         except CalledProcessError as e:
             log.error(e.output)
             raise(e)
@@ -55,6 +55,7 @@ def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signi
     keylocation = os.path.expanduser(keylocation)
     newKeyname = str(keybasename) + '_{:10d}'.format(int(time.time()))
     log.info('  -> {}'.format(newKeyname))
+    makeDir(os.path.dirname(signingConfDestFile))
     makeDir(keylocation)
     try:
         keyTxt = str(check_output(('rspamadm', 'dkim_keygen', '-b', str(int(keysize)), '-s', str(newKeyname), '-k', os.path.join(keylocation, newKeyname+'.key'))))
@@ -83,7 +84,7 @@ def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signi
     f = open(os.path.expanduser(signingConfDestFile), 'w')
     f.write(confDestContent)
     f.close()
-    return {'keytxtfile': keyPath+'.txt', 'keyfile': keyPath+'.key', 'keybasename': str(keybasename), 'keyname': str(newKeyname)}
+    return {'keytxtfile': keyPath+'.txt', 'keyfile': keyPath+'.key', 'keybasename': str(keybasename), 'keyname': str(newKeyname), 'signingconftemporaryfile': signingConfDestFile}
 
 def findDKIMkeyTXT(keylocation, keybasename, fileending = 'txt'):
     return findDKIMkey(keylocation, keybasename, fileending)
