@@ -16,7 +16,7 @@ from simpleloggerplus import simpleloggerplus as log
 
 
 def interpreteConfig(cr, sh):
-    defaultServiceConfig = {'cert': 'auto', 'dkim': 'auto'}
+    defaultServiceConfig = {'cert': 'auto', 'dkim': 'auto', 'dhparam': 'auto'}
     serviceConfig = cr.getRawConfigOf('service')
     log.debug(serviceConfig)
     # apply general config defaults and the default section
@@ -25,10 +25,18 @@ def interpreteConfig(cr, sh):
 
     for serviceSecName, content in serviceConfig.items():
         content = dict(content)
-        for depends in ['cert', 'dkim']:
+        for depends in ['cert', 'dkim', 'dhparam']:
             if depends in content:
-                serviceConfig[serviceSecName][depends] = [e for e in content[depends].replace(' ', '').split(',') if len(e) > 0]
+                serviceConfig[serviceSecName][depends] = resolveAuto(cr, [e for e in content[depends].replace(' ', '').split(',') if len(e) > 0], depends)
     log.debug(serviceConfig)
     cr.updateConfig({'service': serviceConfig})
     return serviceConfig
+
+def resolveAuto(configReader, serviceConfig, depends):
+    if 'auto' in serviceConfig:
+        dependKeys = configReader.getRawConfigOf(depends).keys()
+        serviceConfig.extend(dependKeys)
+        serviceConfig = [e for e in serviceConfig if e != 'auto' if e != 'DEFAULT']
+    return serviceConfig
+
 

@@ -7,6 +7,8 @@
 #
 #######################################################################
 
+import os
+
 def applyDefault(config, defaultConfig={}):
     default = dict(defaultConfig)
     if 'DEFAULT' in config:
@@ -16,4 +18,13 @@ def applyDefault(config, defaultConfig={}):
         newconfig[section] = dict(default)
         newconfig[section].update(content)
     return newconfig
+
+def getStateDir(config, section=None, handler=None):
+    statedir = config['cdm']['statedir']
+    statedir = os.path.join(statedir, 'modules')
+    if section is not None:
+        statedir = os.path.join(statedir, '{}'.format(section))
+    if handler is not None:
+        statedir = os.path.join(statedir, 'handler{}'.format(handler))
+    return statedir
 

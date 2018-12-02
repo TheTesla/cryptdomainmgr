@@ -11,6 +11,7 @@ from OpenSSL import crypto
 import os
 from subprocess import check_output, CalledProcessError
 from simpleloggerplus import simpleloggerplus as log
+from cryptdomainmgr.modules.common.cdmconfighelper import getStateDir
 
 def prepare(config, state):
     subState = state.getSubstate('dhparam')
@@ -26,7 +27,8 @@ def prepare(config, state):
         log.debug(dhparamConfig)
         handlerNames = dhparamConfig['handler'].split('/')
         handler = __import__('cryptdomainmgr.modules.dhparam.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','dhparam'))
-        handler.prepare(dhparamConfig, dhparamState, dhparamSecName) 
+        statedir = getStateDir(config, 'dhparam', dhparamSecName)
+        handler.prepare(dhparamConfig, dhparamState, statedir, dhparamSecName) 
 
 def rollover(config, state):
     subState = state.getSubstate('dhparam')

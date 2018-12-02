@@ -20,7 +20,6 @@ def prepare(config, state):
         log.info('Prepare service for section \"{}\"'.format(serviceSecName))
         log.debug(serviceConfig)
         handler = __import__('cryptdomainmgr.modules.service.handler'+str(serviceSecName), fromlist=('cryptdomainmgr', 'modules','service'))
-        resolveAuto(serviceConfig, config, ['cert', 'dkim'])
         handler.prepare(serviceConfig, serviceState, state) 
 
 def rollover(config, state):
@@ -34,7 +33,6 @@ def rollover(config, state):
         log.info('Rollover service for section \"{}\"'.format(serviceSecName))
         log.debug(serviceConfig)
         handler = __import__('cryptdomainmgr.modules.service.handler'+str(serviceSecName), fromlist=('cryptdomainmgr', 'modules','service'))
-        resolveAuto(serviceConfig, config, ['cert', 'dkim'])
         handler.rollover(serviceConfig, serviceState, state) 
 
 def cleanup(config, state):
@@ -48,17 +46,6 @@ def cleanup(config, state):
         log.info('Cleanup service for section \"{}\"'.format(serviceSecName))
         log.debug(serviceConfig)
         handler = __import__('cryptdomainmgr.modules.service.handler'+str(serviceSecName), fromlist=('cryptdomainmgr', 'modules','service'))
-        resolveAuto(serviceConfig, config, ['cert', 'dkim'])
         handler.cleanup(serviceConfig, serviceState, state) 
 
-def autoSec(secList, config, section):
-    if 'auto' in secList:
-       return [secName for secName, content in config[section].items() if 'DEFAULT' != secName]
-    return secList
-
-def resolveAuto(serviceConfig, config, depends):
-    for e in depends:
-        if e not in config:
-            continue
-        serviceConfig[e] = autoSec(serviceConfig[e], config, e)
 

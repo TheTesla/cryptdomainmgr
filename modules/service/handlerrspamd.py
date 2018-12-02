@@ -9,6 +9,7 @@
 
 from simpleloggerplus import simpleloggerplus as log
 from subprocess import check_output, CalledProcessError
+from cryptdomainmgr.modules.common.cdmstatehelper import isReady
 
 def prepare(serviceConfig, serviceState, state):
     serviceState.setOpStateDone()
@@ -20,6 +21,7 @@ def rollover(serviceConfig, serviceState, state):
     serviceState.setOpStateRunning()
     log.info('  -> Rspamd reload')
     try:
+        rv = check_output(('systemctl', 'start', 'rspamd'))
         rv = check_output(('systemctl', 'reload', 'rspamd'))
     except CalledProcessError as e:
         log.error(e.output)
@@ -29,8 +31,3 @@ def rollover(serviceConfig, serviceState, state):
 def cleanup(serviceConfig, serviceState, state):
     serviceState.setOpStateDone()
 
-
-def isReady(serviceConfig, state, sec):
-    subState = state.getSubstate(sec)
-    return 0 == len([0 for e in serviceConfig[sec] if not subState.getSubstate(e).isDone()])
-    

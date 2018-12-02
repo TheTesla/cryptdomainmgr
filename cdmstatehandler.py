@@ -19,6 +19,14 @@ class StateHandler:
         self.substate = {}
         self.setOpStateUninitialized()
 
+    def clear(self):
+        self.opstate = ''
+        self.result = {}
+        self.config = {}
+        self.substate = {}
+        self.setOpStateUninitialized()
+
+
     def setOpState(self, opState):
         self.opstate = str(opState)
 

@@ -13,9 +13,9 @@ from simpleloggerplus import simpleloggerplus as log
 from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 import time
 
-defaultCertConfig = {'source': '/etc/dehydrated/certs', 'certname': 'fullchain.pem', 'keysize': 4096, 'extraflags': '', 'caa': {'url': 'letsencrypt.org', 'flag': '0', 'tag': 'issue'}}
+defaultCertConfig = {'keysize': 4096, 'extraflags': '', 'caa': {'url': 'letsencrypt.org', 'flag': '0', 'tag': 'issue'}}
 
-def prepare(certConfig, certState, domainList, domainAccessTable): 
+def prepare(certConfig, certState, statedir, domainList, domainAccessTable): 
     if 'dehydrated' != certConfig['handler'].split('/')[0]:
         return
     if 0 == len(domainList):
@@ -37,13 +37,13 @@ def prepare(certConfig, certState, domainList, domainAccessTable):
     else:
         ca = "https://acme-v02.api.letsencrypt.org/directory"
 
-    makeDir(os.path.realpath(os.path.join(certConfig['source'], '..')))
-
-    confFilename = os.path.normpath(os.path.join(certConfig['source'],'../dehydrated.conf'))
+    makeDir(os.path.realpath(statedir))
+    confFilename = os.path.normpath(os.path.join(statedir, 'dehydrated.conf'))
     confFile = open(confFilename, 'w')
     confFile.write('CA={}\n'.format(str(ca)))
     confFile.write('CONTACT_EMAIL={}\n'.format(str(email)))
     confFile.write('KEYSIZE={}\n'.format(int(keysize)))
+    confFile.write('CERTDIR={}\n'.format(os.path.join(statedir, 'certs')))
     confFile.write('\n')
     confFile.close()
 

@@ -11,7 +11,7 @@ from OpenSSL import crypto
 import os
 from subprocess import check_output, CalledProcessError
 from simpleloggerplus import simpleloggerplus as log
-
+from cryptdomainmgr.modules.common.cdmconfighelper import getStateDir
 
 def createDomainAccessTable(config, domains):
     domainAccessTableStr = ""
@@ -39,7 +39,8 @@ def prepare(config, state):
         domainAccessTable = createDomainAccessTable(config, domains)
         handlerNames = certConfig['handler'].split('/')
         handler = __import__('cryptdomainmgr.modules.cert.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','cert'))
-        handler.prepare(certConfig, certState, domains, domainAccessTable) 
+        statedir = getStateDir(config, 'cert', certSecName)
+        handler.prepare(certConfig, certState, statedir, domains, domainAccessTable) 
 
 def rollover(config, state):
     subState = state.getSubstate('cert')

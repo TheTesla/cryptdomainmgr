@@ -43,6 +43,7 @@ class ManagedDomain:
     def run(self, confFile=None, forcePhase='next', confContent=''):
         self.readConfig(confFile, confContent)
         self.sh.load()
+        self.sh.delete() # --next starts with prepare, if failed
         self.sh.resetOpStateRecursive()
         currentPhase = getCurrentPhase(self.sh, forcePhase)
         log.info('Running phase: {}'.format(currentPhase))

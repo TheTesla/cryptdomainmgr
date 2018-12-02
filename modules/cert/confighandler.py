@@ -16,7 +16,7 @@ from simpleloggerplus import simpleloggerplus as log
 
 
 def interpreteConfig(cr, sh):
-    defaultCertConfig = {'certname': 'fullchain.pem', 'keysize': 4096, 'extraflags': ''}
+    defaultCertConfig = {'keysize': 4096, 'extraflags': ''}
     certconfig = cr.getRawConfigOf('cert')
     # apply general config defaults and the default section
     certconfig = applyDefault(certconfig, defaultCertConfig) # must be here because following section depends on default values
