@@ -16,84 +16,75 @@ import time
 from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 
 here = os.path.dirname(os.path.realpath(__file__))
-defaultDKIMConfig = {'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'signingconftemporaryfile': '/etc/rspamd/dkim_signing_new.conf', 'signingconfdestinationfile': '/etc/rspamd/local.d/dkim_signing.conf', 'signingconftemplatefile': os.path.join(here, 'dkim_signing_template.conf')}
+defaultDKIMConfig = {'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'keyname': 'dkim.key', 'signingconfdestinationfile': '/etc/rspamd/local.d/dkim_signing.conf', 'signingconftemplatefile': os.path.join(here, 'dkim_signing_template.conf')}
 
 def prepare(dkimConfig, dkimState, statedir):
     if 'rspamd' == dkimConfig['handler'].split('/')[0]:
-        res = createDKIM(dkimConfig['keylocation'], dkimConfig['keybasename'], dkimConfig['keysize'], dkimConfig['signingconftemplatefile'], os.path.join(statedir, 'conf', 'dkim_signing_new.conf'))
+        res = createDKIM(dkimConfig['keysize'], os.path.join(statedir, 'key', 'dkim.key'))
+        keySelector = createSelector(dkimConfig['keybasename'])
+        u = createConf(dkimConfig['signingconftemplatefile'], os.path.join(statedir, 'conf', 'dkim.conf'), os.path.join(dkimConfig['keylocation'], dkimConfig['keyname']), keySelector)
+        res.update(u)
         dkimState.registerResult(res)
         dkimState.setOpStateDone()
 
 def rollover(dkimConfig, dkimState):
     if 'rspamd' == dkimConfig['handler'].split('/')[0]: 
         log.info('using new dkim key, moving new config file')
-        log.info('  {} -> {}'.format(dkimState.result['signingconftemporaryfile'], dkimConfig['signingconfdestinationfile']))
-        try:
-            rv = check_output(('cp', dkimState.result['signingconftemporaryfile'], dkimConfig['signingconfdestinationfile']))
-        except CalledProcessError as e:
-            log.error(e.output)
-            raise(e)
+        copyDKIM(dkimConfig, dkimState)
+        copyConf(dkimConfig, dkimState)
         dkimState.setOpStateDone()
 
 def cleanup(dkimConfig, dkimState):
     if 'rspamd' == dkimConfig['handler'].split('/')[0]:
-        keyFiles = findDKIMkey(dkimConfig['keylocation'], dkimConfig['keybasename'])
-        keyFiles.sort()
-        if 2 > len(keyFiles):
-            return
-        del keyFiles[-2:]
-        for keyFile in keyFiles:
-            log.info('  rm {}'.format(keyFile[1]))
-            try:
-                rv = check_output(('rm', keyFile[1]))
-            except CalledProcessError as e:
-                log.error(e.output)
-                raise(e)
         dkimState.setOpStateDone()
 
-def createDKIM(keylocation, keybasename, keysize, signingConfTemplateFile, signingConfDestFile):
-    keylocation = os.path.expanduser(keylocation)
-    newKeyname = str(keybasename) + '_{:10d}'.format(int(time.time()))
-    log.info('  -> {}'.format(newKeyname))
-    makeDir(os.path.dirname(signingConfDestFile))
-    makeDir(keylocation)
+def copyDKIM(dkimConfig, dkimState):
+    src = dkimState.result['keyfile']
+    dest = os.path.join(dkimConfig['keylocation'], dkimConfig['keyname'])
+    log.info('  {} -> {}'.format(src, dest))
     try:
-        keyTxt = str(check_output(('rspamadm', 'dkim_keygen', '-b', str(int(keysize)), '-s', str(newKeyname), '-k', os.path.join(keylocation, newKeyname+'.key'))))
+        rv = check_output(('cp', '-rfLT', str(src), str(dest)))
+        rv = check_output(('chown', '_rspamd:_rspamd', str(dest)))
     except CalledProcessError as e:
         log.error(e.output)
         raise(e)
-    keyPath = os.path.join(keylocation, newKeyname)
-    f = open(keyPath+'.txt', 'w')
-    f.write(keyTxt)
-    f.close()
+
+def copyConf(dkimConfig, dkimState):
+    src = dkimState.result['signingconftemporaryfile']
+    dest = dkimConfig['signingconfdestinationfile']
+    log.info('  {} -> {}'.format(src, dest))
     try:
-        rv = check_output(('chmod', '0440', keyPath+'.key'))
+        rv = check_output(('cp', '-rfLT', str(src), str(dest)))
+        rv = check_output(('chown', '_rspamd:_rspamd', str(dest)))
     except CalledProcessError as e:
         log.error(e.output)
         raise(e)
+
+def createSelector(keybasename):
+    return str(keybasename) + '_{:10d}'.format(int(time.time()))
+
+def createDKIM(keysize, destination):
+    makeDir(os.path.dirname(str(destination)))
     try:
-        rv = check_output(('chown', '_rspamd:_rspamd', keyPath+'.key'))
+        keyTxt = str(check_output(('rspamadm', 'dkim_keygen', '-b', str(int(keysize)), '-s', str('dkimkey'), '-k', str(destination))))
     except CalledProcessError as e:
         log.error(e.output)
         raise(e)
+    v = keyTxt.split('v=')[1].split(';')[0]
+    k = keyTxt.split('k=')[1].split(';')[0]
+    p = keyTxt.split('p=')[1].split('\"')[0]
+    return {'v': v, 'k': k, 'p': p, 'keyfile': str(destination)}
+
+
+def createConf(signingConfTemplateFile, signingConfDestFile, keyFile, keySelector):
     f = open(os.path.expanduser(signingConfTemplateFile), 'r')
     templateContent = f.read()
     f.close()
     template = Template(templateContent)
-    confDestContent = str(template.render(keyname = newKeyname, keylocation = keylocation))
+    confDestContent = str(template.render(keyselector=keySelector, keyfile=keyFile))
     f = open(os.path.expanduser(signingConfDestFile), 'w')
     f.write(confDestContent)
     f.close()
-    return {'keytxtfile': keyPath+'.txt', 'keyfile': keyPath+'.key', 'keybasename': str(keybasename), 'keyname': str(newKeyname), 'signingconftemporaryfile': signingConfDestFile}
+    return {'signingconftemporaryfile': signingConfDestFile, 'keyname': keySelector}
 
-def findDKIMkeyTXT(keylocation, keybasename, fileending = 'txt'):
-    return findDKIMkey(keylocation, keybasename, fileending)
-
-def findDKIMkey(keylocation, keybasename, fileending = '{}'):
-    keylocation = os.path.expanduser(keylocation)
-    keyfiles = [(parse(str(keybasename)+'_{:d}.'+str(fileending), f), os.path.join(keylocation, f)) for f in os.listdir(keylocation) if os.path.isfile(os.path.join(keylocation, f))]
-    log.debug(keyfiles)
-    keyfiles = [(e[0][0], e[1]) for e in keyfiles if e[0] is not None]
-    log.debug(keyfiles)
-    return keyfiles
 

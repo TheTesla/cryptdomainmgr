@@ -316,11 +316,11 @@ def setDKIM(domainConfig, domainState, domainSecName, dnsup, state, add=True, de
         if not 0 == len(dkimReady):
             return False
         rrState.setOpStateRunning()
-        dkimAdd = [{'filename': getDKIMkeys(state, e['content'])['keytxtfile']} for e in domainConfig['dkimAggrAdd'] if 'op' in e if 'auto' == e['op']]
+        dkimAdd = [{k: v for k, v in getDKIMkeys(state, e['content']).items() if k in ['v', 'k', 'p', 'keyname']} for e in domainConfig['dkimAggrAdd'] if 'op' in e if 'auto' == e['op']]
         if add is True:
             dnsup.addDKIM(domainSecName, dkimAdd)
         if delete is True:
-            dkimDel = [{'keybasename': getDKIMkeys(state, e['content'])['keybasename']} if 'content' in e else {} for e in domainConfig['dkimAggrDel']]
+            dkimDel = [{k: v for k, v in getDKIMkeys(state, e['content']).items() if k in ['v', 'k', 'p', 'keyname']} if 'content' in e else {} for e in domainConfig['dkimAggrDel']]
             dnsup.delDKIM(domainSecName, dkimDel, dkimAdd)
     rrState.setOpStateDone()
     return True
