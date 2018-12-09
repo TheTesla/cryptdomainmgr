@@ -7,27 +7,23 @@
 #
 #######################################################################
 
-from cryptdomainmgr.modules.common.cdmconfighelper import applyDefault
+from cryptdomainmgr.modules.common.cdmconfighelper import applyDefault, processConfig
+from simpleloggerplus import simpleloggerplus as log
 
 
 # Default handling
 # DEFAULT section overwritten by handler default configuration overwr. by explicit configuration
 
+def readHandlerDefault(args):
+    if not 'keybasename' in args['content']:
+        args['content']['keybasename'] = str(args['secname'])
+    if 'handler' in args['content']:
+        log.debug('handler in content')
+        handlerNames = args['content']['handler'].split('/')
+        handler = __import__('cryptdomainmgr.modules.{}.handler{}'.format(str(args['module']), handlerNames[0]), fromlist=('cryptdomainmgr', 'modules', str(args['module'])))
+        args['config'][args['secname']].update(handler.defaultConfig)
+
 def interpreteConfig(cr, sh):
-    defaultDKIMConfig = {'keysize': 2048}
-    dkimconfig = cr.getRawConfigOf('dkim')
-    # apply general config defaults and the default section
-    dkimconfig = applyDefault(dkimconfig, defaultDKIMConfig) # must be here because following section depends on default values
-    for dkimSecName, content in dkimconfig.items():
-        content = dict(content)
-        if not 'keybasename' in content:
-            content['keybasename'] = str(dkimSecName)
-        if 'handler' in content:
-            handlerNames = content['handler'].split('/')
-            handler = __import__('cryptdomainmgr.modules.dkim.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr','modules','dkim'))
-            dkimconfig[dkimSecName].update(handler.defaultDKIMConfig)
-            dkimconfig[dkimSecName].update(content)
-    cr.updateConfig({'dkim': dkimconfig})
-    return dkimconfig
+    return processConfig(cr, 'dkim', preOp=readHandlerDefault, defaultConfig={'keysize': 2048})
 
 

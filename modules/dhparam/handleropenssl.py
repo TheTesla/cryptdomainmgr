@@ -13,7 +13,7 @@ from simpleloggerplus import simpleloggerplus as log
 from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 import time
 
-defaultDHparamConfig = {'filename': '/etc/myssl/dh2048.pem', 'keysize': 2048}
+defaultConfig = {'filename': '/etc/myssl/dh2048.pem', 'keysize': 2048}
 
 def prepare(dhparamConfig, dhparamState, statedir, dhparamSecName): 
     if 'openssl' != dhparamConfig['handler'].split('/')[0]:

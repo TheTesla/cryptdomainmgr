@@ -16,7 +16,7 @@ import time
 from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 
 here = os.path.dirname(os.path.realpath(__file__))
-defaultDKIMConfig = {'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'keyname': 'dkim.key', 'signingconfdestinationfile': '/etc/rspamd/local.d/dkim_signing.conf', 'signingconftemplatefile': os.path.join(here, 'dkim_signing_template.conf')}
+defaultConfig = {'keysize': 2048, 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'keyname': 'dkim.key', 'signingconfdestinationfile': '/etc/rspamd/local.d/dkim_signing.conf', 'signingconftemplatefile': os.path.join(here, 'dkim_signing_template.conf')}
 
 def prepare(dkimConfig, dkimState, statedir):
     if 'rspamd' == dkimConfig['handler'].split('/')[0]:

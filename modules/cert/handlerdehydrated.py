@@ -13,7 +13,7 @@ from simpleloggerplus import simpleloggerplus as log
 from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 import time
 
-defaultCertConfig = {'keysize': 4096, 'extraflags': '', 'caa': {'url': 'letsencrypt.org', 'flag': '0', 'tag': 'issue'}}
+defaultConfig = {'keysize': 4096, 'extraflags': '', 'caa': {'url': 'letsencrypt.org', 'flag': '0', 'tag': 'issue'}}
 
 def prepare(certConfig, certState, statedir, domainList, domainAccessTable): 
     if 'dehydrated' != certConfig['handler'].split('/')[0]:
