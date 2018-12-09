@@ -82,6 +82,7 @@ def createConf(signingConfTemplateFile, signingConfDestFile, keyFile, keySelecto
     f.close()
     template = Template(templateContent)
     confDestContent = str(template.render(keyselector=keySelector, keyfile=keyFile))
+    makeDir(os.path.dirname(str(signingConfDestFile)))
     f = open(os.path.expanduser(signingConfDestFile), 'w')
     f.write(confDestContent)
     f.close()
