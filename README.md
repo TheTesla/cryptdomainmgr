@@ -19,6 +19,13 @@ Look at example.conf
 * Multiple Configfiles with priority allowed
 * Specify content of config file content as argument
 
+## Current compatibility
+
+* **DNS**: inwx.de
+* **Certificate**: letsencrypt.org
+* **DKIM**: rspamd
+* **Service**: systemd
+
 ## Idea behind
 
 Updating keys, certifcates and other needs 3 steps to prevent gaps in availabillity:
@@ -33,12 +40,7 @@ Updating keys, certifcates and other needs 3 steps to prevent gaps in availabill
 * **dehydrated**: to get new certificate (included with cryptdomainmgr)
 * **rspamd**: to create (and use) DKIM keys
 
-## Current compatibility
 
-* **Domain**: inwx.de
-* **Certificate**: letsencrypt.org
-* **DKIM**: rspamd
-* **Service**: systemd
 
 ## Installation
 
