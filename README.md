@@ -12,7 +12,7 @@ This tool handles all dynamic (and static) domain administration and management 
 * CAA can be set to "auto" to retrieve CA from cert configuration
 * Records can be added or set (means overwrite existing).
 * Wildcard and default handling implemented.
-* That means coexitence with other handlers allowed.
+* That means coexistence with other handlers allowed.
 
 Look at example.conf
 
@@ -26,7 +26,7 @@ Look at example.conf
 * **DKIM**: rspamd
 * **Service**: systemd
 
-## Idea behind
+## Feature
 
 Updating keys, certifcates and other needs 3 steps to prevent gaps in availabillity:
 
