@@ -28,7 +28,7 @@ Look at example.conf
 
 ## Feature
 
-Updating keys, certifcates and other needs 3 steps to prevent gaps in availabillity:
+No downtime, no unsecure phase by updating keys, certifcates and other needs 3 steps to prevent gaps in availabillity:
 
 1. **Prepare**: Create certificates, keys etc. and publish corresponding records to DNS.
 2. **Rollover**: Apply new certificates and keys, because now negative cache TTL on DNS is reached.
