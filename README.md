@@ -1,34 +1,47 @@
 # Crypto Domain Manager
 
-Cryptographic extensions for spam prevention and security should use periodically changing keys. Crypto Domain Manager automates all the steps.
+Automate all your cryptographic needs!
 
-This tool handles all dynamic (and static) domain administration and management work:
+## Goals
 
-* It renews the certicate(s) using the dehydrated (letsencrypt) plugin.
-* It generates the TLSA records and publishes it in DNS.
-* It generates the DKIM keys using the rspamd plugin and publishes it in DNS.
-* It retrieves and updates IPv4 and IPv6 entries with automatic IP lookup. (+ fixed IPs)
-* It handles also: DMARC, SPF, SRV, CAA, ADSP.
-* CAA can be set to "auto" to retrieve CA from cert configuration
-* Records can be added or set (means overwrite existing).
-* Wildcard and default handling implemented.
-* That means coexistence with other handlers allowed.
+* Zero downtime
+* Automatic certificate renewal
+* Spam protection
+* Updated DNS records
 
-Look at example.conf
+Configure once and always stay up to date.
 
-* Multiple Configfiles with priority allowed
-* Specify content of config file content as argument
+## Use cases
 
-## Automates
+* Renew letsencrypt certicates
+* Derive all kinds of data from the signature
+* Ensure everything is secure
 
-* **DNS**: inwx.de
-* **Certificate**: letsencrypt.org
-* **DKIM**: rspamd
-* **Service**: reload apache2, postfix, dovecot, rspamd using systemd
+## External Service APIs
 
-## Feature
+* Domain Certificate: [httsp://letsencrypt.org](letsencrypt.org)
+* DNS Record Updates: [https://inwx.de](inwx.de)
 
-No downtime, no unsecure phase by updating keys, certifcates and other needs 3 steps to prevent gaps in availabillity:
+## Linux Services
+
+* DKIM signatures:
+  * rspamd
+* Reload systemd services:
+  * apache2
+  * postfix
+  * dovecot
+  * rspamd
+
+## Managed DNS Records
+
+* TLSA - for [https://en.wikipedia.org/wiki/DNS-based_Authentication_of_Named_Entities](DNS based authentication of named entities) DANE
+* DKIM - domain keys for email signatures and spam detection
+* CAA - specify the CA
+* DMARC, SPF, ADSP - configure secure DNS
+
+## No downtime strategy
+
+Updating keys, certifcates and other needs 3 steps to prevent gaps in availabillity:
 
 1. **Prepare**: Create certificates, keys etc. and publish corresponding records to DNS.
 2. **Rollover**: Apply new certificates and keys, because now negative cache TTL on DNS is reached.
@@ -39,8 +52,6 @@ No downtime, no unsecure phase by updating keys, certifcates and other needs 3 s
 * **dnsuptools**: to interface with DNS API -- updating DNS entries
 * **dehydrated**: to get new certificate (included with cryptdomainmgr)
 * **rspamd**: to create (and use) DKIM keys
-
-
 
 ## Installation
 
@@ -73,34 +84,37 @@ python3 -m pip install cryptdomainmgr
 
 ## Documentation
 
-* **Slides**: https://github.com/TheTesla/cryptdomainmgr-talk
+We need help here!
 
-* **Talks**: Wireless-Meshup 2018, GPN2018
+For now please look at:
+* Slides: https://github.com/TheTesla/cryptdomainmgr-talk
+* Look at the configfiles examples
+
+hints:
+* Multiple Configfiles with priority allowed
+* Specify content of config file content as argument
 
 ## Next goals
 
-* automated tests and deployment (continuous integration)
-* nsupdate
+* improve documentation
+* website
+* automated tests
+* nsupdate for DNS updates
+
+Long term goals:
 * ARC key renewal
 * WPIA integration
-* deb package
 * DNSSEC key renewal
-* opendkim support
-* service reload via init.d
 * TXT record (may collide with SPF and other TXT based records)
 * multi server support for one domain: TLSA delete by timeout
 * contrain minimum renewal/phase time interval
-* database backend
-* monitoring
+* validations - ensure signatures are used correctly
 * run as service
 * PowerDNS support
 
 ## Contributions
 
-are welcome.
+If you like the project feel free to give me a star.
+Please let us know if you use this project.
 
-## Want to support the project?
-
-* Documentation
-
-* Website
+All kind of contributions are welcome.
