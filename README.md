@@ -77,7 +77,7 @@ python3 -m pip install cryptdomainmgr
 
 * **Talks**: Wireless-Meshup 2018, GPN2018
 
-## ToDo
+## Next goals
 
 * automated tests and deployment (continuous integration)
 * nsupdate
@@ -95,17 +95,12 @@ python3 -m pip install cryptdomainmgr
 * run as service
 * PowerDNS support
 
-## Authors
+## Contributions
 
-**Stefan Helmert** all work on this projekt
+are welcome.
 
 ## Want to support the project?
 
-BURST: BURST-E56Y-7XQ7-C9E8-9XD55
+* Documentation
 
-GRC: Rzsny83yz7ReKd9k9cF4L5T4B1VB8GzzaT
-
-CURE: BLLk87WviLrkAWZHT5eFSs7dStPXmHztDD
-
-ETH: 0xA6a71817CC4E00B0646852401e9C5Cab024946d2
-
+* Website
