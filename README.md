@@ -19,12 +19,12 @@ Look at example.conf
 * Multiple Configfiles with priority allowed
 * Specify content of config file content as argument
 
-## Current compatibility
+## Automates
 
 * **DNS**: inwx.de
 * **Certificate**: letsencrypt.org
 * **DKIM**: rspamd
-* **Service**: systemd
+* **Service**: reload apache2, postfix, dovecot, rspamd using systemd
 
 ## Feature
 
