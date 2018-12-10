@@ -19,8 +19,8 @@ Configure once and always stay up to date.
 
 ## External Service APIs
 
-* Domain Certificate: [httsp://letsencrypt.org](letsencrypt.org)
-* DNS Record Updates: [https://inwx.de](inwx.de)
+* Domain Certificate: [letsencrypt.org](https://letsencrypt.org)
+* DNS Record Updates: [inwx.de](https://inwx.de)
 
 ## Linux Services
 
@@ -34,7 +34,7 @@ Configure once and always stay up to date.
 
 ## Managed DNS Records
 
-* TLSA - for [https://en.wikipedia.org/wiki/DNS-based_Authentication_of_Named_Entities](DNS based authentication of named entities) DANE
+* TLSA - for [DNS based authentication of named entities](https://en.wikipedia.org/wiki/DNS-based_Authentication_of_Named_Entities) DANE
 * DKIM - domain keys for email signatures and spam detection
 * CAA - specify the CA
 * DMARC, SPF, ADSP - configure secure DNS
