@@ -87,6 +87,7 @@ python3 -m pip install cryptdomainmgr
 We need help here!
 
 For now please look at:
+* German project description and tutorial: https://www.entroserv.de/offene-software/cryptdomainmgr
 * Slides: https://github.com/TheTesla/cryptdomainmgr-talk
 * Look at the configfiles examples
 
@@ -107,7 +108,7 @@ Long term goals:
 * DNSSEC key renewal
 * TXT record (may collide with SPF and other TXT based records)
 * multi server support for one domain: TLSA delete by timeout
-* contrain minimum renewal/phase time interval
+* constrain minimum renewal/phase time interval
 * validations - ensure signatures are used correctly
 * run as service
 * PowerDNS support

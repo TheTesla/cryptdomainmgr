@@ -7,13 +7,13 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="cryptdomainmgr",
-    version="0.0.26",
+    version="0.0.28",
     author="Stefan Helmert",
     author_email="stefan.helmert@t-online.de",
     description="Software managing certificate, dkim and domain updates automagically.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/TheTesla/cryptdomainmgrpypi",
+    url="https://www.entroserv.de/offene-software/cryptdomainmgr",
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=[
