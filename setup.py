@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="cryptdomainmgr",
-    version=cryptdomaingmgr.__version__,
+    version=cryptdomainmgr.__version__,
     author="Stefan Helmert",
     author_email="stefan.helmert@t-online.de",
     description="Software managing certificate, dkim and domain updates automagically.",
