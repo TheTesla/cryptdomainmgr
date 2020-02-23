@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 
 import setuptools
+import cryptdomainmgr
+
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="cryptdomainmgr",
-    version="0.0.29",
+    version=cryptdomaingmgr.__version__,
     author="Stefan Helmert",
     author_email="stefan.helmert@t-online.de",
     description="Software managing certificate, dkim and domain updates automagically.",
