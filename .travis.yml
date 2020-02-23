@@ -1,19 +1,15 @@
 language: python
 python:
 - 2.7
-
 before_install:
-  - sudo apt update
-  - sudo apt install -y libcurl4-openssl-dev libssl-dev
-
+- sudo apt update
+- sudo apt install -y libcurl4-openssl-dev libssl-dev
 script:
-  - echo "no test specified"
-
+- echo "no test specified"
 stages:
-  - deploy
-
+- deploy
 deploy:
   provider: pypi
   user: __token__
   password:
-    secure: Oy8xYqVsUY93OVjo9/qmSCpirBRRJK/cwabanigC8I9qvsVgmd0mFE7d+2Q1wUYAO8d0ZOINJyLiIzqGuWoa0ADUH/oLHZMw2KrJNzQ55uk7RbMgOURltmfHkZI695M4f15p6ZxpX5skgEVr4ojO5lTFg4HQOs3FMlU2yiy6l8xpsso/Xo7LR1WH3bgrk/arfReoj1mKlTpm+WKPTgQGZafyYVNlTYAfrYHNquB6BGOCqlFMTTxX2mC+w8XDJ8ir23mSs0Lt9Xc2aKeP3k0zXXH+4vUeOOyjFp8itWS07TeOZFbEHQWF8/4xcy/iMIlkCuf6U6NLN0ZG8avv3KHrbHMHAGttrXv2lDNnT5iIhh6+9GLNbrdrR3SgwY98wXs04P4pxpYUagtMF089ok57uq/pwZSE/d4cCq2R1tqx7oNMzTLnQpMYbtPi2oG0GSi137x9euh6CG0w/me3gZOQZKxF9ynhTA3GFk9uRvKXHs5URKREb/ARGbyk06KaIrwFfc6hktB7K0DP5cO4l7h7dy/Ff+FCRKdCVqcdSUt4lvzqGz91eqJGRP1CJ5YxorTEPDV14dJWq5YNVDVopOPHeNN+ftouatyBpC3isukdiiFVC84p2xOCYDOi9VyUFU6Mqi4EG3oxenUUUdslTemJYKrGRZAic9Bayga3ZMMJTMk=
+    secure: WmmV77lt9pZFuGg4hWklMjwZ6Emz4A5jxFbruv9ZVJXDK+ad6G73JlWM0gnH5mRz4gQEnTm5UPkItXtQ48vNbkBUKm6v4tjwtwzT1dLLKqyTRfwmB26jyeEMr0TqHjOgmrvIAoSdrCVSn1CeW/ddqXbFeH6JfwG6QVnuqcvQ3tRtQ83X4NcOB/mQ+VGu3CElxQ1jN36b+4ZPl31UaNoaNDxU2Ye5/TmXqVhFkKqoSTOklOrKG5xEj86LAvQOtaPFSMR3qI2ugJN86ddb/gxO1j1JlfphFhOROrpBkKyNIeSbaMyv73vKaWtougWxjEzxSmVManlk+HCStnQWKqmZC68pR0UunFpGtFiHxNwTGEzqMy4uDXZnzF4gLq03sbPlemIHyw/RgV3PyKP+VKW1O6TzO2YDZ8j2ak8ATugPCFmJmG9Nzt994JhOEHxvWAVPqC6UdS1Rxbn6lCVg0PSM0nRdC3WWiQp/BFHrFZ4v3zHtvbMhUrA/CztOJM9HSweLjgkvkzN9Z8jGQgeiEsp3+Xs/x3DmlewTVxtfViWJAXY4FH5Uoak23w/7DnskMsLlwZ0kcyfBlUHpIWPBfmYnc0sSYkoeZUvU43ViCccek2XMYR1QUMk9Dax5vf/8x4t23dSU2a+IynbYklsvMsicW6TWKcpks5zZkX9ej4j++dk=
