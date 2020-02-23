@@ -1,6 +1,10 @@
 language: python
 python:
 - 2.7
+
+before_install:
+  - sudo apt install -y libcurl4-openssl-dev libssl-dev
+
 deploy:
   provide: pypi
   user: __token__
