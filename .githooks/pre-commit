@@ -4,7 +4,7 @@ VERSION=$(git tag | tail -n 1)
 
 echo "git hook setting version: $VERSION"
 
-echo -e "#!/usr/bin/env python\n# This is an automaticalliy generated file!\n__version__=$VERSION\n" > cryptdomainmgr/__init__.py
+echo -e "#!/usr/bin/env python\n# This is an automaticalliy generated file!\n__version__=\"$VERSION\"\n" > cryptdomainmgr/__init__.py
 
 # add before commit
 git add -A
