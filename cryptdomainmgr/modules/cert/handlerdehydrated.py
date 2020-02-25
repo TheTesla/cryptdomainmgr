@@ -28,7 +28,7 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
         extraFlags = certConfig['extraflags']
     extraFlags = [e if '-' == e[0] else '--' + e for e in extraFlags]
     if '--staging' in extraFlags:
-        ca = "https://acme-staging.api.letsencrypt.org/directory"
+        ca = "https://acme-staging-v02.api.letsencrypt.org/directory"
         extraFlags.remove('--staging')
         if 'staging' in extraFlags:
             extraFlags.remove('staging')
