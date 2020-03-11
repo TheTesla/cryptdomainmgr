@@ -42,7 +42,7 @@ def parseNestedEntry(key, value, default = [], keySplitPattern = '.', valueSplit
         rv['delListWithContent'] = addList
     else:
         rv['addList'] = addList
-    return rv 
+    return rv
 
 def list2dict(entry, hasContent, keys):
     entry.extend(['*'] * (len(keys) - len(entry)))

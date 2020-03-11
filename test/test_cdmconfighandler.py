@@ -48,6 +48,13 @@ class TestCDMconfigcandler(unittest.TestCase):
         cr.setFilenames(['g','h','i'])
         self.assertEqual(cr.filenameList, ['g','h','i'])
 
+    def testSetContentList(self):
+        cr = ConfigReader()
+        cr.setContentList(['a','b','c'])
+        cr.setContentList(['d','e','f'])
+        cr.setContentList(['g','h','i'])
+        self.assertEqual(cr.contentList, ['g','h','i'])
+
 
 if "__main__" == __name__:
     unittest.main()
