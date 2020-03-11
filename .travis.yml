@@ -5,9 +5,9 @@ before_install:
   - sudo apt update
   - sudo apt install -y libcurl4-openssl-dev libssl-dev
 install:
-  - sudo pip install -r requirements.txt
+  - sudo pip3 install -r requirements.txt
 script:
-  - sudo pip install -r requirements.txt
+  #  - sudo pip install -r requirements.txt
   - python -m unittest discover
 stages:
   - deploy
