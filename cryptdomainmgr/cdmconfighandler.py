@@ -45,7 +45,7 @@ class ConfigReader:
         self.cp.read(self.filenameList)
         for e in self.contentList:
             tmp = io.BytesIO(e.encode('utf8'))
-            self.cp.read_file(tmp)
+            self.cp.read_file(io.TextIOWrapper(tmp))
 
     def getRawConfigOf(self, getSection, domainOldStyle=False):
         return getConfigOf(getSection, self.cp, domainOldStyle)
