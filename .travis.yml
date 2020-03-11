@@ -1,13 +1,15 @@
 language: python
 python:
-- 3.8
+  - 3.8
 before_install:
-- sudo apt update
-- sudo apt install -y libcurl4-openssl-dev libssl-dev
+  - sudo apt update
+  - sudo apt install -y libcurl4-openssl-dev libssl-dev
+install:
+  - pip install -r requirements.txt
 script:
-- echo "no test specified"
+  - python -m unittest discover
 stages:
-- deploy
+  - deploy
 deploy:
   provider: pypi
   user: __token__
