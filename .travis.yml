@@ -7,6 +7,7 @@ before_install:
 install:
   - sudo pip install -r requirements.txt
 script:
+  - sudo pip install -r requirements.txt
   - python -m unittest discover
 stages:
   - deploy
