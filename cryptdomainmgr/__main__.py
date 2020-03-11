@@ -19,11 +19,11 @@ if '__main__' == __name__:
     parser.add_argument('--rollover', dest='phase', action='store_const', const='rollover', help='Applies new certificates and dkim keys.') 
     parser.add_argument('--cleanup', dest='phase', action='store_const', const='cleanup', help='Removes old unused records and files.') 
     parser.add_argument('--config-content', dest='configcontent', type=str, default='', help='configuration content as argument instead of configuration files')
-    
-    
+
+
     args = parser.parse_args()
     configcontent = str(args.configcontent).replace(' ', '\n')
-    
+
     if args.phase is None:
         args.phase = 'next'
 

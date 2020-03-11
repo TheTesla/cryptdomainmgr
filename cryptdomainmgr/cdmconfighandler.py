@@ -25,7 +25,7 @@ class ConfigReader:
         if type(contentList) is str:
             contentList = [contentList]
         self.contentList = contentList
-        
+
     def setFilenames(self, filenames):
         if filenames is None:
             return
@@ -64,7 +64,7 @@ class ConfigReader:
 
 def getSections(config):
     return set([k.split(':')[0] for k, v in config.items() if k != 'DEFAULT'])
-    
+
 
 def getConfigOf(getSection, config, domainOldStyle=False):
     resConfig = {}
