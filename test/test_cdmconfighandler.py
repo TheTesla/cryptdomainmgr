@@ -35,6 +35,19 @@ class TestCDMconfigcandler(unittest.TestCase):
         procConfig(cr)
         self.assertEqual(cr.config, {})
 
+    def testAddFilenames(self):
+        cr = ConfigReader()
+        cr.addFilenames(['a','b','c'])
+        cr.addFilenames(['d','e','f'])
+        self.assertEqual(cr.filenameList, ['a','b','c','d','e','f'])
+
+    def testSetFilenames(self):
+        cr = ConfigReader()
+        cr.addFilenames(['a','b','c'])
+        cr.addFilenames(['d','e','f'])
+        cr.setFilenames(['g','h','i'])
+        self.assertEqual(cr.filenameList, ['g','h','i'])
+
 
 if "__main__" == __name__:
     unittest.main()
