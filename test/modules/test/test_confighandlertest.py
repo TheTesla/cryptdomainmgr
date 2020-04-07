@@ -17,7 +17,7 @@ def procConfig(cr):
     return cr
 
 
-class TestCDMconfigcandler(unittest.TestCase):
+class TestCDMconfighandler(unittest.TestCase):
     def testNoSection(self):
         cr = ConfigReader()
         cr.setContentList([''])

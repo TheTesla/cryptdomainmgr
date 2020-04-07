@@ -14,7 +14,7 @@ from simpleloggerplus import simpleloggerplus as log
 # Default handling
 # DEFAULT section overwritten by handler default configuration overwr. by explicit configuration
 
-
+# maybe this is never read - ToDo check this
 def interpreteConfig(cr, sh):
     defaultServiceConfig = {'cert': 'auto', 'dkim': 'auto', 'dhparam': 'auto'}
     serviceConfig = cr.getRawConfigOf('service')
