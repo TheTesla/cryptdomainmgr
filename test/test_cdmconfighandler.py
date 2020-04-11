@@ -17,7 +17,7 @@ def procConfig(cr):
     return cr
 
 
-class TestCDMconfigcandler(unittest.TestCase):
+class TestCDMconfighandler(unittest.TestCase):
     def testEmptyConfig(self):
         cr = ConfigReader()
         procConfig(cr)
@@ -52,8 +52,8 @@ class TestCDMconfigcandler(unittest.TestCase):
         cr = ConfigReader()
         cr.setContentList(['a','b','c'])
         cr.setContentList(['d','e','f'])
-        cr.setContentList(['g','h','i'])
-        self.assertEqual(cr.contentList, ['g','h','i'])
+        cr.setContentList(['g','h\nr','i'])
+        self.assertEqual(cr.contentList, ['g','h\nr','i'])
 
 
 if "__main__" == __name__:

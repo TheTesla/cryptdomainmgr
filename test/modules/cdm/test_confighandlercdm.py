@@ -36,6 +36,12 @@ class TestCDMconfigcandler(unittest.TestCase):
         procConfig(cr)
         self.assertEqual({'cdm': {'statedir': '/var/cryptdomainmgr', 'x': '3'}}, cr.config)
 
+    def testCDMDefaultSectionSimpleVal2(self):
+        cr = ConfigReader()
+        cr.setContentList(['[cdm] \n x = 3 \n '])
+        procConfig(cr)
+        self.assertEqual({'cdm': {'statedir': '/var/cryptdomainmgr', 'x': '3'}}, cr.config)
+
     def testCDMDefaultSectionDefaultOverwrite(self):
         cr = ConfigReader()
         cr.setContentList(['[cdm]\nstatedir=/blub\n'])
