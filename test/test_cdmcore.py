@@ -85,10 +85,23 @@ class TestCDMcore(unittest.TestCase):
         with self.subTest("<result> (fourth)"):
             self.assertEqual({'nextphase': 'prepare'}, sh.result)
 
-
     def testManagedDomainReadConfig(self):
         md = ManagedDomain()
         md.readConfig(confContent="[cdm]\nstatedir=/tmp/test_cryptdomainmgr\n[test]\n[test:mytestname]")
+        md.run()
+        sh = md.sh
+        with self.subTest("<opstate>"):
+            self.assertEqual("done", sh.opstate)
+        with self.subTest("test/<opstate>"):
+            self.assertEqual("done", sh.getSubstate('test').opstate)
+        with self.subTest("test/DEFAULT/<opstate>"):
+            self.assertEqual("done", sh.getSubstate('test').getSubstate('DEFAULT').opstate)
+        with self.subTest("test/mytestname/<opstate>"):
+            self.assertEqual("done", sh.getSubstate('test').getSubstate('mytestname').opstate)
+
+    def testManagedDomainReadConfig2(self):
+        md = ManagedDomain()
+        md.readConfig(confContent="[cdm] \n statedir = /tmp/test_cryptdomainmgr \n [test] \n [test:mytestname] ")
         md.run()
         sh = md.sh
         with self.subTest("<opstate>"):
