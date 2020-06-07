@@ -40,7 +40,7 @@ def rollover(config, state):
         dhparamState = subState.getSubstate(dhparamSecName)
         if dhparamState.isDone():
             continue
-        log.info('Apply dhparam for section \"{}\"'.format(dhparamSecName))
+        log.info('Apply dhparams for section \"{}\"'.format(dhparamSecName))
         copyDH(dhparamConfig, dhparamState)
         dhparamState.setOpStateDone()
 
@@ -54,7 +54,7 @@ def cleanup(config, state):
         dhparamState = subState.getSubstate(dhparamSecName)
         if dhparamState.isDone():
             continue
-        log.info('Cleanup dhparam for section \"{}\"'.format(dhparamSecName))
+        log.info('Cleanup dhparams for section \"{}\"'.format(dhparamSecName))
         dhparamState.setOpStateDone()
 
 def copyDH(dhparamConfig, dhparamState):

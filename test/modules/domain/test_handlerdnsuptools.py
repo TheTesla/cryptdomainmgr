@@ -374,3 +374,45 @@ class TestHandlerDNSUptools(unittest.TestCase):
         stdout = str(stdout, "utf-8")
         with self.subTest("check first dmarc b"):
             self.assertRegex(stdout, ".*update.*DMARC.*sp=quarantine.*")
+
+
+    def testDNSUptoolsUpdateACME(self):
+        stdout = sp.check_output("python3 -m cryptdomainmgr --update \
+                                 test_inwxcreds.conf --config-content \
+        '\
+        [cdm] \
+        statedir=/tmp/test_cryptdomaingmgr \
+        [domain] \
+        handler=dnsuptools/inwx \
+        [domain:{}] \
+        acme= \
+        ' 2>&1".format(testdomain), shell=True)
+
+        stdout = sp.check_output("python3 -m cryptdomainmgr --update \
+                                 test_inwxcreds.conf --config-content \
+        '\
+        [cdm] \
+        statedir=/tmp/test_cryptdomaingmgr \
+        [domain] \
+        handler=dnsuptools/inwx \
+        [domain:{}] \
+        acme=test \
+        ' 2>&1".format(testdomain), shell=True)
+        stdout = str(stdout, "utf-8")
+        with self.subTest("check first adsp a"):
+            self.assertRegex(stdout, ".*add.*new.*ACME.*test.*")
+
+        stdout = sp.check_output("python3 -m cryptdomainmgr --update \
+                                 test_inwxcreds.conf --config-content \
+        '\
+        [cdm] \
+        statedir=/tmp/test_cryptdomaingmgr \
+        [domain] \
+        handler=dnsuptools/inwx \
+        [domain:{}] \
+        acme= \
+        ' 2>&1".format(testdomain), shell=True)
+        stdout = str(stdout, "utf-8")
+        with self.subTest("check first aucme b"):
+            self.assertRegex(stdout, ".*delete.*ACME.*test.*")
+
