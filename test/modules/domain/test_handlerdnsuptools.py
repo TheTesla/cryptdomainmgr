@@ -20,7 +20,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -31,7 +31,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -47,7 +47,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -68,7 +68,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -79,7 +79,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -95,7 +95,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -116,7 +116,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -127,7 +127,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -143,7 +143,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -165,7 +165,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -176,7 +176,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -191,7 +191,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -213,7 +213,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -224,7 +224,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -238,7 +238,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -255,7 +255,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -266,7 +266,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -280,7 +280,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -295,7 +295,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -306,7 +306,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -320,7 +320,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -335,7 +335,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -346,7 +346,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -365,7 +365,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -381,7 +381,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -392,7 +392,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -406,7 +406,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \

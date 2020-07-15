@@ -12,7 +12,7 @@ import subprocess as sp
 import os
 
 testdh = "dh512"
-dhfile = "/tmp/myssl/dh512.pem"
+dhfile = "/tmp/test_cryptdomainmgr/myssl/dh512.pem"
 #testns = "ns2.inwx.de"
 
 
@@ -26,7 +26,7 @@ class TestHandlerOpenssl(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [dhparam] \
         handler=openssl \
         [dhparam:{}] \
@@ -44,7 +44,7 @@ class TestHandlerOpenssl(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomaingmgr \
+        statedir=/tmp/test_cryptdomainmgr \
         [dhparam] \
         handler=openssl \
         [dhparam:{}] \

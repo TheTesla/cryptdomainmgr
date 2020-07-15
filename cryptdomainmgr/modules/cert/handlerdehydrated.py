@@ -64,20 +64,20 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
             break
         except CalledProcessError as e:
             log.error(e.output)
-            time.sleep(1)
+            time.sleep(30)
             if 9 == i:
                 raise(e)
 
     res = []
     rv = rv.splitlines()
     for s, e in enumerate(rv):
-        if '---- DEPLOYMENTRESULT ----' == e[:len('---- DEPLOYMENTRESULT ----')]:
+        if '---- DEPLOYMENTRESULT ----' == e.decode()[:len('---- DEPLOYMENTRESULT ----')]:
             break
     for i, e in enumerate(rv[s+1:]):
-        if '---- END DEPLOYMENTRESULT ----' == e[:len('---- END DEPLOYMENTRESULT ----')]:
+        if '---- END DEPLOYMENTRESULT ----' == e.decode()[:len('---- END DEPLOYMENTRESULT ----')]:
             break
         res.append(e)
-    resDict = {e.split('=')[0].lower(): e.split('=')[1] for e in res}
+    resDict = {e.decode().split('=')[0].lower(): e.decode().split('=')[1] for e in res}
     resDict['san'] = list(domainList)
     
     if 'running' == certState.opstate:

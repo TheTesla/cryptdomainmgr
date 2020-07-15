@@ -20,7 +20,7 @@ class TestMain(unittest.TestCase):
     def testMainCDMupdate(self):
         stdout = sp.check_output("python3 -m cryptdomainmgr --update \
                                  --config-content \
-                                 '[cdm] statedir=/tmp/test_cryptdomaingmgr' \
+                                 '[cdm] statedir=/tmp/test_cryptdomainmgr' \
                                  2>&1", shell=True)
         self.assertIn("update", str(stdout, "utf-8"))
 
