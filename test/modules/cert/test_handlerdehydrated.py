@@ -11,7 +11,7 @@ import unittest
 import subprocess as sp
 import os
 
-testdomain = "test.entroserv.de"
+testdomain = "test42.entroserv.de"
 testns = "ns2.inwx.de"
 testcertpath = "/tmp/test_cryptdomainmgr/ssl"
 testcertemail = "stefan.helmert@t-online.de"

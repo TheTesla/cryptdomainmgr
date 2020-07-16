@@ -12,6 +12,7 @@ import os
 from subprocess import check_output, CalledProcessError
 from simpleloggerplus import simpleloggerplus as log
 from cryptdomainmgr.modules.common.cdmconfighelper import getStateDir
+from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 
 def createDomainAccessTable(config, domains):
     domainAccessTableStr = ""
@@ -76,6 +77,7 @@ def copyCert(certConfig, certState):
         dest = os.path.join(certConfig['destination'], name)
         log.info('  {} -> {}'.format(src, dest))
         try:
+            makeDir(os.path.dirname(str(dest)))
             rv = check_output(('cp', '-rfLT', str(src), str(dest)))
         except CalledProcessError as e:
             log.error(e.output)
