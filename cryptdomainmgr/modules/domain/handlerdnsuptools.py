@@ -96,7 +96,7 @@ def cleanup(domainConfig, domainState, domainSecName, state):
 def getCertSAN(filename):
     certFile = open(filename, 'rt').read()
     cert = crypto.load_certificate(crypto.FILETYPE_PEM, certFile)
-    san = [cert.get_extension(i).get_data().split('\x82')[1:] for i in range(cert.get_extension_count()) if 'subjectAltName' == cert.get_extension(i).get_short_name()][0]
+    san = [cert.get_extension(i).get_data().split(b'\x82')[1:] for i in range(cert.get_extension_count()) if b'subjectAltName' == cert.get_extension(i).get_short_name()][0]
     san = [e[1:] for e in san]
     return san
 
@@ -286,8 +286,8 @@ def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, add=True, de
         else:
             log.info('deploying TLSA record for {} (certificate found)'.format(domainSecName))
             sanList = getCertSAN(cert)
-            log.info('  -> found certificate: {} for: {}'.format(cert, ', '.join(sanList)))
-            if domainSecName not in sanList:
+            log.info('  -> found certificate: {} for: {}'.format(cert, b', '.join(sanList)))
+            if domainSecName.encode() not in sanList:
                 log.error('{} not in certificate {}'.format(domainSecName, cert))
             tlsaAdd = [dict(e, filename=cert) for e in domainConfig['tlsaAggrAdd'] if 'op' in e if 'auto' == e['op']]
             if add is True:

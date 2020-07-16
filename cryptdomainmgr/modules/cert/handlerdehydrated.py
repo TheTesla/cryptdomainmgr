@@ -59,8 +59,8 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
 
     for i in range(10):
         try:
-            rv = check_output(args, env=dict(os.environ, DOMAINACCESSTABLE=domainAccessTable))
-            log.info(rv)
+            rv = check_output(args, env=dict(os.environ, DOMAINACCESSTABLE=domainAccessTable, STATEDIR=statedir))
+            log.info(rv.decode())
             break
         except CalledProcessError as e:
             log.error(e.output)
