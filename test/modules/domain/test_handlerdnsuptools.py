@@ -37,7 +37,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         ip4=0.0.0.2,0.0.0.1\
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first ip4"):
             self.assertRegex(stdout, ".*add.*new.*0.0.0.2.*")
         with self.subTest("check second ip4"):
@@ -53,7 +53,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         ip4=0.0.0.4,0.0.0.3\
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first ip4"):
             self.assertRegex(stdout, ".*add.*new.*0.0.0.4.*")
         with self.subTest("check second ip4"):
@@ -85,7 +85,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         ip6=86::1,23f0::23:42\
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first ip6 a"):
             self.assertRegex(stdout, ".*add.*new.*86::1.*")
         with self.subTest("check second ip6 a"):
@@ -101,7 +101,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         ip6=0f::00,fe00:2345::0\
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first ip6 b"):
             self.assertRegex(stdout, ".*add.*new.*0f::00.*")
         with self.subTest("check second ip6 b"):
@@ -133,7 +133,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         mx=mx01.mailbox.example:50,mx02.mailbox.example:10\
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first mx a"):
             self.assertRegex(stdout, ".*add.*new.*mx01.mailbox.example.*")
         with self.subTest("check second mx a"):
@@ -150,7 +150,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         mx.50=mx03.mailbox.example\
         mx.10=mx04.mailbox.example\
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first mx b"):
             self.assertRegex(stdout, ".*add.*new.*mx03.mailbox.example.*")
         with self.subTest("check second mx b"):
@@ -182,7 +182,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         srv=testsrv.entroserv.de:50:10:25:tcp:smtp\
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first srv a"):
             self.assertRegex(stdout, ".*add.*new.*_smtp._tcp.test.entroserv.de\
                               : 10 25 testsrv.entroserv.de.*")
@@ -198,7 +198,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         srv.smtp=mx03.mailbox.example\
         srv.imap=mx04.mailbox.example\
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first srv b"):
             self.assertRegex(stdout, ".*add.*new.*mx03.mailbox.example.*")
         with self.subTest("check second srv b"):
@@ -230,9 +230,11 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         spf+=+mx,~all,?aaaa,-ip4:0.1.2.3/24 \
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first spf a"):
-            self.assertRegex(stdout, ".*add.*new.*mx.*aaaa.*ip4.*all.*")
+            self.assertRegex(stdout, ".*add.*new.*SPF.*~all.*")
+        with self.subTest("check first spf a - ip4"):
+            self.assertRegex(stdout, ".*add.*new.*SPF.*-ip4:0.1.2.3/24.*")
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --update \
                                  test_inwxcreds.conf --config-content \
@@ -244,7 +246,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         spf=+ip6:00fe::1234:0000/64,-aaaa\
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first spf b"):
             self.assertRegex(stdout, ".*add.*new.*ip6.*aaaa.*")
         with self.subTest("check previous first spf"):
@@ -272,7 +274,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         adsp=all \
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first adsp a"):
             self.assertRegex(stdout, ".*add.*new.*ADSP.*dkim=all.*")
 
@@ -286,7 +288,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         adsp=unknown \
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first adsp b"):
             self.assertRegex(stdout, ".*update.*ADSP.*dkim=unknown.*")
 
@@ -312,7 +314,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         caa=0 issue test.example \
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first caa a"):
             self.assertRegex(stdout, ".*add.*new.*CAA.*issue.*")
 
@@ -326,7 +328,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         caa=1 issuewild test2.exmaple \
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first caa b"):
             self.assertRegex(stdout, ".*update.*CAA.*issuewild.*")
 
@@ -357,7 +359,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         dmarc.adkim=s \
         dmarc.aspf=r \
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first dmarc a"):
             self.assertRegex(stdout, ".*add.*new.*DMARC.*_dmarc.*p=quarantine.*")
 
@@ -371,7 +373,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         dmarc.sp=quarantine \
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first dmarc b"):
             self.assertRegex(stdout, ".*update.*DMARC.*sp=quarantine.*")
 
@@ -398,7 +400,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         acme=test \
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
+        stdout = stdout.decode()
         with self.subTest("check first adsp a"):
             self.assertRegex(stdout, ".*add.*new.*ACME.*test.*")
 
@@ -412,7 +414,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain:{}] \
         acme= \
         ' 2>&1".format(testdomain), shell=True)
-        stdout = str(stdout, "utf-8")
-        with self.subTest("check first aucme b"):
+        stdout = stdout.decode()
+        with self.subTest("check first acme b"):
             self.assertRegex(stdout, ".*delete.*ACME.*test.*")
 

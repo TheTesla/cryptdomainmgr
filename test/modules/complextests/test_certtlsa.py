@@ -40,6 +40,9 @@ class TestCertTLSA(unittest.TestCase):
         ' 2>&1".format(testdomain,testcertemail,testcertpath), shell=True)
 
         print(stdout)
+        stdout = str(stdout, "utf-8")
+        with self.subTest("check first mx a"):
+            self.assertRegex(stdout, ".*add.*new.*_443._tcp.test42.entroserv.de.*")
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \

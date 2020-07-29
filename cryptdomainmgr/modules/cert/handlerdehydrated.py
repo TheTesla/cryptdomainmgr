@@ -57,14 +57,14 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
     log.debug(args)
     certState.setOpStateRunning()
 
-    for i in range(10):
+    for i in range(3):
         try:
             rv = check_output(args, env=dict(os.environ, DOMAINACCESSTABLE=domainAccessTable, STATEDIR=statedir))
             log.info(rv.decode())
             break
         except CalledProcessError as e:
             log.error(e.output)
-            time.sleep(30)
+            time.sleep(3)
             if 9 == i:
                 raise(e)
 
