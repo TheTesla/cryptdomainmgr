@@ -8,6 +8,7 @@
 #######################################################################
 
 import argparse
+import re
 from cryptdomainmgr.cdmcore import ManagedDomain
 
 if '__main__' == __name__:
@@ -22,7 +23,8 @@ if '__main__' == __name__:
 
 
     args = parser.parse_args()
-    configcontent = str(args.configcontent).replace(' ', '\n')
+    configcontent = re.compile(' {2,}').sub('\n', str(args.configcontent))
+    #configcontent = str(args.configcontent).replace('  ', '\n')
 
     if args.phase is None:
         args.phase = 'next'

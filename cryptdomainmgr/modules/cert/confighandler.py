@@ -33,5 +33,5 @@ def interpreteValues(args):
         certconfig[certSecName]['conflictingservices'] = conflictingservices
 
 def interpreteConfig(cr, sh):
-    return processConfig(cr, 'cert', postOp=interpreteValues, defaultConfig={'keysize': 4096, 'extraflags': ''})
+    return processConfig(cr, 'cert', postOp=interpreteValues, defaultConfig={'handler': 'dehydrated/letsencrypt', 'keysize': 4096, 'extraflags': ''})
 

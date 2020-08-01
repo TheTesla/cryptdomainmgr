@@ -37,7 +37,10 @@ def parseNestedEntry(key, value, default = [], keySplitPattern = '.', valueSplit
         rv['delList'] = list(keyList)
     addList[:len(keyList)] = list(keyList)
     for i, e in enumerate(valueList):
-        addList[-i] = e
+        try:
+            addList[-i] = e
+        except IndexError:
+            log.warn('Too many arguments in parameter!')
     if subtractMode is True:
         rv['delListWithContent'] = addList
     else:
