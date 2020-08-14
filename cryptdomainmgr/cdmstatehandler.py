@@ -11,6 +11,13 @@ import json
 import os
 from .modules.common.cdmfilehelper import makeDir
 
+def getDictDefault(dictVar, key, defaultVal):
+    if key in dictVar:
+        return dictVar[key]
+    else:
+        return defaultVal
+
+
 class StateHandler:
     def __init__(self):
         self.opstate = ''
@@ -86,11 +93,14 @@ class StateHandler:
 
     def toDict(self):
         return {'opstate': self.opstate, 'result': self.result, 'config': self.config, 'substate': {k: v.toDict() for k, v in self.substate.items()}}
-                
+
     def fromDict(self, stateDict):
-        self.opstate = stateDict['opstate']
-        self.result = stateDict['result']
-        self.config = stateDict['config']
+        self.opstate = getDictDefault(stateDict, 'opstate', 'uninitialized')
+        self.result = getDictDefault(stateDict, 'result', {})
+        self.config = getDictDefault(stateDict, 'config', {})
+        if 'substate' not in stateDict:
+            self.substate = {}
+            return
         for k, v in stateDict['substate'].items():
             self.substate[k] = StateHandler()
             self.substate[k].fromDict(v)

@@ -26,11 +26,6 @@ def interpreteValues(args):
         certconfig[certSecName]['keysize'] = int(content['keysize'])
     if 'extraflags' in content:
         certconfig[certSecName]['extraflags'] = [e for e in content['extraflags'].replace(' ', '').split(',') if len(e) > 0]
-    if 'conflictingservices' in content:
-        conflictingservices = content['conflictingservices'].replace(' ', '').split(',')
-        if '' == conflictingservices[0]:
-            conflictingservices = []
-        certconfig[certSecName]['conflictingservices'] = conflictingservices
 
 def interpreteConfig(cr, sh):
     return processConfig(cr, 'cert', postOp=interpreteValues, defaultConfig={'handler': 'dehydrated/letsencrypt', 'keysize': 4096, 'extraflags': ''})

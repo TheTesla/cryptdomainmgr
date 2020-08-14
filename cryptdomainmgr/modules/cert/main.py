@@ -85,6 +85,7 @@ def copyCert(certConfig, certState):
 
 def delOldCert(certConfig, certState):
     preserve = ['fullchainfile', 'certfile', 'keyfile', 'chainfile']
+    print(certState.result)
     preserveFiles = set([certState.result[e] for e in preserve])
     preserveFiles.update(set([os.path.realpath(e) for e in preserveFiles]))
     dirs = set([os.path.dirname(e) for e in preserveFiles])

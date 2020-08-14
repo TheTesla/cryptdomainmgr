@@ -17,7 +17,7 @@ def procConfig(cr):
     cr.interprete(None)
     return cr
 
-class TestCDMconfigcandler(unittest.TestCase):
+class TestCDMconfighandler(unittest.TestCase):
     def testNoSection(self):
         cr = ConfigReader()
         cr.setContentList([''])
@@ -44,7 +44,7 @@ class TestCDMconfigcandler(unittest.TestCase):
 
     def testCDMDefaultSectionDefaultOverwrite(self):
         cr = ConfigReader()
-        cr.setContentList(['[cdm]\nstatedir=/blub\n'])
+        cr.setContentList([' [cdm] \n statedir = /blub \n '])
         procConfig(cr)
         self.assertEqual({'cdm': {'statedir': '/blub'}}, cr.config)
 

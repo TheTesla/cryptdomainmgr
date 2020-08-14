@@ -158,7 +158,7 @@ def interpreteDictRR(content, rrType):
     return {}
 
 def interpreteSetRR(content, rrType, defaultList = ['*']):
-    rrList = interpreteRR(content, rrType, defaultList)
+    rrList = interpreteRR(content, rrType, defaultList, None, None)
     rrSet = {k: set([e for e in v if '' != e]) for k, v in rrList.items()}
     return rrSet
 

@@ -16,7 +16,6 @@ class ConfigReader:
         self.cp = configparser.ConfigParser()
         self.filenameList = []
         self.contentList = []
-        self.conflictingservices = {}
         self.config = {}
 
     def setContentList(self, contentList):

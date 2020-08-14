@@ -181,6 +181,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         handler=dnsuptools/inwx \
         [domain:{}] \
         srv=testsrv.entroserv.de:50:10:25:tcp:smtp\
+        srv.smtp=mx01.mailbox.example, mx02.mailbox.example\
         ' 2>&1".format(testdomain), shell=True)
         stdout = stdout.decode()
         with self.subTest("check first srv a"):
@@ -195,7 +196,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
-        srv.smtp=mx03.mailbox.example\
+        srv.smtp=mx03.mailbox.example:0:0:143:tcp\
         srv.imap=mx04.mailbox.example\
         ' 2>&1".format(testdomain), shell=True)
         stdout = stdout.decode()
@@ -248,9 +249,9 @@ class TestHandlerDNSUptools(unittest.TestCase):
         ' 2>&1".format(testdomain), shell=True)
         stdout = stdout.decode()
         with self.subTest("check first spf b"):
-            self.assertRegex(stdout, ".*add.*new.*ip6.*aaaa.*")
-        with self.subTest("check previous first spf"):
-            self.assertRegex(stdout, ".*delete.*mx.*aaaa.*ip4.*all.*")
+            self.assertRegex(stdout, ".*update.*ip6.*")
+        with self.subTest("check first spf c"):
+            self.assertRegex(stdout, ".*update.*aaaa.*")
 
     def testDNSUptoolsUpdateADSP(self):
         stdout = sp.check_output("python3 -m cryptdomainmgr --update \

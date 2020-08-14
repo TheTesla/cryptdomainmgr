@@ -9,6 +9,7 @@
 
 from cryptdomainmgr.cdmconfighandler import *
 from cryptdomainmgr.cdmstatehandler import *
+#from cryptdomainmgr.modules.common.cdmconfighelper import getStateDir
 from simpleloggerplus import simpleloggerplus as log
 
 def getNextPhase(currentPhase):
@@ -25,7 +26,10 @@ def getCurrentPhase(state, forcePhase='next'):
         return state.result['nextphase']
     return 'prepare'
 
-
+# maybe ToDo: readConfig() -> addConfig() + setConfig()
+# run() with explicit parameter to overwrite config
+# option to mix config files and config content in the priority list
+# INFO about config files and content read
 class ManagedDomain:
     def __init__(self):
         self.cr = ConfigReader()
@@ -35,13 +39,14 @@ class ManagedDomain:
         self.cr.setFilenames(confFiles)
         self.cr.setContentList(confContent)
         self.cr.open()
-        if 'cdm' not in self.cr.cp:
-            self.cr.cp['cdm'] = {}
+        #if 'cdm' not in self.cr.cp:
+        #    self.cr.cp['cdm'] = {}
         self.cr.interprete(self.sh)
         self.sh.registerConfig(self.cr.config['cdm'])
 
     def run(self, confFile=None, forcePhase='next', confContent=''):
-        self.readConfig(confFile, confContent)
+        if confFile is not None or 0 < len(confContent):
+            self.readConfig(confFile, confContent)
         self.sh.load()
         self.sh.delete() # --next starts with prepare, if failed
         self.sh.resetOpStateRecursive()
