@@ -232,7 +232,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         spf+=+mx,~all,?aaaa,-ip4:0.1.2.3/24 \
         ' 2>&1".format(testdomain), shell=True)
         stdout = stdout.decode()
-        with self.subTest("check first spf a"):
+        with self.subTest("check first spf a - all"):
             self.assertRegex(stdout, ".*add.*new.*SPF.*~all.*")
         with self.subTest("check first spf a - ip4"):
             self.assertRegex(stdout, ".*add.*new.*SPF.*-ip4:0.1.2.3/24.*")
@@ -248,10 +248,27 @@ class TestHandlerDNSUptools(unittest.TestCase):
         spf=+ip6:00fe::1234:0000/64,-aaaa\
         ' 2>&1".format(testdomain), shell=True)
         stdout = stdout.decode()
-        with self.subTest("check first spf b"):
+        with self.subTest("check first spf b - ip6"):
             self.assertRegex(stdout, ".*update.*ip6.*")
-        with self.subTest("check first spf c"):
+        with self.subTest("check first spf b - aaaaa"):
             self.assertRegex(stdout, ".*update.*aaaa.*")
+
+        stdout = sp.check_output("python3 -m cryptdomainmgr --update \
+                                 test_inwxcreds.conf --config-content \
+        '\
+        [cdm] \
+        statedir=/tmp/test_cryptdomainmgr \
+        [domain] \
+        handler=dnsuptools/inwx \
+        [domain:{}] \
+        spf= \
+        ' 2>&1".format(testdomain), shell=True)
+
+        stdout = stdout.decode()
+
+        with self.subTest("check first spf c - ip6"):
+            self.assertRegex(stdout, ".*delete.*ip6.*")
+
 
     def testDNSUptoolsUpdateADSP(self):
         stdout = sp.check_output("python3 -m cryptdomainmgr --update \
