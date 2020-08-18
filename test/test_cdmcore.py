@@ -42,7 +42,6 @@ class TestCDMcore(unittest.TestCase):
         cr.setContentList(['[test]\nbla = blub\n[test:mytestname]\nbla = blubber'])
         procConfig(cr)
         runPhase(cr, sh, "prepare")
-        sh.printAll()
         with self.subTest("<opstate>"):
             self.assertEqual("done", sh.opstate)
         with self.subTest("test/<opstate>"):
@@ -82,7 +81,6 @@ class TestCDMcore(unittest.TestCase):
         md = ManagedDomain()
         md.run(confContent="[cdm]\nstatedir=/tmp/test_cryptdomainmgr\n[test:mytest]")
         sh = md.sh
-        sh.printAll()
         with self.subTest("<result> (fourth)"):
             self.assertEqual({'nextphase': 'prepare'}, sh.result)
 
@@ -106,7 +104,6 @@ class TestCDMcore(unittest.TestCase):
         md.readConfig(confContent="  [cdm]  \n  statedir  =  /tmp/test_cryptdomainmgr  \n  [test]  \n  [test:mytestname] ")
         md.run(forcePhase='prepare')
         sh = md.sh
-        sh.printAll()
         with self.subTest("<opstate>"):
             self.assertEqual("done", sh.opstate)
         with self.subTest("test/<opstate>"):

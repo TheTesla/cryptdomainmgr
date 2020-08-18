@@ -17,11 +17,11 @@ def splitList(content):
     return {k: [e.strip() for e in v.split(',')] for k, v in content.items()}
 
 def parseNestedEntry(key, value, default = [], keySplitPattern = '.', valueSplitPattern = ':'):
-    if keySplitPattern is None:
+    if keySplitPattern == '':
         keyList = [key]
     else:
         keyList   = key.split(keySplitPattern)
-    if valueSplitPattern is None:
+    if valueSplitPattern == '':
         valueList = [value]
     else:
         valueList = value.split(valueSplitPattern)
@@ -115,7 +115,7 @@ def interpreteRR(content, rrType = 'mx', defaultList = ['*', '10'], keySplitPatt
     return {'{}AggrAdd'.format(rrType): aggrAdd, '{}AggrDel'.format(rrType): aggrDel}
 
 def interpreteCAA(content):
-    return interpreteRR(content, 'caa', ['*', '*', '*'], '.', ' ')
+    return interpreteRR(content, 'caa', ['*', '*', '*'], '.', None) # None = one or more spaces
 
 def interpreteMX(content):
     return interpreteRR(content, 'mx', ['*', '10'])
@@ -127,7 +127,7 @@ def interpreteA(content):
     return interpreteRR(content, 'ip4', ['*'])
 
 def interpreteAAAA(content):
-    return interpreteRR(content, 'ip6', ['*'], None, None)
+    return interpreteRR(content, 'ip6', ['*'], '', '') # '' = do not split
 
 def interpreteDKIM(content):
     return interpreteRR(content, 'dkim', ['*', '*'])
@@ -158,7 +158,7 @@ def interpreteDictRR(content, rrType):
     return {}
 
 def interpreteSetRR(content, rrType, defaultList = ['*']):
-    rrList = interpreteRR(content, rrType, defaultList, None, None)
+    rrList = interpreteRR(content, rrType, defaultList, '', '')
     rrSet = {k: set([e for e in v if '' != e]) for k, v in rrList.items()}
     return rrSet
 

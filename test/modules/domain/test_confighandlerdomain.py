@@ -87,14 +87,14 @@ class TestDomainconfighandler(unittest.TestCase):
 
     def testDomainDefaultSectionCAAset(self):
         cr = ConfigReader()
-        cr.setContentList(['[domain]\ncaa  = auto,   myflag    mytag    myca.caa  \ncaa.a.b.c  =  c  b  a '])
+        cr.setContentList(['[domain]\ncaa  = auto,   myflag    mytag    myca.caa  \ncaa.a.b.c  =  d  e  f '])
         procConfig(cr)
-        self.assertEqual([{'flag': 'auto'}, {'flag': 'myflag', 'tag': 'mytag', 'url': 'myca.caa'}], cr.config['domain']['DEFAULT']['caaAggrAdd'])
-        self.assertEqual([{},{}], cr.config['domain']['DEFAULT']['caaAggrDel'])
+        self.assertEqual([{'flag': 'auto'}, {'flag': 'myflag', 'tag': 'mytag', 'url': 'myca.caa'}, {'flag': 'd', 'tag': 'f', 'url': 'a'}], cr.config['domain']['DEFAULT']['caaAggrAdd'])
+        self.assertEqual([{},{},{'tag': 'b', 'url': 'a'}], cr.config['domain']['DEFAULT']['caaAggrDel'])
 
     def testDomainDefaultSectionCAAadd(self):
         cr = ConfigReader()
-        cr.setContentList(['[domain]\ncaa + = auto,   myflag    mytag    myca.caa  '])
+        cr.setContentList(['[domain]\ncaa + = auto, myflag  mytag myca.caa  '])
         procConfig(cr)
         self.assertEqual([{'flag': 'auto'}, {'flag': 'myflag', 'tag': 'mytag', 'url': 'myca.caa'}], cr.config['domain']['DEFAULT']['caaAggrAdd'])
         self.assertEqual([], cr.config['domain']['DEFAULT']['caaAggrDel'])

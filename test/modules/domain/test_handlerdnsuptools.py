@@ -327,11 +327,13 @@ class TestHandlerDNSUptools(unittest.TestCase):
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
-        caa=1 issuewild test2.exmaple \
+        caa=128 issuewild test2.example \
         ' 2>&1".format(testdomain), shell=True)
         stdout = stdout.decode()
         with self.subTest("check first caa b"):
-            self.assertRegex(stdout, ".*update.*CAA.*issuewild.*")
+            self.assertRegex(stdout, ".*add.*CAA.*128.*issuewild.*test2.example")
+        with self.subTest("check second caa b"):
+            self.assertRegex(stdout, ".*delete.*CAA.*0.*issue.*test.example")
 
     def testDNSUptoolsUpdateDMARC(self):
         stdout = sp.check_output("python3 -m cryptdomainmgr --update \
