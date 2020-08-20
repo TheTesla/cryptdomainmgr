@@ -144,6 +144,14 @@ def interpreteSOA(content):
 def interpreteSPF(content):
     return interpreteSetRR(content, 'spf', ['*'])
 
+def interpreteCert(content):
+    if 'cert' not in content:
+        return {}
+    certNames = content['cert'].replace(' ','').split(',')
+    print(content)
+    return {'cert': certNames}
+
+
 def interpreteHandler(content):
     if 'handler' not in content:
         return {}

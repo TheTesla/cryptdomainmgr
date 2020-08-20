@@ -33,7 +33,7 @@ def prepare(config, state):
         certState = subState.getSubstate(certSecName)
         if certState.isDone():
             continue
-        domains = [k for k,v in config['domain'].items() if 'cert' in v and certSecName == v['cert']]
+        domains = [k for k,v in config['domain'].items() if 'cert' in v and certSecName in v['cert']]
         log.info('Create certificate for section \"{}\"'.format(certSecName))
         log.info('  -> {}'.format(', '.join(domains)))
         log.debug(certConfig)
