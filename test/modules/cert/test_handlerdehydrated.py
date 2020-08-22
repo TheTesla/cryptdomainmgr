@@ -14,16 +14,18 @@ import os
 testdomain = "test42.entroserv.de"
 testns = "ns2.inwx.de"
 testcertpath = "/tmp/test_cryptdomainmgr/ssl"
+tmpdir = "/tmp/test_cryptdomainmgr"
 testcertemail = "stefan.helmert@t-online.de"
+certname = "fullchain.pem"
 
 
 class TestHandlerDehydrated(unittest.TestCase):
-    def testHanderDehydratedCreateCert(self):
+    def testHandlerDehydratedCreateCert(self):
         stdout = sp.check_output("python3 -m cryptdomainmgr --prepare \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomainmgr \
+        statedir={} \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -35,14 +37,18 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
-        ' 2>&1".format(testdomain,testcertemail,testcertpath), shell=True)
+        certname={} \
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,certname), shell=True)
+
+        with self.subTest("check cert file is created in tmp"):
+            self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
+
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomainmgr \
+        statedir={} \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -54,18 +60,18 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
-        ' 2>&1".format(testdomain,testcertemail,testcertpath), shell=True)
+        certname={} \
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,certname), shell=True)
 
-        with self.subTest("check cert file exists"):
-            self.assertFalse(os.path.isfile(os.path.join(testcertpath,"fullchain.pem")))
+        with self.subTest("check cert file is copied to destination"):
+            self.assertTrue(os.path.isfile(os.path.join(testcertpath,testdomain,certname)))
 
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --cleanup \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomainmgr \
+        statedir={} \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -77,19 +83,19 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
-        ' 2>&1".format(testdomain,testcertemail,testcertpath), shell=True)
+        certname={} \
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,certname), shell=True)
 
-        with self.subTest("check cert file exists"):
-            self.assertTrue(os.path.isfile(os.path.join("/tmp/test_cryptdomainmgr/modules/cert/","fullchain.pem")))
+        with self.subTest("check current cert is not deleted"):
+            self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
 
 
-    def testHanderDehydratedCreateMultiCert(self):
+    def testHandlerDehydratedCreateMultiCert(self):
         stdout = sp.check_output("python3 -m cryptdomainmgr --prepare \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomainmgr \
+        statedir={} \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -106,13 +112,18 @@ class TestHandlerDehydrated(unittest.TestCase):
         destination={} \
         extraflags=--staging,-x \
         certname=fullchain.pem \
-        ' 2>&1".format(testdomain,testcertemail,testcertpath,testcertemail,testcertpath), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath), shell=True)
+
+        with self.subTest("check cert file is created in tmp 1"):
+            self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
+        with self.subTest("check cert file is created in tmp 2"):
+            self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert2","certs",testdomain,certname)))
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomainmgr \
+        statedir={} \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -129,17 +140,19 @@ class TestHandlerDehydrated(unittest.TestCase):
         destination={} \
         extraflags=--staging,-x \
         certname=fullchain.pem \
-        ' 2>&1".format(testdomain,testcertemail,testcertpath,testcertemail,testcertpath), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
 
-        with self.subTest("check cert file exists"):
-            self.assertFalse(os.path.isfile(os.path.join(testcertpath,"fullchain.pem")))
+        with self.subTest("check cert file is copied to destination 1"):
+            self.assertTrue(os.path.isfile(os.path.join(testcertpath,testdomain,certname)))
+        with self.subTest("check cert file is copied to destination 2"):
+            self.assertTrue(os.path.isfile(os.path.join(testcertpath+"2",testdomain,certname)))
 
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --cleanup \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomainmgr \
+        statedir={} \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -156,9 +169,11 @@ class TestHandlerDehydrated(unittest.TestCase):
         destination={} \
         extraflags=--staging,-x \
         certname=fullchain.pem \
-        ' 2>&1".format(testdomain,testcertemail,testcertpath,testcertemail,testcertpath), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath), shell=True)
 
-        with self.subTest("check cert file exists"):
-            self.assertTrue(os.path.isfile(os.path.join("/tmp/test_cryptdomainmgr/modules/cert/","fullchain.pem")))
+        with self.subTest("check current cert is not deleted 1"):
+            self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
+        with self.subTest("check current cert is not deleted 2"):
+            self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert2","certs",testdomain,certname)))
 
 

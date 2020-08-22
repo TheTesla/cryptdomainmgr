@@ -29,9 +29,9 @@ def parseNestedEntry(key, value, default = [], keySplitPattern = '.', valueSplit
     rv = {}
     subtractMode = False
     if '+' == keyList[-1][-1]:
-        keyList[-1] = keyList[-1][:-1]
+        keyList[-1] = keyList[-1][:-1].strip()
     elif '-' == keyList[-1][-1]:
-        keyList[-1] = keyList[-1][:-1]
+        keyList[-1] = keyList[-1][:-1].strip()
         subtractMode = True
     else:
         rv['delList'] = list(keyList)
