@@ -69,7 +69,7 @@ class TestDomainconfighandler(unittest.TestCase):
         cr.setContentList(['[domain]\nmx + = mx0.domain, mx1.domain:20\nmx.30 + = mx2.domain:15\nmx.40 + = mx3.domain  '])
         procConfig(cr)
         self.assertEqual([{'content': 'mx0.domain', 'prio': '10'}, {'content': 'mx1.domain', 'prio': '20'}, {'content': 'mx2.domain', 'prio': '15'}, {'content': 'mx3.domain', 'prio': '40'}], cr.config['domain']['DEFAULT']['mxAggrAdd'])
-        self.assertEqual([{}, {}, {'prio': '30'}, {'prio': '40'}], cr.config['domain']['DEFAULT']['mxAggrDel'])
+        self.assertEqual([], cr.config['domain']['DEFAULT']['mxAggrDel'])
 
     def testDomainDefaultSectionSRVset(self):
         cr = ConfigReader()
