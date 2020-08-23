@@ -27,7 +27,7 @@ class TestCertconfighandler(unittest.TestCase):
         cr = ConfigReader()
         cr.setContentList(['[cert]'])
         procConfig(cr)
-        self.assertEqual({}, cr.config['cert']['DEFAULT'])
+        self.assertEqual({'caa': {'flag': '0', 'tag': 'issue', 'url': 'letsencrypt.org'}, 'extraflags': [], 'handler': 'dehydrated/letsencrypt', 'keysize': 4096}, cr.config['cert']['DEFAULT'])
 
     def testCertDefaultSectionDehydratedLetsencryptset(self):
         cr = ConfigReader()

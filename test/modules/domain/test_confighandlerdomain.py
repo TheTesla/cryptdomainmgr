@@ -202,7 +202,7 @@ class TestDomainconfighandler(unittest.TestCase):
         cr = ConfigReader()
         cr.setContentList(['[domain]\nhandler  = dnsuptools/inwx \nuser = myuser \npasswd = mypasswd '])
         procConfig(cr)
-        self.assertEqual({'handler': ['dnsuptools/inwx'], 'user': ['myuser'], 'passwd': ['mypasswd'], 'accessparams': ['handler', 'user', 'passwd']}, cr.config['domain']['DEFAULT'])
+        self.assertEqual({'handler': 'dnsuptools/inwx', 'user': 'myuser', 'passwd': 'mypasswd', 'accessparams': ['handler', 'user', 'passwd']}, {k: cr.config['domain']['DEFAULT'][k] for k in ['handler', 'user', 'passwd', 'accessparams']})
 
 if "__main__" == __name__:
     unittest.main()

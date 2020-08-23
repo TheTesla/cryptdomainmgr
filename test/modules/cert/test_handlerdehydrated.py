@@ -112,7 +112,7 @@ class TestHandlerDehydrated(unittest.TestCase):
         destination={} \
         extraflags=--staging,-x \
         certname=fullchain.pem \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
 
         with self.subTest("check cert file is created in tmp 1"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
@@ -169,7 +169,7 @@ class TestHandlerDehydrated(unittest.TestCase):
         destination={} \
         extraflags=--staging,-x \
         certname=fullchain.pem \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
 
         with self.subTest("check current cert is not deleted 1"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
