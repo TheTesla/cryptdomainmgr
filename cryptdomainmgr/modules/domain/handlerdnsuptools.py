@@ -7,7 +7,7 @@
 #
 #######################################################################
 
-from dnsuptools import dnsuptools 
+from dnsuptools import dnsuptools
 from simpleloggerplus import simpleloggerplus as log
 from OpenSSL import crypto
 
@@ -23,9 +23,9 @@ def update(domainConfig, domainState, domainSecName):
     dnsup.setHandler(handlers[1])
     dnsup.handler.setUserDict({'default': domainConfig['user'], domainSecName: domainConfig['user']})
     dnsup.handler.setPasswdDict({'default': domainConfig['passwd'], domainSecName: domainConfig['passwd']})
-    
+
     domainState.setOpStateRunning()
-    
+
     setACME(domainConfig, domainState, domainSecName, dnsup)
     setCAA(domainConfig, domainState, domainSecName, dnsup)
     setSOA(domainConfig, domainState, domainSecName, dnsup)
@@ -40,7 +40,7 @@ def update(domainConfig, domainState, domainSecName):
 
     return
 
-def prepare(domainConfig, domainState, domainSecName, state): 
+def prepare(domainConfig, domainState, domainSecName, state):
     handlers = domainConfig['handler'].split('/')
     if 'dnsuptools' != handlers[0]:
         return
@@ -48,10 +48,10 @@ def prepare(domainConfig, domainState, domainSecName, state):
     dnsup.setHandler(handlers[1])
     dnsup.handler.setUserDict({'default': domainConfig['user'], domainSecName: domainConfig['user']})
     dnsup.handler.setPasswdDict({'default': domainConfig['passwd'], domainSecName: domainConfig['passwd']})
-    
-    
+
+
     domainState.setOpStateWaiting()
-    
+
     domainState.setOpStateRunning()
 
     tlsaReady = addTLSA(domainConfig, domainState, domainSecName, dnsup, state)
@@ -65,9 +65,9 @@ def rollover(domainConfig, domainState, domainSecName, state):
     handlers = domainConfig['handler'].split('/')
     if 'dnsuptools' != handlers[0]:
         return
-    
+
     domainState.setOpStateWaiting()
-    
+
     domainState.setOpStateRunning()
 
     domainState.setOpStateDone()
@@ -100,8 +100,12 @@ def getCertSAN(filename):
     san = [e[1:] for e in san]
     return san
 
-def getFullchain(state, domainContent):
-    certState = state.getSubstate('cert').getSubstate(domainContent['cert'])
+#def getFullchain(state, domainContent):
+#    certState = state.getSubstate('cert').getSubstate(domainContent['cert'][0])
+#    return certState.result['fullchainfile']
+
+def getFullchain(state, certSec):
+    certState = state.getSubstate('cert').getSubstate(certSec)
     return certState.result['fullchainfile']
 
 def getDKIMkeys(state, domainContent):
@@ -111,7 +115,11 @@ def getDKIMkeys(state, domainContent):
     return dkimState.result
 
 def isReady(state, domainContent, sec):
-    secState = state.getSubstate(sec).getSubstate(domainContent[sec])
+    secState = state.getSubstate(sec).getSubstate(domainContent[sec][0])
+    return secState.isDone()
+
+def isCertReady(state, certSec):
+    secState = state.getSubstate('cert').getSubstate(certSec)
     return secState.isDone()
 
 def setSPF(domainConfig, domainState, domainSecName, dnsup):
@@ -277,24 +285,25 @@ def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, add=True, de
         return True
     if 'cert' in domainConfig and ('tlsaAggrAdd' in domainConfig or 'tlsaAggrDel' in domainConfig):
         rrState.setOpStateWaiting()
-        if not isReady(state, domainConfig, 'cert'):
-            return False
-        rrState.setOpStateRunning()
-        cert = getFullchain(state, domainConfig)
-        if cert is None:
-            log.info('not deploying TLSA record for {} (no certificate)'.format(domainSecName))
-        else:
-            log.info('deploying TLSA record for {} (certificate found)'.format(domainSecName))
-            sanList = getCertSAN(cert)
-            log.info('  -> found certificate: {} for: {}'.format(cert, b', '.join(sanList)))
-            if domainSecName.encode() not in sanList:
-                log.error('{} not in certificate {}'.format(domainSecName, cert))
-            tlsaAdd = [dict(e, filename=cert) for e in domainConfig['tlsaAggrAdd'] if 'op' in e if 'auto' == e['op']]
-            if add is True:
-                dnsup.addTLSA(domainSecName, tlsaAdd)
-            if delete is True:
-                tlsaDel = domainConfig['tlsaAggrDel']
-                dnsup.delTLSA(domainSecName, tlsaDel, tlsaAdd)
+        for certSec in domainConfig['cert']:
+            if not isCertReady(state, certSec):
+                return False
+            rrState.setOpStateRunning()
+            cert = getFullchain(state, certSec)
+            if cert is None:
+                log.info('not deploying TLSA record for {} (no certificate)'.format(domainSecName))
+            else:
+                log.info('deploying TLSA record for {} (certificate found)'.format(domainSecName))
+                sanList = getCertSAN(cert)
+                log.info('  -> found certificate: {} for: {}'.format(cert, b', '.join(sanList)))
+                if domainSecName.encode() not in sanList:
+                    log.error('{} not in certificate {}'.format(domainSecName, cert))
+                tlsaAdd = [dict(e, filename=cert) for e in domainConfig['tlsaAggrAdd'] if 'op' in e if 'auto' == e['op']]
+                if add is True:
+                    dnsup.addTLSA(domainSecName, tlsaAdd)
+                if delete is True:
+                    tlsaDel = domainConfig['tlsaAggrDel']
+                    dnsup.delTLSA(domainSecName, tlsaDel, tlsaAdd)
     rrState.setOpStateDone()
     return True
 
