@@ -14,6 +14,7 @@ import os
 testdomain = "test42.entroserv.de"
 testns = "ns2.inwx.de"
 testcertpath = "/tmp/test_cryptdomainmgr/ssl"
+tmpdir = "/tmp/test_cryptdomainmgr"
 testcertemail = "stefan.helmert@t-online.de"
 
 
@@ -23,7 +24,7 @@ class TestCertTLSA(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomainmgr \
+        statedir={} \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -37,18 +38,20 @@ class TestCertTLSA(unittest.TestCase):
         destination={} \
         extraflags=--staging,-x \
         certname=fullchain.pem \
-        ' 2>&1".format(testdomain,testcertemail,testcertpath), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath), shell=True)
 
-        print(stdout)
+        #print(stdout)
         stdout = str(stdout, "utf-8")
-        with self.subTest("check first mx a"):
-            self.assertRegex(stdout, ".*add.*new.*_443._tcp.test42.entroserv.de.*")
+        with self.subTest("check tlsa 3 1 1"):
+            self.assertRegex(stdout, ".*add.*new.*_443._tcp.test42.entroserv.de.*3 1 1.*")
+        with self.subTest("check tlsa 2 0 1"):
+            self.assertRegex(stdout, ".*add.*_443._tcp.test42.entroserv.de.*2 0 1.*")
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomainmgr \
+        statedir={} \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -62,9 +65,9 @@ class TestCertTLSA(unittest.TestCase):
         destination={} \
         extraflags=--staging,-x \
         certname=fullchain.pem \
-        ' 2>&1".format(testdomain,testcertemail,testcertpath), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath), shell=True)
 
-        print(stdout)
+        #print(stdout)
 
         with self.subTest("check cert file exists"):
             self.assertFalse(os.path.isfile(os.path.join(testcertpath,"fullchain.pem")))
@@ -74,7 +77,7 @@ class TestCertTLSA(unittest.TestCase):
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
-        statedir=/tmp/test_cryptdomainmgr \
+        statedir={} \
         [domain] \
         handler=dnsuptools/inwx \
         [domain:{}] \
@@ -88,9 +91,9 @@ class TestCertTLSA(unittest.TestCase):
         destination={} \
         extraflags=--staging,-x \
         certname=fullchain.pem \
-        ' 2>&1".format(testdomain,testcertemail,testcertpath), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath), shell=True)
 
 
-        print(stdout)
+        #print(stdout)
 
 
