@@ -148,7 +148,6 @@ def interpreteCert(content):
     if 'cert' not in content:
         return {}
     certNames = content['cert'].replace(' ','').split(',')
-    print(content)
     return {'cert': certNames}
 
 

@@ -67,6 +67,7 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
             time.sleep(3)
             if 9 == i:
                 raise(e)
+            return []
 
     res = []
     rv = rv.splitlines()

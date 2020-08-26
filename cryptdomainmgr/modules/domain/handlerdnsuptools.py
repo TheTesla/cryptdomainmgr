@@ -285,6 +285,7 @@ def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, add=True, de
         return True
     if 'cert' in domainConfig and ('tlsaAggrAdd' in domainConfig or 'tlsaAggrDel' in domainConfig):
         rrState.setOpStateWaiting()
+        tlsaPres = []
         for certSec in domainConfig['cert']:
             if not isCertReady(state, certSec):
                 return False
@@ -299,11 +300,13 @@ def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, add=True, de
                 if domainSecName.encode() not in sanList:
                     log.error('{} not in certificate {}'.format(domainSecName, cert))
                 tlsaAdd = [dict(e, filename=cert) for e in domainConfig['tlsaAggrAdd'] if 'op' in e if 'auto' == e['op']]
+                tlsaPres.extend(tlsaAdd)
                 if add is True:
                     dnsup.addTLSA(domainSecName, tlsaAdd)
-                if delete is True:
-                    tlsaDel = domainConfig['tlsaAggrDel']
-                    dnsup.delTLSA(domainSecName, tlsaDel, tlsaAdd)
+        log.info('removing old TLSA record for {}'.format(domainSecName))
+        if delete is True:
+            tlsaDel = domainConfig['tlsaAggrDel']
+            dnsup.delTLSA(domainSecName, tlsaDel, tlsaPres)
     rrState.setOpStateDone()
     return True
 
