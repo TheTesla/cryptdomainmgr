@@ -185,8 +185,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         ' 2>&1".format(testdomain), shell=True)
         stdout = stdout.decode()
         with self.subTest("check first srv a"):
-            self.assertRegex(stdout, ".*add.*new.*_smtp._tcp.test.entroserv.de\
-                              : 10 25 testsrv.entroserv.de.*")
+            self.assertRegex(stdout, ".*add.*_smtp._tcp.test.entroserv.de : 10 25 testsrv.entroserv.de.*")
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --update \
                                  test_inwxcreds.conf --config-content \

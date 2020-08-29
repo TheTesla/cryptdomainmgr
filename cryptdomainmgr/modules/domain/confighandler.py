@@ -121,7 +121,7 @@ def interpreteMX(content):
     return interpreteRR(content, 'mx', ['*', '10'])
 
 def interpreteSRV(content):
-    return interpreteRR(content, 'srv', ['*', '*', '*', '*', '50', '10'])
+    return interpreteRR(content, 'srv', ['*', 'http', 'tcp', '443', '0', '0'])
 
 def interpreteA(content):
     return interpreteRR(content, 'ip4', ['*'])
