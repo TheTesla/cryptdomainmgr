@@ -7,8 +7,7 @@
 #
 #######################################################################
 
-from cryptdomainmgr.modules.common.cdmconfighelper import applyDefault, processConfig
-from simpleloggerplus import simpleloggerplus as log
+from cryptdomainmgr.modules.common.cdmconfighelper import processConfig
 
 
 # Default handling
@@ -18,7 +17,6 @@ def readHandlerDefault(args):
     if not 'keybasename' in args['content']:
         args['content']['keybasename'] = str(args['secname'])
     if 'handler' in args['content']:
-        log.debug('handler in content')
         handlerNames = args['content']['handler'].split('/')
         handler = __import__('cryptdomainmgr.modules.{}.handler{}'.format(str(args['module']), handlerNames[0]), fromlist=('cryptdomainmgr', 'modules', str(args['module'])))
         args['config'][args['secname']].update(handler.defaultConfig)

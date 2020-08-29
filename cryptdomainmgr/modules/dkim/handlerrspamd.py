@@ -11,7 +11,6 @@ import os
 from subprocess import check_output, CalledProcessError
 from simpleloggerplus import simpleloggerplus as log
 from jinja2 import Template
-from parse import parse
 import time
 from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 

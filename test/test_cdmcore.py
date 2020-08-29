@@ -10,7 +10,7 @@
 import unittest
 
 
-from cryptdomainmgr.cdmcore import *
+from cryptdomainmgr.cdmcore import getNextPhase, getCurrentPhase, StateHandler, ConfigReader, runPhase, ManagedDomain
 
 def procConfig(cr):
     cr.open()

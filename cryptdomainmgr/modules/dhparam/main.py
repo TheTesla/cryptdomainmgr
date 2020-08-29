@@ -7,7 +7,6 @@
 #
 #######################################################################
 
-from OpenSSL import crypto
 import os
 from subprocess import check_output, CalledProcessError
 from simpleloggerplus import simpleloggerplus as log

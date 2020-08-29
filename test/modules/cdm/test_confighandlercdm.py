@@ -10,7 +10,7 @@
 
 import unittest
 
-from cryptdomainmgr.cdmconfighandler import *
+from cryptdomainmgr.cdmconfighandler import ConfigReader
 
 def procConfig(cr):
     cr.open()

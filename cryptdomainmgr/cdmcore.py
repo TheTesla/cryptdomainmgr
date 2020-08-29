@@ -7,8 +7,8 @@
 #
 #######################################################################
 
-from cryptdomainmgr.cdmconfighandler import *
-from cryptdomainmgr.cdmstatehandler import *
+from cryptdomainmgr.cdmconfighandler import ConfigReader
+from cryptdomainmgr.cdmstatehandler import StateHandler
 #from cryptdomainmgr.modules.common.cdmconfighelper import getStateDir
 from simpleloggerplus import simpleloggerplus as log
 

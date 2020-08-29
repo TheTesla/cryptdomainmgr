@@ -7,8 +7,7 @@
 #
 #######################################################################
 
-from cryptdomainmgr.modules.common.cdmconfighelper import applyDefault, processConfig
-from simpleloggerplus import simpleloggerplus as log
+from cryptdomainmgr.modules.common.cdmconfighelper import processConfig
 
 
 # Default handling
