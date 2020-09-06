@@ -10,6 +10,8 @@
 import unittest
 import subprocess as sp
 import os
+from OpenSSL import crypto
+import hashlib
 
 testdomain = "test42.entroserv.de"
 testns = "ns2.inwx.de"
@@ -17,29 +19,33 @@ testcertpath = "/tmp/test_cryptdomainmgr/ssl"
 tmpdir = "/tmp/test_cryptdomainmgr"
 testcertemail = "stefan.helmert@t-online.de"
 
-# from OpenSSL import crypto
-# import hashlib
-# with open("/tmp/test_cryptdomainmgr/modules/cert/mycert/certs/test42.entroserv.de/fullchain.pem") as f: 
-#     c = f.read()
 # hashlib.sha256(crypto.dump_certificate(crypto.FILETYPE_ASN1,crypto.load_certificate(crypto.FILETYPE_PEM,c))).hexdigest()
 
 
 def tlsaFromCertFile(certFilename, certConstr = 3, keyOnly = 0, hashType = 1):
-    certCont = sp.check_output(('cat', str(certFilename)))
+    #certCont = sp.check_output(('cat', str(certFilename)))
+    with open(certFilename) as f: 
+        certCont = f.read()
     if 2 == int(certConstr) or 0 == int(certConstr):
-        certCont = certCont.split(b'-----END CERTIFICATE-----')[1] 
-        certCont += b'-----END CERTIFICATE-----'
-    ps = sp.Popen(('echo', '-e', certCont), stdout=sp.PIPE)
+        certCont = certCont.split('-----END CERTIFICATE-----')[1] 
+        certCont += '-----END CERTIFICATE-----'
+    #ps = sp.Popen(('echo', '-e', certCont), stdout=sp.PIPE)
+    certObj = crypto.load_certificate(crypto.FILETYPE_PEM, certCont)
     if 0 == int(keyOnly):
-        ps = sp.Popen(('openssl', 'x509', '-outform', 'DER'), stdout=sp.PIPE, stdin=ps.stdout)
+        #ps = sp.Popen(('openssl', 'x509', '-outform', 'DER'), stdout=sp.PIPE, stdin=ps.stdout)
+        ASN1 = crypto.dump_certificate(crypto.FILETYPE_ASN1, certObj)
     else:
-        ps = sp.Popen(('openssl', 'x509', '-pubkey', '-noout'), stdout=sp.PIPE, stdin=ps.stdout)
-        ps = sp.Popen(('openssl', 'pkey', '-pubin', '-outform', 'DER'), stdin=ps.stdout, stdout=sp.PIPE)
+        #ps = sp.Popen(('openssl', 'x509', '-pubkey', '-noout'), stdout=sp.PIPE, stdin=ps.stdout)
+        #ps = sp.Popen(('openssl', 'pkey', '-pubin', '-outform', 'DER'), stdin=ps.stdout, stdout=sp.PIPE)
+        pubKeyObj = certObj.get_pubkey()
+        ASN1 = crypto.dump_publickey(crypto.FILETYPE_ASN1, pubKeyObj)
     if 1 == int(hashType):
-        output = sp.check_output(('openssl', 'sha256'), stdin=ps.stdout)
+        #output = sp.check_output(('openssl', 'sha256'), stdin=ps.stdout).split(b' ')[1].replace(b'\n',b'')
+        output = hashlib.sha256(ASN1).hexdigest()
     elif 2 == int(hashType):
-        output = sp.check_output(('openssl', 'sha512'), stdin=ps.stdout)
-    return output.split(b' ')[1].replace(b'\n',b'')
+        #output = sp.check_output(('openssl', 'sha512'), stdin=ps.stdout).split(b' ')[1].replace(b'\n',b'')
+        output = hashlib.sha512(ASN1).hexdigest()
+    return output.encode()
 
 class TestCertTLSA(unittest.TestCase):
     def testMultiCertTLSACreate(self):

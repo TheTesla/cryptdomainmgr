@@ -5,6 +5,7 @@ deploy_challenge() {
     declare -A TABLE=$DOMAINACCESSTABLE
     python3 -m cryptdomainmgr --update <(echo -e "[cdm]\nstatedir=$STATEDIR\n[domain:$DOMAIN]\n${TABLE[$DOMAIN]}\nacme=$TOKEN_VALUE\n")
 
+    sleep 3
 }
 
 clean_challenge() {

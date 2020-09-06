@@ -64,7 +64,7 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
             break
         except CalledProcessError as e:
             log.error(e.output)
-            time.sleep(3)
+            time.sleep(30)
             if 9 == i:
                 raise(e)
             return []
