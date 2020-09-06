@@ -8,7 +8,7 @@
 #######################################################################
 
 import os
-from subprocess import check_output, CalledProcessError
+from subprocess import check_output, CalledProcessError, STDOUT
 from simpleloggerplus import simpleloggerplus as log
 from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 import time
@@ -57,17 +57,26 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
     log.debug(args)
     certState.setOpStateRunning()
 
-    for i in range(3):
+    i = 0
+    while True:
         try:
-            rv = check_output(args, env=dict(os.environ, DOMAINACCESSTABLE=domainAccessTable, STATEDIR=statedir))
+            log.info('Starting DNS-01 authentication')
+            rv = check_output(args, stderr=STDOUT, env=dict(os.environ, DOMAINACCESSTABLE=domainAccessTable, STATEDIR=statedir, WAITSEC="{}".format(3**i)))
             log.info(rv.decode())
             break
         except CalledProcessError as e:
-            log.error(e.output)
-            time.sleep(30)
+            #log.error(e.output.decode())
+            if 'ERROR: Lock file' in e.output.decode():
+                lockFilename = e.output.decode().split('ERROR: Lock file \'')[-1].split('\' present, aborting')[0]
+                log.warn('Lock file from imcomplete run found: {}'.format(lockFilename))
+                log.warn('  -> Removing')
+                os.remove(lockFilename)
+            if 'Incorrect TXT record' in e.output.decode():
+                log.info('  -> Invalid DNS-01 challenge, maybe due to DNS caching interval. Trying to wait longer!')
+                i += 1
+                log.info('  -> Will wait {} s to give challenge time to propagate DNS cache.'.format(3**i))
             if 9 == i:
                 raise(e)
-            return []
 
     res = []
     rv = rv.splitlines()
@@ -80,7 +89,7 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
         res.append(e)
     resDict = {e.decode().split('=')[0].lower(): e.decode().split('=')[1] for e in res}
     resDict['san'] = list(domainList)
-    
+ 
     if 'running' == certState.opstate:
         certState.registerResult(resDict)
     certState.setOpStateDone()
