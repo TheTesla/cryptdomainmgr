@@ -15,7 +15,7 @@ import time
 
 defaultConfig = {'keysize': 4096, 'extraflags': '', 'caa': {'url': 'letsencrypt.org', 'flag': '0', 'tag': 'issue'}}
 
-def prepare(certConfig, certState, statedir, domainList, domainAccessTable): 
+def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
     if 'dehydrated' != certConfig['handler'].split('/')[0]:
         return
     if 0 == len(domainList):
@@ -65,7 +65,6 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
             log.info(rv.decode())
             break
         except CalledProcessError as e:
-            #log.error(e.output.decode())
             if 'ERROR: Lock file' in e.output.decode():
                 lockFilename = e.output.decode().split('ERROR: Lock file \'')[-1].split('\' present, aborting')[0]
                 log.warn('Lock file from imcomplete run found: {}'.format(lockFilename))
@@ -89,7 +88,7 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
         res.append(e)
     resDict = {e.decode().split('=')[0].lower(): e.decode().split('=')[1] for e in res}
     resDict['san'] = list(domainList)
- 
+
     if 'running' == certState.opstate:
         certState.registerResult(resDict)
     certState.setOpStateDone()

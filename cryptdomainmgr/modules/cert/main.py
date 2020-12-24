@@ -40,7 +40,7 @@ def prepare(config, state):
         handlerNames = certConfig['handler'].split('/')
         handler = __import__('cryptdomainmgr.modules.cert.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','cert'))
         statedir = getStateDir(config, 'cert', certSecName)
-        handler.prepare(certConfig, certState, statedir, domains, domainAccessTable) 
+        handler.prepare(certConfig, certState, statedir, domains, domainAccessTable)
 
 def rollover(config, state):
     subState = state.getSubstate('cert')
@@ -85,12 +85,18 @@ def copyCert(certConfig, certState):
 def delOldCert(certConfig, certState):
     preserve = ['fullchainfile', 'certfile', 'keyfile', 'chainfile']
     preserveFiles = set([certState.result[e] for e in preserve])
+    print(preserveFiles)
     preserveFiles.update(set([os.path.realpath(e) for e in preserveFiles]))
+    print(preserveFiles)
     dirs = set([os.path.dirname(e) for e in preserveFiles])
-    dirs = [e for e in dirs if os.path.isdir(e)]
+    dirs = set([e for e in dirs if os.path.isdir(e)])
+    dstFiles = set([os.path.join(certConfig['destination'], f, os.path.basename(e)) for e in preserveFiles for f in certState.result['san']])
+    dstDirs = set([os.path.dirname(e) for e in dstFiles])
+    dirs.update(dstDirs)
+    print(dirs)
     allFiles = set([os.path.join(d, f) for d in dirs for f in os.listdir(d)])
     allFiles = set([e for e in allFiles if os.path.isfile(e)])
-    removeFiles = allFiles - preserveFiles
+    removeFiles = allFiles - preserveFiles - dstFiles
     for e in removeFiles:
         log.info('  rm {}'.format(e))
         try:

@@ -10,12 +10,8 @@
 import unittest
 import subprocess as sp
 import os
+from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail
 
-testdomain = "test42.entroserv.de"
-testns = "ns2.inwx.de"
-testcertpath = "/tmp/test_cryptdomainmgr/ssl"
-tmpdir = "/tmp/test_cryptdomainmgr"
-testcertemail = "stefan.helmert@t-online.de"
 certname = "fullchain.pem"
 
 
@@ -37,8 +33,7 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname={} \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,certname), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath), shell=True)
 
         with self.subTest("check cert file is created in tmp"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
@@ -60,8 +55,7 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname={} \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,certname), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath), shell=True)
 
         with self.subTest("check cert file is copied to destination"):
             self.assertTrue(os.path.isfile(os.path.join(testcertpath,testdomain,certname)))
@@ -83,8 +77,7 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname={} \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,certname), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath), shell=True)
 
         with self.subTest("check current cert is not deleted"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
@@ -107,11 +100,9 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
 
         with self.subTest("check cert file is created in tmp 1"):
@@ -135,11 +126,9 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
 
         with self.subTest("check cert file is copied to destination 1"):
@@ -164,11 +153,9 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
 
         with self.subTest("check current cert is not deleted 1"):
@@ -176,4 +163,7 @@ class TestHandlerDehydrated(unittest.TestCase):
         with self.subTest("check current cert is not deleted 2"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert2","certs",testdomain,certname)))
 
+
+if "__main__" == __name__:
+    unittest.main()
 

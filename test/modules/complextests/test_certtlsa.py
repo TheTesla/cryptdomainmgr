@@ -12,22 +12,16 @@ import subprocess as sp
 import os
 from OpenSSL import crypto
 import hashlib
+from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail
 
-testdomain = "test42.entroserv.de"
-testns = "ns2.inwx.de"
-testcertpath = "/tmp/test_cryptdomainmgr/ssl"
-tmpdir = "/tmp/test_cryptdomainmgr"
-testcertemail = "stefan.helmert@t-online.de"
-
-# hashlib.sha256(crypto.dump_certificate(crypto.FILETYPE_ASN1,crypto.load_certificate(crypto.FILETYPE_PEM,c))).hexdigest()
 
 
 def tlsaFromCertFile(certFilename, certConstr = 3, keyOnly = 0, hashType = 1):
     #certCont = sp.check_output(('cat', str(certFilename)))
-    with open(certFilename) as f: 
+    with open(certFilename) as f:
         certCont = f.read()
     if 2 == int(certConstr) or 0 == int(certConstr):
-        certCont = certCont.split('-----END CERTIFICATE-----')[1] 
+        certCont = certCont.split('-----END CERTIFICATE-----')[1]
         certCont += '-----END CERTIFICATE-----'
     #ps = sp.Popen(('echo', '-e', certCont), stdout=sp.PIPE)
     certObj = crypto.load_certificate(crypto.FILETYPE_PEM, certCont)
@@ -66,16 +60,16 @@ class TestCertTLSA(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
 
 
         tlsa311mycert = tlsaFromCertFile(os.path.join(tmpdir,"modules/cert/mycert/certs",testdomain,"fullchain.pem"),3,1,1)
         tlsa311mycert2 = tlsaFromCertFile(os.path.join(tmpdir,"modules/cert/mycert2/certs",testdomain,"fullchain.pem"),3,1,1)
+        tlsa201mycert = tlsaFromCertFile(os.path.join(tmpdir,"modules/cert/mycert/certs",testdomain,"fullchain.pem"),2,0,1)
+        tlsa201mycert2 = tlsaFromCertFile(os.path.join(tmpdir,"modules/cert/mycert2/certs",testdomain,"fullchain.pem"),2,0,1)
 
         stdout = str(stdout, "utf-8")
         with self.subTest("check add tlsa 3 1 1 mycert"):
@@ -83,9 +77,9 @@ class TestCertTLSA(unittest.TestCase):
         with self.subTest("check add tlsa 3 1 1 mycert2"):
             self.assertRegex(stdout, ".*add.*new.*_443._tcp.test42.entroserv.de.*3 1 1 {}.*".format(tlsa311mycert2))
         with self.subTest("check add tlsa 2 0 1 mycert"):
-            self.assertRegex(stdout, ".*add.*_443._tcp.test42.entroserv.de.*2 0 1 {}.*".format(tlsaFromCertFile(os.path.join(tmpdir,"modules/cert/mycert/certs",testdomain,"fullchain.pem"),2,0,1)))
+            self.assertRegex(stdout, ".*add.*_443._tcp.test42.entroserv.de.*2 0 1 {}.*".format(tlsa201mycert))
         with self.subTest("check add tlsa 2 0 1 mycert2"):
-            self.assertRegex(stdout, ".*add.*_443._tcp.test42.entroserv.de.*2 0 1 {}.*".format(tlsaFromCertFile(os.path.join(tmpdir,"modules/cert/mycert2/certs",testdomain,"fullchain.pem"),2,0,1)))
+            self.assertRegex(stdout, ".*add.*_443._tcp.test42.entroserv.de.*2 0 1 {}.*".format(tlsa201mycert2))
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \
@@ -104,11 +98,9 @@ class TestCertTLSA(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
 
         #print(stdout)
@@ -136,11 +128,9 @@ class TestCertTLSA(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
 
 
@@ -161,11 +151,9 @@ class TestCertTLSA(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
@@ -185,11 +173,9 @@ class TestCertTLSA(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --cleanup \
@@ -209,11 +195,9 @@ class TestCertTLSA(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        certname=fullchain.pem \
         ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
 
 
@@ -223,9 +207,5 @@ class TestCertTLSA(unittest.TestCase):
             self.assertRegex(stdout, ".*delete.*_443._tcp.test42.entroserv.de.*3 1 1 {}.*".format(tlsa311mycert))
         with self.subTest("check delete tlsa 3 1 1 mycert2"):
             self.assertRegex(stdout, ".*delet.*_443._tcp.test42.entroserv.de.*3 1 1 {}.*".format(tlsa311mycert2))
-#        with self.subTest("check tlsa 2 0 1 mycert"):
-#            self.assertRegex(stdout, ".*add.*_443._tcp.test42.entroserv.de.*2 0 1 {}.*".format(tlsaFromCertFile(os.path.join(tmpdir,"modules/cert/mycert/certs",testdomain,"fullchain.pem"),2,0,1))
-#        with self.subTest("check tlsa 2 0 1 mycert2"):
-#            self.assertRegex(stdout, ".*add.*_443._tcp.test42.entroserv.de.*2 0 1 {}.*".format(tlsaFromCertFile(os.path.join(tmpdir,"modules/cert/mycert2/certs",testdomain,"fullchain.pem"),2,0,1))
 
 
