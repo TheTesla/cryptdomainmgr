@@ -61,7 +61,7 @@ def prepare(domainConfig, domainState, domainSecName, state):
 
     return
 
-def rollover(domainConfig, domainState, domainSecName, state): 
+def rollover(domainConfig, domainState, domainSecName, state):
     handlers = domainConfig['handler'].split('/')
     if 'dnsuptools' != handlers[0]:
         return
@@ -74,7 +74,7 @@ def rollover(domainConfig, domainState, domainSecName, state):
 
     return
 
-def cleanup(domainConfig, domainState, domainSecName, state): 
+def cleanup(domainConfig, domainState, domainSecName, state):
     handlers = domainConfig['handler'].split('/')
     if 'dnsuptools' != handlers[0]:
         return
@@ -82,9 +82,9 @@ def cleanup(domainConfig, domainState, domainSecName, state):
     dnsup.setHandler(handlers[1])
     dnsup.handler.setUserDict({'default': domainConfig['user'], domainSecName: domainConfig['user']})
     dnsup.handler.setPasswdDict({'default': domainConfig['passwd'], domainSecName: domainConfig['passwd']})
-    
+
     domainState.setOpStateWaiting()
-    
+
     domainState.setOpStateRunning()
     tlsaReady = delTLSA(domainConfig, domainState, domainSecName, dnsup, state)
     dkimReady = delDKIM(domainConfig, domainState, domainSecName, dnsup, state)
@@ -122,10 +122,16 @@ def isCertReady(state, certSec):
     secState = state.getSubstate('cert').getSubstate(certSec)
     return secState.isDone()
 
+# not used, but:
+# maybe ToDo: use this function to equalize setTLSA and setDKIM implementation  
+def isDKIMReady(state, dkimSec):
+    secState = state.getSubstate('dkim').getSubstate(dkimSec)
+    return secState.isDone()
+
 def setSPF(domainConfig, domainState, domainSecName, dnsup):
     rrState = domainState.getSubstate('setspf')
     if rrState.isDone():
-        return 
+        return
     rrState.setOpStateRunning()
     if 'spfAggrDel' in domainConfig and 'spfAggrAdd' in domainConfig:
         dnsup.setSPFentry(domainSecName, domainConfig['spfAggrAdd'], domainConfig['spfAggrDel'])
@@ -138,7 +144,7 @@ def setSPF(domainConfig, domainState, domainSecName, dnsup):
 def setDMARCentries(domainConfig, domainState, domainSecName, dnsup):
     rrState = domainState.getSubstate('setdmarcentries')
     if rrState.isDone():
-        return 
+        return
     rrState.setOpStateRunning()
     if 'dmarc' in domainConfig:
         # following line means configuration:
@@ -154,7 +160,7 @@ def setDMARCentries(domainConfig, domainState, domainSecName, dnsup):
 def setADSP(domainConfig, domainState, domainSecName, dnsup):
     rrState = domainState.getSubstate('setadsp')
     if rrState.isDone():
-        return 
+        return
     rrState.setOpStateRunning()
     if 'adsp' in domainConfig:
         dnsup.setADSP(domainSecName, domainConfig['adsp'])
@@ -163,7 +169,7 @@ def setADSP(domainConfig, domainState, domainSecName, dnsup):
 def setACME(domainConfig, domainState, domainSecName, dnsup):
     rrState = domainState.getSubstate('setacme')
     if rrState.isDone():
-        return 
+        return
     rrState.setOpStateRunning()
     if 'acme' in domainConfig:
         dnsup.setACME(domainSecName, domainConfig['acme'])
@@ -172,7 +178,7 @@ def setACME(domainConfig, domainState, domainSecName, dnsup):
 def setSOA(domainConfig, domainState, domainSecName, dnsup):
     rrState = domainState.getSubstate('setsoa')
     if rrState.isDone():
-        return 
+        return
     rrState.setOpStateRunning()
     if 'soa' in domainConfig:
         dnsup.setSOAentry(domainSecName, domainConfig['soa'])
@@ -181,19 +187,19 @@ def setSOA(domainConfig, domainState, domainSecName, dnsup):
 def addSRV(domainConfig, domainState, domainSecName, dnsup):
     rrState = domainState.getSubstate('addsrv')
     if rrState.isDone():
-        return 
+        return
     rrState.setOpStateRunning()
     if 'srvAggrAdd' in domainConfig:
-        dnsup.addSRV(domainSecName, domainConfig['srvAggrAdd']) 
+        dnsup.addSRV(domainSecName, domainConfig['srvAggrAdd'])
     rrState.setOpStateDone()
 
 def delSRV(domainConfig, domainState, domainSecName, dnsup):
     rrState = domainState.getSubstate('delsrv')
     if rrState.isDone():
-        return 
+        return
     rrState.setOpStateRunning()
     if 'srvAggrDel' in domainConfig:
-        dnsup.delSRV(domainSecName, domainConfig['srvAggrDel'], domainConfig['srvAggrAdd']) 
+        dnsup.delSRV(domainSecName, domainConfig['srvAggrDel'], domainConfig['srvAggrAdd'])
     rrState.setOpStateDone()
 
 def setSRV(domainConfig, domainState, domainSecName, dnsup):
@@ -203,7 +209,7 @@ def setSRV(domainConfig, domainState, domainSecName, dnsup):
 def addCAA(domainConfig, domainState, domainSecName, dnsup):
     rrState = domainState.getSubstate('addcaa')
     if rrState.isDone():
-        return 
+        return
     rrState.setOpStateRunning()
     if 'caaAggrAdd' in domainConfig:
         dnsup.addCAA(domainSecName, domainConfig['caaAggrAdd'])
@@ -212,7 +218,7 @@ def addCAA(domainConfig, domainState, domainSecName, dnsup):
 def delCAA(domainConfig, domainState, domainSecName, dnsup):
     rrState = domainState.getSubstate('delcaa')
     if rrState.isDone():
-        return 
+        return
     rrState.setOpStateRunning()
     if 'caaAggrDel' in domainConfig:
         dnsup.delCAA(domainSecName, domainConfig['caaAggrDel'], domainConfig['caaAggrAdd'])
@@ -225,43 +231,43 @@ def setCAA(domainConfig, domainState, domainSecName, dnsup):
 def delIPs(domainConfig, domainState, domainSecName, dnsup):
     rrState = domainState.getSubstate('delips')
     if rrState.isDone():
-        return 
+        return
     rrState.setOpStateRunning()
     if 'ip4AggrDel' in domainConfig:
-        dnsup.delA(domainSecName, [e['content'] if 'content' in e else '*' for e in domainConfig['ip4AggrDel']], [e['content']  for e in domainConfig['ip4AggrAdd']]) 
+        dnsup.delA(domainSecName, [e['content'] if 'content' in e else '*' for e in domainConfig['ip4AggrDel']], [e['content']  for e in domainConfig['ip4AggrAdd']])
     if 'ip6AggrDel' in domainConfig:
-        dnsup.delAAAA(domainSecName, [e['content'] if 'content' in e else '*' for e in domainConfig['ip6AggrDel']], [e['content']  for e in domainConfig['ip6AggrAdd']]) 
+        dnsup.delAAAA(domainSecName, [e['content'] if 'content' in e else '*' for e in domainConfig['ip6AggrDel']], [e['content']  for e in domainConfig['ip6AggrAdd']])
     rrState.setOpStateDone()
 
-def addIPs(domainConfig, domainState, domainSecName, dnsup): 
+def addIPs(domainConfig, domainState, domainSecName, dnsup):
     rrState = domainState.getSubstate('addips')
     if rrState.isDone():
-        return 
+        return
     rrState.setOpStateRunning()
     if 'ip4AggrAdd' in domainConfig:
-        dnsup.addA(domainSecName, [e['content']  for e in domainConfig['ip4AggrAdd']]) 
+        dnsup.addA(domainSecName, [e['content']  for e in domainConfig['ip4AggrAdd']])
     if 'ip6AggrAdd' in domainConfig:
-        dnsup.addAAAA(domainSecName, [e['content']  for e in domainConfig['ip6AggrAdd']]) 
+        dnsup.addAAAA(domainSecName, [e['content']  for e in domainConfig['ip6AggrAdd']])
     rrState.setOpStateDone()
     return
 
-def setIPs(domainConfig, domainState, domainSecName, dnsup): 
+def setIPs(domainConfig, domainState, domainSecName, dnsup):
     addIPs(domainConfig, domainState, domainSecName, dnsup)
     delIPs(domainConfig, domainState, domainSecName, dnsup)
 
 def addMX(domainConfig, domainState, domainSecName, dnsup):
     rrState = domainState.getSubstate('addmx')
     if rrState.isDone():
-        return 
+        return
     rrState.setOpStateRunning()
     if 'mxAggrAdd' in domainConfig:
         dnsup.addMX(domainSecName, domainConfig['mxAggrAdd'])
     rrState.setOpStateDone()
-        
+
 def delMX(domainConfig, domainState, domainSecName, dnsup):
     rrState = domainState.getSubstate('delmx')
     if rrState.isDone():
-        return 
+        return
     rrState.setOpStateRunning()
     if 'mxAggrDel' in domainConfig:
         dnsup.delMX(domainSecName, domainConfig['mxAggrDel'], domainConfig['mxAggrAdd'])

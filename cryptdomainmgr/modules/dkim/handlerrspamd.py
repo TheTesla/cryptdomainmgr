@@ -27,7 +27,7 @@ def prepare(dkimConfig, dkimState, statedir):
         dkimState.setOpStateDone()
 
 def rollover(dkimConfig, dkimState):
-    if 'rspamd' == dkimConfig['handler'].split('/')[0]: 
+    if 'rspamd' == dkimConfig['handler'].split('/')[0]:
         log.info('using new dkim key, moving new config file')
         copyDKIM(dkimConfig, dkimState)
         copyConf(dkimConfig, dkimState)
@@ -42,11 +42,18 @@ def copyDKIM(dkimConfig, dkimState):
     dest = os.path.join(dkimConfig['keylocation'], dkimConfig['keyname'])
     log.info('  {} -> {}'.format(src, dest))
     try:
+        rv = check_output(('mkdir', '-p', os.path.dirname(str(dest))))
+    except CalledProcessError as e:
+        log.error("Failed to create directory path for {}".format(str(dest)))
+    try:
         rv = check_output(('cp', '-rfLT', str(src), str(dest)))
+    except CalledProcessError as e:
+        log.error("Failed to copy file")
+        log.error("  {} -> {}".format(str(src), str(dest)))
+    try:
         rv = check_output(('chown', '_rspamd:_rspamd', str(dest)))
     except CalledProcessError as e:
-        log.error(e.output)
-        raise(e)
+        log.error("Failed to change ownership of {}".format(str(dest)))
 
 def copyConf(dkimConfig, dkimState):
     src = dkimState.result['signingconftemporaryfile']
@@ -54,10 +61,13 @@ def copyConf(dkimConfig, dkimState):
     log.info('  {} -> {}'.format(src, dest))
     try:
         rv = check_output(('cp', '-rfLT', str(src), str(dest)))
+    except CalledProcessError as e:
+        log.error("Failed to copy file")
+        log.error("  {} -> {}".format(str(src), str(dest)))
+    try:
         rv = check_output(('chown', '_rspamd:_rspamd', str(dest)))
     except CalledProcessError as e:
-        log.error(e.output)
-        raise(e)
+        log.error("Failed to change ownership of {}".format(str(dest)))
 
 def createSelector(keybasename):
     return str(keybasename) + '_{:10d}'.format(int(time.time()))

@@ -9,9 +9,7 @@
 
 import unittest
 import subprocess as sp
-
-testdomain = "test.entroserv.de"
-testns = "ns2.inwx.de"
+from test.test_config import testdomain, testns
 
 
 class TestHandlerDNSUptools(unittest.TestCase):
@@ -185,7 +183,7 @@ class TestHandlerDNSUptools(unittest.TestCase):
         ' 2>&1".format(testdomain), shell=True)
         stdout = stdout.decode()
         with self.subTest("check first srv a"):
-            self.assertRegex(stdout, ".*add.*_smtp._tcp.test.entroserv.de : 10 25 testsrv.entroserv.de.*")
+            self.assertRegex(stdout, ".*add.*_smtp._tcp.{} : 10 25 testsrv.entroserv.de.*".format(testdomain))
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --update \
                                  test_inwxcreds.conf --config-content \

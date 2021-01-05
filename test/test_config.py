@@ -14,4 +14,6 @@ testns = "ns2.inwx.de"
 tmpdir="/tmp/test_cryptdomainmgr"
 testcertpath = os.path.join(tmpdir, "ssl")
 testcertemail = "stefan.helmert@t-online.de"
+testdh = "dh512"
+dhfile = os.path.join(tmpdir,"myssl/dh512.pem")
 

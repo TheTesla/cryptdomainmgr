@@ -10,10 +10,8 @@
 import unittest
 import subprocess as sp
 import os
+from test.test_config import testdh, dhfile
 
-testdh = "dh512"
-dhfile = "/tmp/test_cryptdomainmgr/myssl/dh512.pem"
-#testns = "ns2.inwx.de"
 
 
 class TestHandlerOpenssl(unittest.TestCase):
