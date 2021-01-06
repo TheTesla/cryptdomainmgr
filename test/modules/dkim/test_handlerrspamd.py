@@ -70,7 +70,9 @@ class TestHandlerRspamd(unittest.TestCase):
         ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation), shell=True)
 
         with self.subTest("check dkim key file is copied to destination"):
-            self.assertTrue(os.path.isfile(os.path.join(testcertpath,testdomain,certname)))
+            self.assertTrue(os.path.isfile(os.path.join(keylocation,keyname)))
+        with self.subTest("check dkim conf file is copied to destination"):
+            self.assertTrue(os.path.isfile(signingConfDestFile))
 
 
 #        stdout = sp.check_output("python3 -m cryptdomainmgr --cleanup \

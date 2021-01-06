@@ -60,6 +60,10 @@ def copyConf(dkimConfig, dkimState):
     dest = dkimConfig['signingconfdestinationfile']
     log.info('  {} -> {}'.format(src, dest))
     try:
+        rv = check_output(('mkdir', '-p', os.path.dirname(str(dest))))
+    except CalledProcessError as e:
+        log.error("Failed to create directory path for {}".format(str(dest)))
+    try:
         rv = check_output(('cp', '-rfLT', str(src), str(dest)))
     except CalledProcessError as e:
         log.error("Failed to copy file")
