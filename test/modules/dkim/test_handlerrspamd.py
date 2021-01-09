@@ -7,11 +7,13 @@
 #
 #######################################################################
 
+import re
 import unittest
 import subprocess as sp
 import os
 from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail
-
+from cryptography.hazmat.primitives import serialization
+import OpenSSL
 
 keybasename = "key"
 keysize = 2048
@@ -49,6 +51,27 @@ class TestHandlerRspamd(unittest.TestCase):
         with self.subTest("check dkim conf file is created in tmp"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/dkim","mydkim","conf","dkim.conf")))
 
+        with open(os.path.join(tmpdir,"modules/dkim","mydkim","conf","dkim.conf"), 'r') as f:
+            confStr = f.read()
+        dkimSelector =  confStr.split("selector")[1].split("=")[1].split("\"")[1]
+
+        with open(os.path.join(tmpdir,"modules/dkim","mydkim","key","dkim.key"),'r') as f:
+            privKeyStr = f.read()
+        privKey = OpenSSL.crypto.load_privatekey(OpenSSL.crypto.FILETYPE_PEM, privKeyStr)
+        privKeyCrypto = privKey.to_cryptography_key()
+        pubKey = privKeyCrypto.public_key()
+        pubKeyStr = pubKey.public_bytes(serialization.Encoding.PEM,serialization.PublicFormat.SubjectPublicKeyInfo)
+        pubKeyStrContent = pubKeyStr.decode('utf8').replace('\n','').split('-----BEGIN PUBLIC KEY-----')[1].split('-----END PUBLIC KEY-----')[0]
+        dkimpubkey = re.escape(pubKeyStrContent[:253]+'\\n\\t'+pubKeyStrContent[253:])
+
+
+        stdout = str(stdout, "utf-8")
+        with self.subTest("check dkim keyname"):
+            self.assertTrue(dkimSelector[:len(keybasename)] == keybasename)
+            self.assertRegex(stdout, ".*add.*new.*DKIM.*{}._domainkey.{}.*{}.*".format(dkimSelector,testdomain,dkimpubkey))
+        with self.subTest("check add dkim mydkim"):
+            self.assertRegex(stdout, ".*add.*new.*DKIM.*{}._domainkey.{}.*{}.*".format(dkimSelector,testdomain,dkimpubkey))
+            #self.assertRegex(stdout, ".*add.*new.*DKIM.*{}.*._domainkey.{}.*".format(keybasename,testdomain))
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \
