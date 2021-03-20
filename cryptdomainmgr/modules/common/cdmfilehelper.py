@@ -8,12 +8,13 @@
 #######################################################################
 
 import os
+import errno
 
 def makeDir(dirname):
     try:
         os.makedirs(dirname)
     except OSError as e:
-        if e.errno != os.errno.EEXIST:
+        if e.errno != errno.EEXIST:
             raise   
         pass
 
