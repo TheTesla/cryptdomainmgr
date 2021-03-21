@@ -36,7 +36,7 @@ def prepare(dhparamConfig, dhparamState, statedir, dhparamSecName):
 
     resDict = {}
     resDict['tmpfile'] = path
-    
+
     if 'running' == dhparamState.opstate:
         dhparamState.registerResult(resDict)
     dhparamState.setOpStateDone()

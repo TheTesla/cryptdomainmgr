@@ -85,15 +85,15 @@ def copyCert(certConfig, certState):
 def delOldCert(certConfig, certState):
     preserve = ['fullchainfile', 'certfile', 'keyfile', 'chainfile']
     preserveFiles = set([certState.result[e] for e in preserve])
-    print(preserveFiles)
+    #print(preserveFiles)
     preserveFiles.update(set([os.path.realpath(e) for e in preserveFiles]))
-    print(preserveFiles)
+    #print(preserveFiles)
     dirs = set([os.path.dirname(e) for e in preserveFiles])
     dirs = set([e for e in dirs if os.path.isdir(e)])
     dstFiles = set([os.path.join(certConfig['destination'], f, os.path.basename(e)) for e in preserveFiles for f in certState.result['san']])
     dstDirs = set([os.path.dirname(e) for e in dstFiles])
     dirs.update(dstDirs)
-    print(dirs)
+    #print(dirs)
     allFiles = set([os.path.join(d, f) for d in dirs for f in os.listdir(d)])
     allFiles = set([e for e in allFiles if os.path.isfile(e)])
     removeFiles = allFiles - preserveFiles - dstFiles

@@ -58,7 +58,7 @@ def cleanup(config, state):
 
 def copyDH(dhparamConfig, dhparamState):
     if 'tmpfile' not in dhparamState.result:
-        return 
+        return
     src = os.path.realpath(dhparamState.result['tmpfile'])
     dest = os.path.realpath(dhparamConfig['filename'])
     try:

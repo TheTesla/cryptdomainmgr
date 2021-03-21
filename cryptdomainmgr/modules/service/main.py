@@ -14,38 +14,47 @@ def prepare(config, state):
     for serviceSecName, serviceConfig in config['service'].items():
         if 'DEFAULT' == serviceSecName:
             continue
+        if 'handler' not in serviceConfig:
+            continue
         serviceState = subState.getSubstate(serviceSecName)
         if serviceState.isDone():
             continue
         log.info('Prepare service for section \"{}\"'.format(serviceSecName))
         log.debug(serviceConfig)
-        handler = __import__('cryptdomainmgr.modules.service.handler'+str(serviceSecName), fromlist=('cryptdomainmgr', 'modules','service'))
-        handler.prepare(serviceConfig, serviceState, state) 
+        handlerNames = serviceConfig['handler'].split('/')
+        handler = __import__('cryptdomainmgr.modules.service.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','service'))
+        handler.prepare(serviceConfig, serviceState, state)
 
 def rollover(config, state):
     subState = state.getSubstate('service')
     for serviceSecName, serviceConfig in config['service'].items():
         if 'DEFAULT' == serviceSecName:
             continue
+        if 'handler' not in serviceConfig:
+            continue
         serviceState = subState.getSubstate(serviceSecName)
         if serviceState.isDone():
             continue
         log.info('Rollover service for section \"{}\"'.format(serviceSecName))
         log.debug(serviceConfig)
-        handler = __import__('cryptdomainmgr.modules.service.handler'+str(serviceSecName), fromlist=('cryptdomainmgr', 'modules','service'))
-        handler.rollover(serviceConfig, serviceState, state) 
+        handlerNames = serviceConfig['handler'].split('/')
+        handler = __import__('cryptdomainmgr.modules.service.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','service'))
+        handler.rollover(serviceConfig, serviceState, state)
 
 def cleanup(config, state):
     subState = state.getSubstate('service')
     for serviceSecName, serviceConfig in config['service'].items():
         if 'DEFAULT' == serviceSecName:
             continue
+        if 'handler' not in serviceConfig:
+            continue
         serviceState = subState.getSubstate(serviceSecName)
         if serviceState.isDone():
             continue
         log.info('Cleanup service for section \"{}\"'.format(serviceSecName))
         log.debug(serviceConfig)
-        handler = __import__('cryptdomainmgr.modules.service.handler'+str(serviceSecName), fromlist=('cryptdomainmgr', 'modules','service'))
-        handler.cleanup(serviceConfig, serviceState, state) 
+        handlerNames = serviceConfig['handler'].split('/')
+        handler = __import__('cryptdomainmgr.modules.service.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','service'))
+        handler.cleanup(serviceConfig, serviceState, state)
 
 

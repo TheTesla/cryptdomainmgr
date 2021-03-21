@@ -17,6 +17,8 @@ from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 
 import docker
 
+defaultConfig = {}
+
 
 
 def prepare(serviceConfig, serviceState, state):
@@ -26,6 +28,7 @@ def rollover(serviceConfig, serviceState, state):
     serviceState.setOpStateWaiting()
     if not isReady(serviceConfig, state, ['dhparam', 'cert']):
         return
+    serviceState.setOpStateRunning()
     certNames = serviceConfig['cert']
 
 
@@ -34,8 +37,8 @@ def rollover(serviceConfig, serviceState, state):
     containers = [c for c in client.containers.list() if c.attrs['Name'][1:] == serviceConfig['container']]
     if len(containers) == 0:
         log.error("container does not exist")
-
     container = containers[0]
+    log.info("Updating traefik container: {}".format(container.attrs['Name']))
     destinations = [e.replace(' ','').split('=')[1] for e in container.attrs['Args'] if e.replace(' ','').split('=')[0] == '--providers.file.directory']
     if len(destinations) == 0:
         log.error("traefik container misses providers.file.directory argument")
@@ -44,6 +47,7 @@ def rollover(serviceConfig, serviceState, state):
     if len(mounts) == 0:
         log.error("volume missing for providers.file.directory")
     mount = mounts[0]
+    log.info(" -> Volume: {}:{}".format(mount['Source'],mount['Destination']))
 
     traefikProvidersFileDirectory = mount['Source'] if 'auto' == serviceConfig['dirext'] else serviceConfig['dirext'] #'./configuration'
     traefikConfigFilename = os.path.join(traefikProvidersFileDirectory,'files/configuration.toml')
@@ -75,8 +79,6 @@ def rollover(serviceConfig, serviceState, state):
             f.write('')
 
     #print(tcfc)
-    #state.getSubstate('cert').printAll()
-    serviceState.setOpStateRunning()
     log.info('  -> Traefik reload')
     try:
         pass
