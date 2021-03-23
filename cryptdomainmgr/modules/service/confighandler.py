@@ -26,9 +26,12 @@ def resolveAuto(config, serviceConfig, depends):
 
 
 def interpreteValues(args):
-    for depends in ['cert', 'dkim', 'dhparam']:
-        if depends in args['content']:
-            args['config'][args['secname']][depends] = resolveAuto(args['config'], args['content'][depends].replace(' ','').split(','), depends)
+    depends = args['content']['depends'].replace(' ','').split(',')
+    print(depends)
+    #depends = ['dhparam', 'cert']
+    for depend in depends:
+        if depend in args['content']:
+            args['config'][args['secname']][depend] = resolveAuto(args['config'], args['content'][depend].replace(' ','').split(','), depend)
 
 
 
@@ -48,7 +51,7 @@ def readHandlerDefault(args):
 
 
 def interpreteConfig(cr, sh):
-    return processConfig(cr, 'service', preOp=readHandlerDefault, postOp=interpreteValues, defaultConfig={'container': 'false', 'cert': 'auto', 'dkim': 'auto', 'dhparam': 'auto'})
+    return processConfig(cr, 'service', preOp=readHandlerDefault, postOp=interpreteValues, defaultConfig={'container': 'false'})
 
 
 

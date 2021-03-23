@@ -17,7 +17,7 @@ from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 
 import docker
 
-defaultConfig = {'dirint': 'auto', 'dirext': 'auto', 'dockersock': 'unix://var/run/docker.sock'}
+defaultConfig = {'depends': 'dhparam, cert','dhparam': 'auto', 'cert': 'auto', 'dirint': 'auto', 'dirext': 'auto', 'dockersock': 'unix://var/run/docker.sock'}
 
 
 
