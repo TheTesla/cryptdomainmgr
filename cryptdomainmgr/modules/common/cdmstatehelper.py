@@ -15,5 +15,6 @@ def isReady(serviceConfig, state, sec):
                 return False
         return True
     subState = state.getSubstate(sec)
+    subState.printAll()
     return 0 == len([0 for e in serviceConfig[sec] if not subState.getSubstate(e).isDone()])
 

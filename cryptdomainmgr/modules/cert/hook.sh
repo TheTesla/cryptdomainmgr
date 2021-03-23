@@ -4,7 +4,6 @@ deploy_challenge() {
     local DOMAIN="${1}" TOKEN_FILENAME="${2}" TOKEN_VALUE="${3}"
     declare -A TABLE=$DOMAINACCESSTABLE
     python3 -m cryptdomainmgr --update <(echo -e "[cdm]\nstatedir=$STATEDIR\n[domain:$DOMAIN]\n${TABLE[$DOMAIN]}\nacme=$TOKEN_VALUE\n")
-    echo $WAITSEC >> debug.txt
     sleep $WAITSEC
 }
 
