@@ -39,8 +39,8 @@ class ManagedDomain:
         self.cr.setFilenames(confFiles)
         self.cr.setContentList(confContent)
         self.cr.open()
-        #if 'cdm' not in self.cr.cp:
-        #    self.cr.cp['cdm'] = {}
+        if 'cdm' not in self.cr.cp:
+            self.cr.cp['cdm'] = {}
         self.cr.interprete(self.sh)
         self.sh.registerConfig(self.cr.config['cdm'])
 

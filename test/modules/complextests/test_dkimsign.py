@@ -87,7 +87,7 @@ class TestDKIMemailSigning(unittest.TestCase):
         with open(os.path.join(tmpdir,"modules/dkim","mydkim","conf","dkim.conf"), 'r') as f:
             confStr = f.read()
         dkimSelector =  confStr.split("selector")[1].split("=")[1].split("\"")[1]
-        
+
         with self.subTest("check if dkim selector in mails"):
             self.assertIn(dkimSelector, mail)
 
