@@ -27,8 +27,6 @@ def resolveAuto(config, serviceConfig, depends):
 
 def interpreteValues(args):
     depends = args['content']['depends'].replace(' ','').split(',')
-    print(depends)
-    #depends = ['dhparam', 'cert']
     for depend in depends:
         if depend in args['content']:
             args['config'][args['secname']][depend] = resolveAuto(args['config'], args['content'][depend].replace(' ','').split(','), depend)
