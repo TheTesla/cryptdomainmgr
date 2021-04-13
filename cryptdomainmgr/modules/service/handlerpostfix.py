@@ -11,7 +11,7 @@ from simpleloggerplus import simpleloggerplus as log
 from subprocess import check_output, CalledProcessError
 from cryptdomainmgr.modules.common.cdmstatehelper import isReady
 
-defaultConfig = {'depends': 'dhparam, cert'}
+defaultConfig = {'depends': 'dhparam, cert', 'cert': 'auto', 'dhparam': 'auto'}
 
 def prepare(serviceConfig, serviceState, state):
     serviceState.setOpStateDone()

@@ -46,10 +46,12 @@ def readHandlerDefault(args):
     handlerNames = handlerName.split('/')
     handler = __import__('cryptdomainmgr.modules.{}.handler{}'.format(str(args['module']), handlerNames[0]), fromlist=('cryptdomainmgr', 'modules', str(args['module'])))
     args['config'][args['secname']].update(handler.defaultConfig)
+    args['config'][args['secname']].update({'handler': handlerName})
 
 
 def interpreteConfig(cr, sh):
     return processConfig(cr, 'service', preOp=readHandlerDefault, postOp=interpreteValues, defaultConfig={'container': 'false'})
+
 
 
 
