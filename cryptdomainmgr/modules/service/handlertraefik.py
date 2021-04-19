@@ -20,29 +20,6 @@ import docker
 defaultConfig = {'depends': 'dhparam, cert','dhparam': 'auto', 'cert': 'auto', 'dirint': 'auto', 'dirext': 'auto', 'dockersock': 'unix://var/run/docker.sock'}
 
 
-def dockerMyContainerID():
-    with open('/proc/self/cgroup', 'r') as f:
-        cgroup = {e.split(':')[0]:e.split(':') for e in f.read().splitlines()}
-        if 3 > len(cgroup['1']:
-            return ''
-        if 'docker' != cgroup['1'][1]:
-            return ''
-        return cgroup['1'][2]
-
-
-
-def dockerPathMap(dockersock, targetContainer, targetDirectory, sourceContainer, sourceDirectory):
-    client = docker.DockerClient(base_url=dockersock)
-    cAttrsbyName = {c.attrs['Name']: c.attrs for c in client.containers.list()}
-    cAttrsbyId = {c.id: c.attrs for c in client.containers.list()}
-    if targetContainer in cAttrsbyName.keys():
-        targetContAttrs = cAttrsbyName[targetContainer]
-    elif targetContainer in cAttrsbyId.keys():
-        targetContAttrs = cAttrsbyId[targetContainer]
-    if sourceContainer in cAttrsbyName.keys():
-        sourceContAttrs = cAttrsbyName[sourceContainer]
-    elif sourceContainer in cAttrsbyId.keys():
-        sourceContAttrs = cAttrsbyId[sourceContainer]
 
 
 def prepare(serviceConfig, serviceState, state):

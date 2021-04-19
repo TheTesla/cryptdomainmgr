@@ -1,0 +1,14 @@
+version: "3.2"
+
+services:
+  targeta:
+    image: "nginx:latest"
+    volumes:
+      - ./mnt/ta:/tmp/ta
+
+  sourcea:
+    image: "nginx:latest"
+    volumes:
+      - ./mnt:/tmp/tb
+
+
