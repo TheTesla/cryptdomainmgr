@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 
 import os
 import docker
@@ -9,9 +10,9 @@ def dockerMyContainerID():
         cgroup = {e.split(':')[0]:e.split(':') for e in f.read().splitlines()}
         if 3 > len(cgroup['1']):
             return ''
-        if 'docker' != cgroup['1'][1]:
+        if 'docker' != cgroup['1'][2].split('/')[1]:
             return ''
-        return cgroup['1'][2]
+        return cgroup['1'][2].split('/')[2]
 
 def dockerPathMap(targetContainer, targetDirectory, dockersock='', sourceContainer=''):
     if '' == sourceContainer:
@@ -32,7 +33,7 @@ def dockerPathMap(targetContainer, targetDirectory, dockersock='', sourceContain
             sourceContAttrs = cAttrsbyName[sourceContainer]
         elif sourceContainer in cAttrsbyId.keys():
             sourceContAttrs = cAttrsbyId[sourceContainer]
-        sourceMap = {e['Destination']: e['Source'] for e in sourceContAttrs['Mounts'] if 'rw' == e['Mode']}
+        sourceMap = {e['Destination']: e['Source'] for e in sourceContAttrs['Mounts'] if True == e['RW']}
     else:
         sourceMap = {'/': '/'}
     targetMap = {e['Destination']: e['Source'] for e in targetContAttrs['Mounts']}

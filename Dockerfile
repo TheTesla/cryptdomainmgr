@@ -6,5 +6,14 @@ RUN apt update && apt install -y libcurl4-openssl-dev libssl-dev curl
 
 COPY . /cryptdomainmgr
 
-CMD cat /proc/1/cgroup && cd /cryptdomainmgr && pip3 install -r requirements.txt && python3 -m cryptdomainmgr
+WORKDIR /cryptdomainmgr
+
+RUN cd /cryptdomainmgr && pip3 install -r requirements.txt
+
+VOLUME /etc/cryptdomainmgr
+
+RUN chmod +x /cryptdomainmgr/entrypoint.sh
+
+ENTRYPOINT ["/cryptdomainmgr/entrypoint.sh"]
+
 

@@ -14,6 +14,7 @@ from simpleloggerplus import simpleloggerplus as log
 from subprocess import check_output, CalledProcessError
 from cryptdomainmgr.modules.common.cdmstatehelper import isReady
 from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
+from cryptdomainmgr.modules.docker import dockerconfighelper as dch
 
 import docker
 
@@ -45,16 +46,14 @@ def rollover(serviceConfig, serviceState, state):
         if len(destinations) == 0:
             log.error("traefik container misses providers.file.directory argument")
         destination = destinations[0]
-        mounts = [e for e in container.attrs['Mounts'] if os.path.normpath(e['Destination']) == os.path.normpath(destination)]
-        if len(mounts) == 0:
-            log.error("volume missing for providers.file.directory")
-        mount = mounts[0]
 
 
-    traefikProvidersFileDirectory = mount['Source'] if 'auto' == serviceConfig['dirext'] else serviceConfig['dirext'] #'./configuration'
+    traefikProvidersFileDirectory = dch.dockerPathMap('/'+serviceConfig['container'], destination)[0]
+
+    #traefikProvidersFileDirectory = mount['Source'] if 'auto' == serviceConfig['dirext'] else serviceConfig['dirext'] #'./configuration'
     traefikConfigFilename = os.path.join(traefikProvidersFileDirectory,'files/configuration.toml')
     traefikCertDir = os.path.join(traefikProvidersFileDirectory,'certs')
-    traefikProvidersFileDirectoryMount = mount['Destination'] if 'auto' == serviceConfig['dirint'] else serviceConfig['dirint'] # '/configuration'
+    traefikProvidersFileDirectoryMount = os.path.normpath(destination) if 'auto' == serviceConfig['dirint'] else serviceConfig['dirint'] # '/configuration'
     traefikConfigFilenameMount = os.path.join(traefikProvidersFileDirectoryMount,'files/configuration.toml')
     traefikCertDirMount = os.path.join(traefikProvidersFileDirectoryMount,'certs')
 
