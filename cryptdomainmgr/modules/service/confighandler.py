@@ -27,6 +27,7 @@ def resolveAuto(config, serviceConfig, depends):
 
 def interpreteValues(args):
     depends = args['content']['depends'].replace(' ','').split(',')
+    args['config'][args['secname']]['depends'] = set(depends)
     for depend in depends:
         if depend in args['content']:
             args['config'][args['secname']][depend] = resolveAuto(args['config'], args['content'][depend].replace(' ','').split(','), depend)
@@ -34,6 +35,7 @@ def interpreteValues(args):
 
 
 def readHandlerDefault(args):
+    print(args)
     handlerName = ''
     if 'handler' not in args['content']:
         handlerName = 'auto'
@@ -50,7 +52,7 @@ def readHandlerDefault(args):
 
 
 def interpreteConfig(cr, sh):
-    return processConfig(cr, 'service', preOp=readHandlerDefault, postOp=interpreteValues, defaultConfig={'container': 'false'})
+    return processConfig(cr, 'service', preOp=readHandlerDefault, postOp=interpreteValues, defaultConfig={'container': 'false', 'depends': ''})
 
 
 
