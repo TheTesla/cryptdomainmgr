@@ -1,16 +1,15 @@
 language: python
 python:
-  - 3.8
+- 3.8
 before_install:
-  - sudo apt update
-  - sudo apt install -y libcurl4-openssl-dev libssl-dev
-    #install:
-    #  - sudo -H python -m pip install -r requirements.txt
+- openssl aes-256-cbc -K $encrypted_e70009473049_key -iv $encrypted_e70009473049_iv
+  -in test_inwxcreds.conf.enc -out test_inwxcreds.conf -d
+- sudo apt update
+- sudo apt install -y libcurl4-openssl-dev libssl-dev
 script:
-  #  - sudo pip install -r requirements.txt
-  - python -m unittest discover
+- python -m unittest discover
 stages:
-  - deploy
+- deploy
 deploy:
   provider: pypi
   user: __token__
