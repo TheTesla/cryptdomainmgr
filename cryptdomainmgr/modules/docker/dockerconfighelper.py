@@ -22,7 +22,6 @@ def dockerPathMap(targetContainer, targetDirectory, dockersock='', sourceContain
     else:
         client = docker.DockerClient(base_url=dockersock)
     cAttrsbyName = {c.attrs['Name']: c.attrs for c in client.containers.list()}
-    print(cAttrsbyName)
     cAttrsbyId = {c.id: c.attrs for c in client.containers.list()}
     if targetContainer in cAttrsbyName.keys():
         targetContAttrs = cAttrsbyName[targetContainer]
