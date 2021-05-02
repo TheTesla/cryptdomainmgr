@@ -9,7 +9,7 @@
 
 import os
 
-testdomain = "test42.entroserv.de"
+testdomain = "test42.bahn.cf"
 testns = "ns2.inwx.de"
 tmpdir="/tmp/test_cryptdomainmgr"
 testcertpath = os.path.join(tmpdir, "ssl")
