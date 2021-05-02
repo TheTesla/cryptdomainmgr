@@ -10,13 +10,11 @@ addons:
       - libssl-dev
         #python:
         #- 3.8
-        #env:
-        #- DEBIAN_FRONTEND=noninteractive
 before_install:
 - openssl aes-256-cbc -K $encrypted_e70009473049_key -iv $encrypted_e70009473049_iv
   -in test_inwxcreds.conf.enc -out test_inwxcreds.conf -d
 script:
-- python3 -m unittest discover
+- sudo -E env "PYTHONPATH=$PYTHONPATH" python3 -m unittest discover
 stages:
 - deploy
 deploy:
