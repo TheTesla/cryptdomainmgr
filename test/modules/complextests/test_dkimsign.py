@@ -75,12 +75,12 @@ class TestDKIMemailSigning(unittest.TestCase):
 
         time.sleep(10) # wait until rspamd reloads
 
-        stdout = sp.check_output("sendmail stefan@localhost <<EOF\nsubject: test\ncdmtestrspamd\n\n.\n\nEOF\n 2>&1", shell=True)
+        stdout = sp.check_output("sendmail $USER@localhost <<EOF\nsubject: test\ncdmtestrspamd\n\n.\n\nEOF\n 2>&1", shell=True)
 
 
         time.sleep(10) # wait until email is received by the mailbox
 
-        with open("/var/mail/stefan", "r") as f:
+        with open("/var/mail/$USER", "r") as f:
             mail = f.read()
 
 

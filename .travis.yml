@@ -7,6 +7,7 @@ addons:
       - rspamd
       - libcurl4-openssl-dev
       - libssl-dev
+      - postfix
 before_install:
 - openssl aes-256-cbc -K $encrypted_e70009473049_key -iv $encrypted_e70009473049_iv
   -in test_inwxcreds.conf.enc -out test_inwxcreds.conf -d
