@@ -10,14 +10,8 @@ addons:
 before_install:
 - openssl aes-256-cbc -K $encrypted_e70009473049_key -iv $encrypted_e70009473049_iv
   -in test_inwxcreds.conf.enc -out test_inwxcreds.conf -d
-- sudo cat > /etc/sudoers.d/some-daemon << SUDO
-  bob ALL= NOPASSWD: /bin/systemctl restart some-daemon.service
-  bob ALL= NOPASSWD: /bin/systemctl stop some-daemon.service
-  bob ALL= NOPASSWD: /bin/systemctl start some-daemon.service
-  SUDO
-
 script:
-- python3 -m unittest discover
+- sudo ~/virtualenv/bin/python3 -m unittest discover
 stages:
 - deploy
 deploy:
