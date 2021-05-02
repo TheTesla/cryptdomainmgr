@@ -28,7 +28,7 @@ class TestServiceconfighandler(unittest.TestCase):
         cr.setContentList(['[service]'])
         procConfig(cr)
         # maybe trash - ToDo: check if needed
-        self.assertEqual({'cert': [], 'dhparam': [], 'dkim': []}, cr.config['service']['DEFAULT'])
+        self.assertEqual({'container': 'false', 'depends':{}}, cr.config['service']['DEFAULT'])
 
     def testServiceDefaultApache2set(self):
         cr = ConfigReader()

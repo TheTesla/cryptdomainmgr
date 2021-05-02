@@ -14,6 +14,7 @@ import os
 from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail
 from cryptography.hazmat.primitives import serialization
 import OpenSSL
+import time
 
 keybasename = "key"
 keysize = 2048
@@ -45,11 +46,10 @@ class TestDKIMemailSigning(unittest.TestCase):
         keyname={} \
         keylocation={} \
         [service:rspamd] \
-        dummy=dummy \
+        dkim=mydkim \
         ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation), shell=True)
 
 
-        print(stdout)
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \
@@ -69,20 +69,20 @@ class TestDKIMemailSigning(unittest.TestCase):
         keyname={} \
         keylocation={} \
         [service:rspamd] \
-        dummy=dummy \
+        dkim=mydkim \
         ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation), shell=True)
 
 
-        print(stdout)
+        time.sleep(10) # wait until rspamd reloads
 
         stdout = sp.check_output("sendmail stefan@localhost <<EOF\nsubject: test\ncdmtestrspamd\n\n.\n\nEOF\n 2>&1", shell=True)
 
-        print(stdout)
+
+        time.sleep(10) # wait until email is received by the mailbox
 
         with open("/var/mail/stefan", "r") as f:
             mail = f.read()
 
-        print(mail)
 
         with open(os.path.join(tmpdir,"modules/dkim","mydkim","conf","dkim.conf"), 'r') as f:
             confStr = f.read()

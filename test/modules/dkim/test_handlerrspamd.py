@@ -62,7 +62,7 @@ class TestHandlerRspamd(unittest.TestCase):
         pubKey = privKeyCrypto.public_key()
         pubKeyStr = pubKey.public_bytes(serialization.Encoding.PEM,serialization.PublicFormat.SubjectPublicKeyInfo)
         pubKeyStrContent = pubKeyStr.decode('utf8').replace('\n','').split('-----BEGIN PUBLIC KEY-----')[1].split('-----END PUBLIC KEY-----')[0]
-        dkimpubkey = re.escape(pubKeyStrContent[:253]+'\\n\\t'+pubKeyStrContent[253:])
+        dkimpubkey = re.escape(pubKeyStrContent)
 
 
         stdout = str(stdout, "utf-8")
