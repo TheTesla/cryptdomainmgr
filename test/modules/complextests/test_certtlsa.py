@@ -73,13 +73,13 @@ class TestCertTLSA(unittest.TestCase):
 
         stdout = str(stdout, "utf-8")
         with self.subTest("check add tlsa 3 1 1 mycert"):
-            self.assertRegex(stdout, ".*add.*new.*_443._tcp.test42.entroserv.de.*3 1 1 {}.*".format(tlsa311mycert))
+            self.assertRegex(stdout, ".*add.*new.*_443._tcp.{}.*3 1 1 {}.*".format(testdomain,tlsa311mycert))
         with self.subTest("check add tlsa 3 1 1 mycert2"):
-            self.assertRegex(stdout, ".*add.*new.*_443._tcp.test42.entroserv.de.*3 1 1 {}.*".format(tlsa311mycert2))
+            self.assertRegex(stdout, ".*add.*new.*_443._tcp.{}.*3 1 1 {}.*".format(testdomain,tlsa311mycert2))
         with self.subTest("check add tlsa 2 0 1 mycert"):
-            self.assertRegex(stdout, ".*add.*_443._tcp.test42.entroserv.de.*2 0 1 {}.*".format(tlsa201mycert))
+            self.assertRegex(stdout, ".*add.*_443._tcp.{}.*2 0 1 {}.*".format(testdomain,tlsa201mycert))
         with self.subTest("check add tlsa 2 0 1 mycert2"):
-            self.assertRegex(stdout, ".*add.*_443._tcp.test42.entroserv.de.*2 0 1 {}.*".format(tlsa201mycert2))
+            self.assertRegex(stdout, ".*add.*_443._tcp.{}.*2 0 1 {}.*".format(testdomain,tlsa201mycert2))
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \
@@ -204,8 +204,8 @@ class TestCertTLSA(unittest.TestCase):
 
         stdout = str(stdout, "utf-8")
         with self.subTest("check delete tlsa 3 1 1 mycert"):
-            self.assertRegex(stdout, ".*delete.*_443._tcp.test42.entroserv.de.*3 1 1 {}.*".format(tlsa311mycert))
+            self.assertRegex(stdout, ".*delete.*_443._tcp.{}.*3 1 1 {}.*".format(testdomain,tlsa311mycert))
         with self.subTest("check delete tlsa 3 1 1 mycert2"):
-            self.assertRegex(stdout, ".*delet.*_443._tcp.test42.entroserv.de.*3 1 1 {}.*".format(tlsa311mycert2))
+            self.assertRegex(stdout, ".*delet.*_443._tcp.{}.*3 1 1 {}.*".format(testdomain,tlsa311mycert2))
 
 
