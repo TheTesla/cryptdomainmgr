@@ -12,7 +12,8 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_e70009473049_key -iv $encrypted_e70009473049_iv
   -in test_inwxcreds.conf.enc -out test_inwxcreds.conf -d
 script:
-- sudo bash -c "source ~/virtualenv/python3.6/bin/activate && ~/virtualenv/python3.6/bin/python3 -m unittest discover"
+  #- sudo bash -c "source ~/virtualenv/python3.6/bin/activate && ~/virtualenv/python3.6/bin/python3 -m unittest discover"
+- sudo bash -c "source $VIRTUAL_ENV/bin/activate && $VIRTUAL_ENV/bin/python3 -m unittest discover"
 stages:
 - deploy
 deploy:
