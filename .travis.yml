@@ -1,5 +1,6 @@
 dist: focal
 language: python
+sudo: required
 addons:
   apt:
     packages:
@@ -14,10 +15,8 @@ addons:
 before_install:
 - openssl aes-256-cbc -K $encrypted_e70009473049_key -iv $encrypted_e70009473049_iv
   -in test_inwxcreds.conf.enc -out test_inwxcreds.conf -d
-  #- sudo apt update
-  #- sudo apt install -y libcurl4-openssl-dev libssl-dev rspamd
 script:
-- sudo -E python3 -m unittest discover
+- python3 -m unittest discover
 stages:
 - deploy
 deploy:
