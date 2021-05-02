@@ -14,6 +14,7 @@ import os
 from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail
 from cryptography.hazmat.primitives import serialization
 import OpenSSL
+import getpass
 import time
 
 keybasename = "key"
@@ -75,12 +76,14 @@ class TestDKIMemailSigning(unittest.TestCase):
 
         time.sleep(10) # wait until rspamd reloads
 
-        stdout = sp.check_output("sendmail $USER@localhost <<EOF\nsubject: test\ncdmtestrspamd\n\n.\n\nEOF\n 2>&1", shell=True)
+        username = getpass.getuser()
+
+        stdout = sp.check_output("sendmail {}@localhost <<EOF\nsubject: test\ncdmtestrspamd\n\n.\n\nEOF\n 2>&1".format(username), shell=True)
 
 
         time.sleep(10) # wait until email is received by the mailbox
 
-        with open("/var/mail/$USER", "r") as f:
+        with open("/var/mail/{}".format(username), "r") as f:
             mail = f.read()
 
 
