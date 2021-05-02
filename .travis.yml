@@ -17,7 +17,7 @@ before_install:
   #- sudo apt update
   #- sudo apt install -y libcurl4-openssl-dev libssl-dev rspamd
 script:
-- python -m unittest discover
+- sudo python3 -m unittest discover
 stages:
 - deploy
 deploy:
