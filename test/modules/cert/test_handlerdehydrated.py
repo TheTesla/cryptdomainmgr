@@ -141,10 +141,6 @@ class TestHandlerDehydrated(unittest.TestCase):
             self.assertEqual(4,numberOfFiles(os.path.join(testcertpath,testdomain)))
         with self.subTest("check if correct number of files in destination dir 2 before cleanup"):
             self.assertEqual(4,numberOfFiles(os.path.join(testcertpath+"2",testdomain)))
-            # 14 not 12, because csr files
-
-
-
 
 
         stdout = sp.check_output("python3 -m cryptdomainmgr --cleanup \
