@@ -8,6 +8,7 @@
 #######################################################################
 
 import os
+import shutil
 from subprocess import check_output, CalledProcessError
 from simpleloggerplus import simpleloggerplus as log
 from cryptdomainmgr.modules.common.cdmconfighelper import getStateDir
@@ -76,8 +77,11 @@ def copyCert(certConfig, certState):
         dest = os.path.join(certConfig['destination'], name)
         log.info('  {} -> {}'.format(src, dest))
         try:
-            makeDir(os.path.dirname(str(dest)))
-            rv = check_output(('cp', '-rfLT', str(src), str(dest)))
+            makeDir(str(dest))
+            for k in ['fullchainfile', 'chainfile', 'certfile', 'keyfile']:
+                lnksrc = certState.result[k]
+                lnkdst = os.path.join(os.path.dirname(lnksrc), os.readlink(lnksrc))
+                shutil.copy2(lnkdst,os.path.join(dest, os.path.basename(lnksrc)))
         except CalledProcessError as e:
             log.error(e.output)
             raise(e)
@@ -85,15 +89,12 @@ def copyCert(certConfig, certState):
 def delOldCert(certConfig, certState):
     preserve = ['fullchainfile', 'certfile', 'keyfile', 'chainfile']
     preserveFiles = set([certState.result[e] for e in preserve])
-    #print(preserveFiles)
     preserveFiles.update(set([os.path.realpath(e) for e in preserveFiles]))
-    #print(preserveFiles)
     dirs = set([os.path.dirname(e) for e in preserveFiles])
     dirs = set([e for e in dirs if os.path.isdir(e)])
     dstFiles = set([os.path.join(certConfig['destination'], f, os.path.basename(e)) for e in preserveFiles for f in certState.result['san']])
     dstDirs = set([os.path.dirname(e) for e in dstFiles])
     dirs.update(dstDirs)
-    #print(dirs)
     allFiles = set([os.path.join(d, f) for d in dirs for f in os.listdir(d)])
     allFiles = set([e for e in allFiles if os.path.isfile(e)])
     removeFiles = allFiles - preserveFiles - dstFiles
