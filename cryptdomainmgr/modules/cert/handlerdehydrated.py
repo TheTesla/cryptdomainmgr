@@ -70,14 +70,16 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
                 log.warn('Lock file from imcomplete run found: {}'.format(lockFilename))
                 log.warn('  -> Removing')
                 os.remove(lockFilename)
-            if 'Incorrect TXT record' in e.output.decode():
+            elif 'Incorrect TXT record' in e.output.decode():
                 log.info('  -> Invalid DNS-01 challenge, maybe due to DNS caching interval. Trying to wait longer!')
                 i += 1
                 log.info('  -> Will wait {} s to give challenge time to propagate DNS cache.'.format(3**i))
-            if 'NXDOMAIN' in e.output.decode():
+            elif 'NXDOMAIN' in e.output.decode():
                 log.info('  -> Missing DNS-01 challenge, maybe due to DNS caching interval. Trying to wait longer!')
                 i += 1
                 log.info('  -> Will wait {} s to give challenge time to propagate DNS cache.'.format(3**i))
+            else:
+                raise(e)
             if 9 == i:
                 raise(e)
 

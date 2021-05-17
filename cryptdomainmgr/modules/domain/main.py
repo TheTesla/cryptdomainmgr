@@ -25,7 +25,7 @@ def update(config, state):
         caaAuto(domainConfig, config)
         handlerNames = domainConfig['handler'].split('/')
         handler = __import__('cryptdomainmgr.modules.domain.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','domain'))
-        handler.update(domainConfig, domainState, domainSecName) 
+        handler.update(domainConfig, domainState, domainSecName)
 
 
 def prepare(config, state):
@@ -42,7 +42,7 @@ def prepare(config, state):
         log.debug(domainConfig)
         handlerNames = domainConfig['handler'].split('/')
         handler = __import__('cryptdomainmgr.modules.domain.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','domain'))
-        handler.prepare(domainConfig, domainState, domainSecName, state) 
+        handler.prepare(domainConfig, domainState, domainSecName, state)
 
 def rollover(config, state):
     subState = state.getSubstate('domain')
@@ -57,7 +57,7 @@ def rollover(config, state):
         log.info('Create resource records for section \"{}\"'.format(domainSecName))
         handlerNames = domainConfig['handler'].split('/')
         handler = __import__('cryptdomainmgr.modules.domain.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','domain'))
-        handler.rollover(domainConfig, domainState, domainSecName, state) 
+        handler.rollover(domainConfig, domainState, domainSecName, state)
 
 def cleanup(config, state):
     subState = state.getSubstate('domain')
@@ -72,7 +72,7 @@ def cleanup(config, state):
         log.info('Create resource records for section \"{}\"'.format(domainSecName))
         handlerNames = domainConfig['handler'].split('/')
         handler = __import__('cryptdomainmgr.modules.domain.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','domain'))
-        handler.cleanup(domainConfig, domainState, domainSecName, state) 
+        handler.cleanup(domainConfig, domainState, domainSecName, state)
 
 
 def caaAuto(domainConfig, config):
