@@ -31,6 +31,7 @@ Configure once and always stay up to date.
   * postfix
   * dovecot
   * rspamd
+  * traefik
 
 ## Managed DNS Records
 
