@@ -31,7 +31,7 @@ Configure once and always stay up to date.
   * postfix
   * dovecot
   * rspamd
-  * traefik
+  * traefik in Docker
 
 ## Managed DNS Records
 
