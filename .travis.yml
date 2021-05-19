@@ -3,23 +3,23 @@ language: python
 addons:
   apt:
     packages:
-      - python3
-      - rspamd
-      - libcurl4-openssl-dev
-      - libssl-dev
-      - postfix
+    - python3
+    - rspamd
+    - libcurl4-openssl-dev
+    - libssl-dev
+    - postfix
 before_install:
 - openssl aes-256-cbc -K $encrypted_e70009473049_key -iv $encrypted_e70009473049_iv
   -in test_inwxcreds.conf.enc -out test_inwxcreds.conf -d
 - cat maincfpatch | sudo tee -a /etc/postfix/main.cf
 - sudo systemctl restart postfix
 script:
-  #- sudo bash -c "source ~/virtualenv/python3.6/bin/activate && ~/virtualenv/python3.6/bin/python3 -m unittest discover"
-- sudo bash -c "source $VIRTUAL_ENV/bin/activate && $VIRTUAL_ENV/bin/python3 -m unittest discover"
+- sudo bash -c "source $VIRTUAL_ENV/bin/activate && $VIRTUAL_ENV/bin/python3 -m unittest
+  discover"
 stages:
 - deploy
 deploy:
   provider: pypi
   user: __token__
   password:
-    secure: HIH+tEVaiNmV6l+DUzVnVy2Y70nBKdpzUND8yLtaAzAg31RScTvJh+roVgELm4A+v7A9hbjxrw88ApEqWuLHBlRs3/KKnbcnfG1tQXiygaYAXufsGA/68Z39w+QzF3ioFpE7TeccPduDLhzu9/0LJ+DG4bGer+qrrATMnpld9iJtSP9HhbpkBULyqs33uaWEPYLfE3I2q/pUK8sM7v94ca6Djlco75lLsKGu5ayoMGyQ33pPiKk1vc0w8dvvmOSZhMZjNldowXLW+bevOltDvZ3OsWUigAD1Ob8szSf2FxR9ZwYOnoXaRoVjg3roiBKB13MZsgDvnTyrmIQijepaOTInMLLsBM2XRQGNWY7WQf1o2kqOQIvn/4cEfcWS7yzWkLXsTZfU6uQV+Pnu6jMden1iMOpLuCdmSjrWPN1QVyk1ADEfy3vDLhZIJNMfJywe3pC4/Q8NyPhJMXR3q6KI+p0LXPKBfm6CPlkdjc48Yet/z0YEK54oUOulRUhHVmeJL/CdUzvgjeFLA+9IGwuuYSsWj/Iu62chYAXsphKUGqxfermb78Mt0yqPoRx6Fs1wSBD1GLHhTiMCZYte2oKsMc9KGpZAbK9rd7lMWdL8kdLIpBvhjIP6Rv7qYHKsueCwGBw8Vk4GVyeKIrtYJIxiVL67pIQNPK2Tr3jcqa2Wk2E=
+    secure: xoagD/QefZp7Uw6WDfa5FMMq0Fx9YGFwQolTRxODiU59uKIn5lOjw0vpUNYX7NwFg+wlmgxBJ5zuolAOKLk+G42PT1V51PimAd3iT23/7ipdSQF5NFGeNuxIbdvgYYCeg8EzwiVdRTzuRRum9/MA2HORbck88Vsu/uoClsbXcEIPa33KuNXgVUQHq06d+lS5B7xSYGwtwjX5+4fx8uDh74q/sfSafFbC/BWDh7ZekFEgF/V+XujQff4X35RppASU12LedQwwHVuJyNnIjsgOUQgp59WAIhsgCWEJuZ6mTX0PSvnt3hl3NS5VtlWgPGAtzPdwB6iVOpBVA96mmgtdOBn/6uX2n2O5yKyxRcJllua2PvtpGDrDRnFapkubiOzlWrN4w730Z20J+AZ5EexVYnTLfS5sCNgXD8rAl9J/tnHd/mCxta+YwAFfoZPklOGtxv8Su4slrks/cc/ZYtn5xU9SfMo7LkEaWat2o8pBTAlVqz/wmGUfFZl+IoPMYc0hTRAO3l6743aFmZmE3saeh0C+efDBxeQpEuRzstRWpHaAcEf0gsornU3pKvO7fZI6wYl6/J8kUfx/SC4F4TE3ySdwkIEmzFACrR6NRC7YfJKm4+nT5/Hy9NgBXDAHOaf7yJCOJzOHuqlKNxBH3+UZVcPsbGvQdg3aVE5BkXu3Pfw=
