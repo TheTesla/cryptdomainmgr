@@ -23,8 +23,8 @@ def rollover(serviceConfig, serviceState, state):
     serviceState.setOpStateRunning()
     log.info('  -> Dovecot reload')
     try:
-        rv = check_output(('systemctl', 'start', 'dovecot'))
-        rv = check_output(('systemctl', 'reload', 'dovecot'))
+        rv = check_output(('sudo', 'systemctl', 'start', 'dovecot'))
+        rv = check_output(('sudo', 'systemctl', 'reload', 'dovecot'))
     except CalledProcessError as e:
         log.error(e.output)
         raise(e)

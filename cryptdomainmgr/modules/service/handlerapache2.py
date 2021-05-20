@@ -23,8 +23,8 @@ def rollover(serviceConfig, serviceState, state):
     serviceState.setOpStateRunning()
     log.info('  -> Apache2 reload')
     try:
-        rv = check_output(('systemctl', 'start', 'apache2'))
-        rv = check_output(('systemctl', 'reload', 'apache2'))
+        rv = check_output(('sudo', 'systemctl', 'start', 'apache2'))
+        rv = check_output(('sudo', 'systemctl', 'reload', 'apache2'))
     except CalledProcessError as e:
         log.error(e.output)
         raise(e)

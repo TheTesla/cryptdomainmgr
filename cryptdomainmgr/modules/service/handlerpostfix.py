@@ -23,8 +23,8 @@ def rollover(serviceConfig, serviceState, state):
     serviceState.setOpStateRunning()
     log.info('  -> Postfix reload')
     try:
-        rv = check_output(('systemctl', 'start', 'postfix'))
-        rv = check_output(('systemctl', 'reload', 'postfix'))
+        rv = check_output(('sudo', 'systemctl', 'start', 'postfix'))
+        rv = check_output(('sudo', 'systemctl', 'reload', 'postfix'))
     except CalledProcessError as e:
         log.error(e.output)
         raise(e)
