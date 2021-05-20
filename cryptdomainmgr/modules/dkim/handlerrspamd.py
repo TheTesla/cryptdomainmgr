@@ -79,7 +79,7 @@ def createSelector(keybasename):
 def createDKIM(keysize, destination):
     makeDir(os.path.dirname(str(destination)))
     try:
-        keyTxt = str(check_output(('rspamadm', 'dkim_keygen', '-b', str(int(keysize)), '-s', str('dkimkey'), '-k', str(destination))))
+        keyTxt = str(check_output(('sudo', 'rspamadm', 'dkim_keygen', '-b', str(int(keysize)), '-s', str('dkimkey'), '-k', str(destination))))
     except CalledProcessError as e:
         log.error(e.output)
         raise(e)
