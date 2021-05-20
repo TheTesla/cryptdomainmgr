@@ -28,7 +28,6 @@ setuptools.setup(
     ],
     license = 'https://www.fsf.org/licensing/licenses/agpl-3.0.html',
     classifiers=[
-        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Operating System :: OS Independent",
