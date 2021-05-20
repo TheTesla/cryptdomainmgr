@@ -1,10 +1,9 @@
 #!/bin/bash
 
-VERSION=$(git tag | tail -n 1)
-
-echo "git hook setting version: $VERSION"
 
 python3 cryptdomainmgr/__init__.py
+
+echo "git hook setting version: $(cat cryptdomainmgr/version)"
 
 # add before commit
 git add -A
