@@ -23,7 +23,7 @@ def rollover(serviceConfig, serviceState, state):
     serviceState.setOpStateRunning()
     log.info('  -> Rspamd reload')
     try:
-        rv = check_output(('sudo', 'systemctl', 'reload', 'rspamd')) # this is now working with newer version of rspamd
+        rv = check_output(('systemctl', 'reload', 'rspamd')) # this is now working with newer version of rspamd
     except CalledProcessError as e:
         log.error(e.output)
         raise(e)

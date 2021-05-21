@@ -1,4 +1,4 @@
-dist: focal
+dist: hippo
 language: python
 addons:
   apt:
@@ -16,9 +16,9 @@ before_install:
 - sudo systemctl restart rspamd
 script:
   #- sudo bash -c "source $VIRTUAL_ENV/bin/activate && $VIRTUAL_ENV/bin/python3 -m unittest discover"
-  - sudo systemctl stop rspamd
-  - sudo killall rspamd
-  - sudo systemctl start rspamd
+  #  - sudo systemctl stop rspamd
+  #  - sudo killall rspamd
+  #  - sudo systemctl start rspamd
   - python3 -m unittest discover
 stages:
 - deploy
