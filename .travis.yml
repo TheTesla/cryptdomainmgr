@@ -13,8 +13,6 @@ before_install:
   -in test_inwxcreds.conf.enc -out test_inwxcreds.conf -d
 - cat maincfpatch | sudo tee -a /etc/postfix/main.cf
 - sudo systemctl restart postfix
-- sudo systemctl stop rspamd
-- sudo killall rspamd
 - sudo systemctl restart rspamd
 script:
   #- sudo bash -c "source $VIRTUAL_ENV/bin/activate && $VIRTUAL_ENV/bin/python3 -m unittest discover"
