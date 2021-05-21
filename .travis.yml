@@ -1,4 +1,4 @@
-dist: hippo
+dist: gorilla
 language: python
 addons:
   apt:
