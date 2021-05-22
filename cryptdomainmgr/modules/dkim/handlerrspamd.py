@@ -60,16 +60,16 @@ def copyConf(dkimConfig, dkimState):
     dest = dkimConfig['signingconfdestinationfile']
     log.info('  {} -> {}'.format(src, dest))
     try:
-        rv = check_output(('mkdir', '-p', os.path.dirname(str(dest))))
+        rv = check_output(('sudo', 'mkdir', '-p', os.path.dirname(str(dest))))
     except CalledProcessError as e:
         log.error("Failed to create directory path for {}".format(str(dest)))
     try:
-        rv = check_output(('cp', '-rfLT', str(src), str(dest)))
+        rv = check_output(('sudo', 'cp', '-rfLT', str(src), str(dest)))
     except CalledProcessError as e:
         log.error("Failed to copy file")
         log.error("  {} -> {}".format(str(src), str(dest)))
     try:
-        rv = check_output(('chown', '_rspamd:_rspamd', str(dest)))
+        rv = check_output(('sudo', 'chown', '_rspamd:_rspamd', str(dest)))
     except CalledProcessError as e:
         log.error("Failed to change ownership of {}".format(str(dest)))
 
@@ -79,7 +79,7 @@ def createSelector(keybasename):
 def createDKIM(keysize, destination):
     makeDir(os.path.dirname(str(destination)))
     try:
-        keyTxt = str(check_output(('rspamadm', 'dkim_keygen', '-b', str(int(keysize)), '-s', str('dkimkey'), '-k', str(destination))))
+        keyTxt = str(check_output(('sudo', 'rspamadm', 'dkim_keygen', '-b', str(int(keysize)), '-s', str('dkimkey'), '-k', str(destination))))
     except CalledProcessError as e:
         log.error(e.output)
         raise(e)
