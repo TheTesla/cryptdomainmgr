@@ -3,8 +3,6 @@ language: python
 addons:
   apt:
     packages:
-      #    - python3
-      #- rspamd
     - libcurl4-openssl-dev
     - libssl-dev
     - postfix
@@ -16,15 +14,11 @@ before_install:
 - sudo systemctl restart postfix
 - sudo systemctl restart rspamd
 script:
-  #- sudo bash -c "source $VIRTUAL_ENV/bin/activate && $VIRTUAL_ENV/bin/python3 -m unittest discover"
-  #  - sudo systemctl stop rspamd
-  #  - sudo killall rspamd
-  #  - sudo systemctl start rspamd
-  - python3 -m unittest discover
+- python3 -m unittest discover
 stages:
 - deploy
 deploy:
   provider: pypi
   user: __token__
   password:
-    secure: xoagD/QefZp7Uw6WDfa5FMMq0Fx9YGFwQolTRxODiU59uKIn5lOjw0vpUNYX7NwFg+wlmgxBJ5zuolAOKLk+G42PT1V51PimAd3iT23/7ipdSQF5NFGeNuxIbdvgYYCeg8EzwiVdRTzuRRum9/MA2HORbck88Vsu/uoClsbXcEIPa33KuNXgVUQHq06d+lS5B7xSYGwtwjX5+4fx8uDh74q/sfSafFbC/BWDh7ZekFEgF/V+XujQff4X35RppASU12LedQwwHVuJyNnIjsgOUQgp59WAIhsgCWEJuZ6mTX0PSvnt3hl3NS5VtlWgPGAtzPdwB6iVOpBVA96mmgtdOBn/6uX2n2O5yKyxRcJllua2PvtpGDrDRnFapkubiOzlWrN4w730Z20J+AZ5EexVYnTLfS5sCNgXD8rAl9J/tnHd/mCxta+YwAFfoZPklOGtxv8Su4slrks/cc/ZYtn5xU9SfMo7LkEaWat2o8pBTAlVqz/wmGUfFZl+IoPMYc0hTRAO3l6743aFmZmE3saeh0C+efDBxeQpEuRzstRWpHaAcEf0gsornU3pKvO7fZI6wYl6/J8kUfx/SC4F4TE3ySdwkIEmzFACrR6NRC7YfJKm4+nT5/Hy9NgBXDAHOaf7yJCOJzOHuqlKNxBH3+UZVcPsbGvQdg3aVE5BkXu3Pfw=
+    secure: vYysmnM+BTHfH3arLIkjttwKTDeqHOyWuhHfaVC8acUU7Fvc06hJtD7J8IMsdEeKe6H0qnz4lhK3QCCMKXWgh3lBHpSGMzvklkAbcna7wr+bgiARn1NLG3Gs+U1YqMagUBWQoi5LlRSjbYwNqiLh78xA85WXXLF1NPvNuy9nOdNF7VTIhSY+fT8/HtpHoFhy0cN2+WWb6EWJGdp+uB8t4PP3x436WjA6NsRI1T4XNXALFuv10puoi+oEFpHe9iGqKlYyNTtA9UyM1oSJpvxMJD+ISOgcYgi67i84MRsVLC/krV9u/JBFauL5gCeQEDLg60El8zz0kGH8PONM3EM4SdIrzKCNoOha+W08N42BzpSWOoj1J8FdZHnLPnZNH+VjbZCG/5iN5yiBOG5DzKKmy0d4fUcjUnSZbzVOGphvqt5hjl5Eo6ZcaLkuE4QLLAcczoUsH35L3qRk4+9mbGaUWSsXLOp9u+okt/gv9gGyTkTatVcQuEw4A89ElSqoL+XmXIrOYEUqoesfG1/JzoXYRjRwTBg0Gcryv3mmHgDQMg1/dPKgYSdNDTCBKqH9xG8VF6u5pTM0ZVJDw7gmFxEak74hTNNYtccyZ5/kfws1Ohh2U+ow5cQntzPbvbh3J0F0cGascI5Zu+ECMlI7n3x+H9or6Gi7OqNAaU5t65PLVEA=
