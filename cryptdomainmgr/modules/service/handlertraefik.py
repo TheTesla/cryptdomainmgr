@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- encoding: UTF8 -*-
 
 #######################################################################
@@ -81,15 +81,7 @@ def rollover(serviceConfig, serviceState, state):
         with open(os.path.join(traefikProvidersFileDirectory,'reloadtrigger'), 'w') as f:
             f.write('')
 
-    #print(tcfc)
     log.info('  -> Traefik reload')
-    try:
-        pass
-        #rv = check_output(('systemctl', 'start', 'apache2'))
-        #rv = check_output(('systemctl', 'reload', 'apache2'))
-    except CalledProcessError as e:
-        log.error(e.output)
-        raise(e)
     serviceState.setOpStateDone()
 
 def cleanup(serviceConfig, serviceState, state):

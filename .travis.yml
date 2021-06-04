@@ -1,5 +1,12 @@
 dist: focal
 language: python
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+  - "3.9"
+  - "3.9-dev"
+  - "nightly"
 addons:
   apt:
     packages:
@@ -19,6 +26,7 @@ stages:
 - deploy
 deploy:
   provider: pypi
+  skip_existing: true
   user: __token__
   password:
     secure: vYysmnM+BTHfH3arLIkjttwKTDeqHOyWuhHfaVC8acUU7Fvc06hJtD7J8IMsdEeKe6H0qnz4lhK3QCCMKXWgh3lBHpSGMzvklkAbcna7wr+bgiARn1NLG3Gs+U1YqMagUBWQoi5LlRSjbYwNqiLh78xA85WXXLF1NPvNuy9nOdNF7VTIhSY+fT8/HtpHoFhy0cN2+WWb6EWJGdp+uB8t4PP3x436WjA6NsRI1T4XNXALFuv10puoi+oEFpHe9iGqKlYyNTtA9UyM1oSJpvxMJD+ISOgcYgi67i84MRsVLC/krV9u/JBFauL5gCeQEDLg60El8zz0kGH8PONM3EM4SdIrzKCNoOha+W08N42BzpSWOoj1J8FdZHnLPnZNH+VjbZCG/5iN5yiBOG5DzKKmy0d4fUcjUnSZbzVOGphvqt5hjl5Eo6ZcaLkuE4QLLAcczoUsH35L3qRk4+9mbGaUWSsXLOp9u+okt/gv9gGyTkTatVcQuEw4A89ElSqoL+XmXIrOYEUqoesfG1/JzoXYRjRwTBg0Gcryv3mmHgDQMg1/dPKgYSdNDTCBKqH9xG8VF6u5pTM0ZVJDw7gmFxEak74hTNNYtccyZ5/kfws1Ohh2U+ow5cQntzPbvbh3J0F0cGascI5Zu+ECMlI7n3x+H9or6Gi7OqNAaU5t65PLVEA=

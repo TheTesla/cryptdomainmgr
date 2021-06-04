@@ -110,3 +110,4 @@ dmypy.json
 # End of https://www.gitignore.io/api/python
 test_inwxcreds.conf
 cdm-docker-demo/configuration
+travis.log
