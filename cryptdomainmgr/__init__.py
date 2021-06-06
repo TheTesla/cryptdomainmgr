@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- encoding: UTF8 -*-
 
-from simpleloggerplus import simpleloggerplus as log
 
 try:
     import git
