@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 # -*- encoding: UTF8 -*-
 
+import os
+
+here = os.path.dirname(os.path.realpath(__file__))
+versionfile = os.path.join(here, 'version')
+
 
 try:
     import git
     repo = git.Repo(search_parent_directories=False)
     __version__ = '-'.join(repo.git.describe('--tags').split('-')[:2])
-    with open('version', 'wt') as v:
+    with open(versionfile, 'wt') as v:
         v.write(__version__)
 except Exception as e:
 #except ImportError as e:
     try:
-        with open('version', 'rt') as v:
+        with open(versionfile, 'rt') as v:
             __version__ = v.read()
     except OSError as e:
         log.warn("Can't open version file.")
