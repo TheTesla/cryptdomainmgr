@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/TheTesla/cryptdomainmgr.svg?branch=master)](https://travis-ci.com/TheTesla/cryptdomainmgr)
+
 # Crypto Domain Manager
 
 Automate all your cryptographic needs!
