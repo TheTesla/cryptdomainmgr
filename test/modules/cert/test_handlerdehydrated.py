@@ -10,6 +10,7 @@
 import unittest
 import subprocess as sp
 import os
+from simpleloggerplus import simpleloggerplus as log
 from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail
 
 certname = "fullchain.pem"
@@ -17,9 +18,29 @@ certname = "fullchain.pem"
 def numberOfFiles(path):
     return len([name for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))])
 
+
+def runCmdGen(cmd):
+    #stdout = sp.check_output(cmdline, shell=True)
+    proc = sp.Popen(cmd, stdout=sp.PIPE, shell=True, universal_newlines=True)
+    for stdoutLine in iter(proc.stdout.readline, ""):
+        yield stdoutLine
+    proc.stdout.close()
+    rc = proc.wait()
+    if rc:
+        raise subprocess.CalledProcessError(rc, cmd)
+
+def runCmd(cmd):
+    log.info("TEST RUN CMD: {}".format(cmd))
+    stdout = ""
+    for stdoutLine in runCmdGen(cmd):
+        print("    "+stdoutLine[:-1])
+        stdout += stdoutLine
+    return stdout
+
+
 class TestHandlerDehydrated(unittest.TestCase):
     def testHandlerDehydratedCreateCert(self):
-        stdout = sp.check_output("python3 -m cryptdomainmgr --prepare \
+        stdout = runCmd("python3 -m cryptdomainmgr --prepare \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -35,7 +56,7 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath))
 
         with self.subTest("check cert file is created in tmp"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
