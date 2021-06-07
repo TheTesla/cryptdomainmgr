@@ -4,7 +4,7 @@
 import os
 
 # VERSION
-__version__ = "0.2.3-63"
+__version__ = "0.2.3-65"
 
 try:
     import git
@@ -14,7 +14,7 @@ try:
     if __version__ != version:
         print("Version in git repo changed!")
         print("  -> Change version in {} form {} to \
-              {}".format((__file__, __version__, version)))
+              {}".format(__file__, __version__, version))
         __version__ = version
         with open(os.path.realpath(__file__), 'rt') as v:
             initfile = v.read()
