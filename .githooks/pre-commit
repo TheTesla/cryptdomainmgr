@@ -3,7 +3,6 @@
 
 python3 cryptdomainmgr/__init__.py
 
-echo "git hook setting version: $(cat version)"
 
 # add before commit
 git add -A
