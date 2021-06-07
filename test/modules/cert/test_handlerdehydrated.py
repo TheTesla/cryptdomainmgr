@@ -27,7 +27,7 @@ def runCmdGen(cmd):
     proc.stdout.close()
     rc = proc.wait()
     if rc:
-        raise subprocess.CalledProcessError(rc, cmd)
+        raise sp.CalledProcessError(rc, cmd)
 
 def runCmd(cmd):
     log.info("TEST RUN CMD: {}".format(cmd))
