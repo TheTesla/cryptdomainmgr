@@ -49,7 +49,7 @@ class TestHandlerDehydrated(unittest.TestCase):
         print("test")
         print(sys.getdefaultencoding())
 
-        stdout = runCmd("echo $LANG")
+        stdout = runCmd("env")
         print(stdout)
         #stdout = runCmd("python3 \-c 'import sys;
         #                print(sys.getdefaultencoding())'")
