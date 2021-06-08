@@ -13,6 +13,8 @@ import os
 from simpleloggerplus import simpleloggerplus as log
 from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail
 
+import sys
+
 certname = "fullchain.pem"
 
 def numberOfFiles(path):
@@ -44,6 +46,13 @@ def runCmd(cmd):
 
 class TestHandlerDehydrated(unittest.TestCase):
     def testHandlerDehydratedCreateCert(self):
+        print(sys.getdefaultencoding()
+
+        stdout = runCmd("echo $LANG")
+        print(stdout)
+        stdout = runCmd("python3 \-c 'import sys;
+                        print(sys.getdefaultencoding())'")
+        print(stdout)
         stdout = runCmd("ls -halt")
         print(stdout)
         stdout = runCmd("python3 -m cryptdomainmgr --prepare \
