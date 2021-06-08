@@ -49,8 +49,11 @@ class TestHandlerDehydrated(unittest.TestCase):
         print("test")
         print(sys.getdefaultencoding())
 
-        stdout = runCmd("env")
-        print(stdout)
+        try:
+            stdout = runCmd("env")
+            print(stdout)
+        except Exception as e:
+            print(e)
         #stdout = runCmd("python3 \-c 'import sys;
         #                print(sys.getdefaultencoding())'")
         #print(stdout)
