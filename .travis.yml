@@ -23,7 +23,7 @@ before_install:
 - sudo systemctl restart postfix
 - sudo systemctl restart rspamd
 script:
-- python3 -m unittest discover --buffer=False
+- python3 -m unittest discover -v
 stages:
 - deploy
 deploy:
