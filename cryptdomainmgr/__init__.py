@@ -4,7 +4,7 @@
 import os
 
 # VERSION
-__version__ = "0.2.3-71"
+__version__ = "0.2.3-72"
 
 try:
     import git

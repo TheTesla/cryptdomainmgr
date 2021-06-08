@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 
 #######################################################################
@@ -22,7 +22,7 @@ def numberOfFiles(path):
 def runCmdGen(cmd):
     #stdout = sp.check_output(cmdline, shell=True)
     proc = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE, shell=True, text=True,
-                    encoding='utf8')
+                    encoding='utf-8')
                     #universal_newlines=True)
     print(proc)
     for stdoutLine in iter(proc.stdout.readline, ""):
