@@ -46,15 +46,16 @@ def runCmd(cmd):
 
 class TestHandlerDehydrated(unittest.TestCase):
     def testHandlerDehydratedCreateCert(self):
-        print(sys.getdefaultencoding()
+        print("test")
+        print(sys.getdefaultencoding())
 
         stdout = runCmd("echo $LANG")
         print(stdout)
-        stdout = runCmd("python3 \-c 'import sys;
-                        print(sys.getdefaultencoding())'")
-        print(stdout)
-        stdout = runCmd("ls -halt")
-        print(stdout)
+        #stdout = runCmd("python3 \-c 'import sys;
+        #                print(sys.getdefaultencoding())'")
+        #print(stdout)
+        #stdout = runCmd("ls -halt")
+        #print(stdout)
         stdout = runCmd("python3 -m cryptdomainmgr --prepare \
                                  test_inwxcreds.conf --config-content \
         '\
