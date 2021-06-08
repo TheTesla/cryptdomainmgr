@@ -3,8 +3,8 @@ language: python
 env:
   - PYTHONIOENCODING=utf-8 
 python:
-  - "3.6"
-  - "3.7"
+        #  - "3.6"
+        #  - "3.7"
   - "3.8"
   - "3.9"
   - "3.9-dev"
@@ -23,7 +23,7 @@ before_install:
 - sudo systemctl restart postfix
 - sudo systemctl restart rspamd
 script:
-- python3 -m unittest discover --failfast
+- python3 -m unittest discover --buffer=False
 stages:
 - deploy
 deploy:

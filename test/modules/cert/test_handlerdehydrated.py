@@ -26,12 +26,12 @@ def runCmdGen(cmd):
     proc = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE, shell=True, text=True,
                     encoding='utf-8')
                     #universal_newlines=True)
-    print(proc)
+    #print(proc)
     for stdoutLine in iter(proc.stdout.readline, ""):
         yield stdoutLine
     proc.stdout.close()
     rc = proc.wait()
-    print(rc)
+    #print(rc)
     if rc:
         raise sp.CalledProcessError(rc, cmd)
 
@@ -47,13 +47,13 @@ def runCmd(cmd):
 class TestHandlerDehydrated(unittest.TestCase):
     def testHandlerDehydratedCreateCert(self):
         print("test")
-        print(sys.getdefaultencoding())
+        #print(sys.getdefaultencoding())
 
-        try:
-            stdout = runCmd("env")
-            print(stdout)
-        except Exception as e:
-            print(e)
+        #try:
+        #    stdout = runCmd("env")
+        #    print(stdout)
+        #except Exception as e:
+        #    print(e)
         #stdout = runCmd("python3 \-c 'import sys;
         #                print(sys.getdefaultencoding())'")
         #print(stdout)
