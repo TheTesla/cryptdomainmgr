@@ -44,6 +44,8 @@ def runCmd(cmd):
 
 class TestHandlerDehydrated(unittest.TestCase):
     def testHandlerDehydratedCreateCert(self):
+        stdout = runCmd("ls -halt")
+        print(stdout)
         stdout = runCmd("python3 -m cryptdomainmgr --prepare \
                                  test_inwxcreds.conf --config-content \
         '\
