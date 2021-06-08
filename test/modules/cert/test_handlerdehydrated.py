@@ -22,10 +22,12 @@ def numberOfFiles(path):
 def runCmdGen(cmd):
     #stdout = sp.check_output(cmdline, shell=True)
     proc = sp.Popen(cmd, stdout=sp.PIPE, shell=True, universal_newlines=True)
+    print(proc)
     for stdoutLine in iter(proc.stdout.readline, ""):
         yield stdoutLine
     proc.stdout.close()
     rc = proc.wait()
+    print(rc)
     if rc:
         raise sp.CalledProcessError(rc, cmd)
 
