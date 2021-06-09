@@ -4,4 +4,4 @@ simpleloggerplus
 pyOpenSSL
 parse
 docker
-git
+gitpython
