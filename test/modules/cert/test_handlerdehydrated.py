@@ -39,14 +39,14 @@ def runCmd(cmd):
     log.info("TEST RUN CMD: {}".format(cmd))
     stdout = ""
     for stdoutLine in runCmdGen(cmd):
-        print("    "+stdoutLine[:-1])
+        log.relog("    "+stdoutLine[:-1])
         stdout += stdoutLine
     return stdout
 
 
 class TestHandlerDehydrated(unittest.TestCase):
     def testHandlerDehydratedCreateCert(self):
-        print("test")
+        log.relog("test")
         #print(sys.getdefaultencoding())
 
         #try:
