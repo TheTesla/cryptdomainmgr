@@ -101,6 +101,7 @@ hints:
 ## Next goals
 
 * improve documentation
+* docker support
 * website
 * automated tests
 * nsupdate for DNS updates
