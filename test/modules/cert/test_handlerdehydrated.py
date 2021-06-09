@@ -22,16 +22,13 @@ def numberOfFiles(path):
 
 
 def runCmdGen(cmd):
-    #stdout = sp.check_output(cmdline, shell=True)
     proc = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE, shell=True, text=True,
                     encoding='utf-8')
                     #universal_newlines=True)
-    #print(proc)
     for stdoutLine in iter(proc.stdout.readline, ""):
         yield stdoutLine
     proc.stdout.close()
     rc = proc.wait()
-    #print(rc)
     if rc:
         raise sp.CalledProcessError(rc, cmd)
 
@@ -47,18 +44,6 @@ def runCmd(cmd):
 class TestHandlerDehydrated(unittest.TestCase):
     def testHandlerDehydratedCreateCert(self):
         log.relog("test")
-        #print(sys.getdefaultencoding())
-
-        #try:
-        #    stdout = runCmd("env")
-        #    print(stdout)
-        #except Exception as e:
-        #    print(e)
-        #stdout = runCmd("python3 \-c 'import sys;
-        #                print(sys.getdefaultencoding())'")
-        #print(stdout)
-        #stdout = runCmd("ls -halt")
-        #print(stdout)
         stdout = runCmd("python3 -m cryptdomainmgr --prepare \
                                  test_inwxcreds.conf --config-content \
         '\
