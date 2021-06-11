@@ -4,11 +4,11 @@
 import os
 
 # VERSION
-__version__ = "0.2.4-3"
+__version__ = "0.2.4-4"
 
-try:
+
+if __name__ == '__main__':
     import git
-    #from git.exc import InvalidGitRepositoryError
     repo = git.Repo(search_parent_directories=False)
     version = '-'.join(repo.git.describe('--tags').split('-')[:2])
     if __version__ != version:
@@ -24,6 +24,4 @@ try:
             initfile = '\n'.join(lines)
         with open(os.path.realpath(__file__), 'wt') as v:
             v.write(initfile)
-#except ImportError as e:
-except Exception as e:
-    print(e)
+
