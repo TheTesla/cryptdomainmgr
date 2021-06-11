@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- encoding: UTF8 -*-
 
 #######################################################################
@@ -11,6 +11,7 @@ import os
 from subprocess import check_output, CalledProcessError, STDOUT
 from simpleloggerplus import simpleloggerplus as log
 from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
+from cryptdomainmgr.modules.common.cdmprochelper import runCmd
 import time
 
 defaultConfig = {'keysize': 4096, 'extraflags': '', 'caa': {'url': 'letsencrypt.org', 'flag': '0', 'tag': 'issue'}}
@@ -61,11 +62,9 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
     while True:
         try:
             log.info('Starting DNS-01 authentication')
-            rv = check_output(args, stderr=STDOUT, env=dict(os.environ, DOMAINACCESSTABLE=domainAccessTable, STATEDIR=statedir, WAITSEC="{}".format(3**i)))
-            log.info(rv.decode())
+            rv = runCmd(' '.join(args), stderr=STDOUT, env=dict(os.environ, DOMAINACCESSTABLE=domainAccessTable, STATEDIR=statedir, WAITSEC="{}".format(3**i)))
             break
         except CalledProcessError as e:
-            log.info(e.output.decode())
             if 'ERROR: Lock file' in e.output.decode():
                 lockFilename = e.output.decode().split('ERROR: Lock file \'')[-1].split('\' present, aborting')[0]
                 log.warn('Lock file from imcomplete run found: {}'.format(lockFilename))
@@ -87,13 +86,13 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
     res = []
     rv = rv.splitlines()
     for s, e in enumerate(rv):
-        if '---- DEPLOYMENTRESULT ----' == e.decode()[:len('---- DEPLOYMENTRESULT ----')]:
+        if '---- DEPLOYMENTRESULT ----' == e[:len('---- DEPLOYMENTRESULT ----')]:
             break
     for i, e in enumerate(rv[s+1:]):
-        if '---- END DEPLOYMENTRESULT ----' == e.decode()[:len('---- END DEPLOYMENTRESULT ----')]:
+        if '---- END DEPLOYMENTRESULT ----' == e[:len('---- END DEPLOYMENTRESULT ----')]:
             break
         res.append(e)
-    resDict = {e.decode().split('=')[0].lower(): e.decode().split('=')[1] for e in res}
+    resDict = {e.split('=')[0].lower(): e.split('=')[1] for e in res}
     resDict['san'] = list(domainList)
 
     if 'running' == certState.opstate:

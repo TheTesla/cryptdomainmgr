@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- encoding: utf-8 -*-
+# -*- encoding: UTF8 -*-
 
 #######################################################################
 #
@@ -12,6 +12,7 @@ import subprocess as sp
 import os
 from simpleloggerplus import simpleloggerplus as log
 from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail
+from cryptdomainmgr.modules.common.cdmprochelper import runCmd
 
 import sys
 
@@ -20,25 +21,6 @@ certname = "fullchain.pem"
 def numberOfFiles(path):
     return len([name for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))])
 
-
-def runCmdGen(cmd):
-    proc = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE, shell=True, text=True,
-                    encoding='utf-8')
-                    #universal_newlines=True)
-    for stdoutLine in iter(proc.stdout.readline, ""):
-        yield stdoutLine
-    proc.stdout.close()
-    rc = proc.wait()
-    if rc:
-        raise sp.CalledProcessError(rc, cmd)
-
-def runCmd(cmd):
-    log.info("TEST RUN CMD: {}".format(cmd))
-    stdout = ""
-    for stdoutLine in runCmdGen(cmd):
-        log.relog("    "+stdoutLine[:-1])
-        stdout += stdoutLine
-    return stdout
 
 
 class TestHandlerDehydrated(unittest.TestCase):
