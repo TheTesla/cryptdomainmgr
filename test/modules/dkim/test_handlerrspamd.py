@@ -13,6 +13,7 @@ import subprocess as sp
 import os
 from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail
 from cryptography.hazmat.primitives import serialization
+from cryptdomainmgr.modules.common.cdmprochelper import runCmd
 import OpenSSL
 
 keybasename = "key"
@@ -27,7 +28,7 @@ def numberOfFiles(path):
 
 class TestHandlerRspamd(unittest.TestCase):
     def testHandlerRspamdCreateDKIMkey(self):
-        stdout = sp.check_output("python3 -m cryptdomainmgr --prepare \
+        stdout = runCmd("python3 -m cryptdomainmgr --prepare \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -44,7 +45,7 @@ class TestHandlerRspamd(unittest.TestCase):
         keysize={} \
         keyname={} \
         keylocation={} \
-        ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation))
 
         with self.subTest("check dkim key file is created in tmp"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/dkim","mydkim","key","dkim.key")))
@@ -65,7 +66,6 @@ class TestHandlerRspamd(unittest.TestCase):
         dkimpubkey = re.escape(pubKeyStrContent)
 
 
-        stdout = str(stdout, "utf-8")
         with self.subTest("check dkim keyname"):
             self.assertTrue(dkimSelector[:len(keybasename)] == keybasename)
             self.assertRegex(stdout, ".*add.*new.*DKIM.*{}._domainkey.{}.*{}.*".format(dkimSelector,testdomain,dkimpubkey))
@@ -73,7 +73,7 @@ class TestHandlerRspamd(unittest.TestCase):
             self.assertRegex(stdout, ".*add.*new.*DKIM.*{}._domainkey.{}.*{}.*".format(dkimSelector,testdomain,dkimpubkey))
             #self.assertRegex(stdout, ".*add.*new.*DKIM.*{}.*._domainkey.{}.*".format(keybasename,testdomain))
 
-        stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
+        stdout = runCmd("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -90,7 +90,7 @@ class TestHandlerRspamd(unittest.TestCase):
         keysize={} \
         keyname={} \
         keylocation={} \
-        ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation))
 
         with self.subTest("check dkim key file is copied to destination"):
             self.assertTrue(os.path.isfile(os.path.join(keylocation,keyname)))
@@ -98,7 +98,7 @@ class TestHandlerRspamd(unittest.TestCase):
             self.assertTrue(os.path.isfile(signingConfDestFile))
 
 
-#        stdout = sp.check_output("python3 -m cryptdomainmgr --cleanup \
+#        stdout = runCmd("python3 -m cryptdomainmgr --cleanup \
 #                                 test_inwxcreds.conf --config-content \
 #        '\
 #        [cdm] \
@@ -114,14 +114,14 @@ class TestHandlerRspamd(unittest.TestCase):
 #        [cert:mycert] \
 #        destination={} \
 #        extraflags=--staging,-x \
-#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath), shell=True)
+#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath))
 #
 #        with self.subTest("check current cert is not deleted"):
 #            self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
 #
 #
 #    def testHandlerDehydratedCreateMultiCert(self):
-#        stdout = sp.check_output("python3 -m cryptdomainmgr --prepare \
+#        stdout = runCmd("python3 -m cryptdomainmgr --prepare \
 #                                 test_inwxcreds.conf --config-content \
 #        '\
 #        [cdm] \
@@ -140,7 +140,7 @@ class TestHandlerRspamd(unittest.TestCase):
 #        [cert:mycert2] \
 #        destination={} \
 #        extraflags=--staging,-x \
-#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 #
 #        with self.subTest("check cert file is created in tmp 1"):
 #            self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
@@ -152,7 +152,7 @@ class TestHandlerRspamd(unittest.TestCase):
 #            self.assertEqual(14,numberOfFiles(os.path.join(tmpdir,"modules/cert","mycert2","certs",testdomain)))
 #            # 14 not 12, because csr files
 #
-#        stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
+#        stdout = runCmd("python3 -m cryptdomainmgr --rollover \
 #                                 test_inwxcreds.conf --config-content \
 #        '\
 #        [cdm] \
@@ -171,7 +171,7 @@ class TestHandlerRspamd(unittest.TestCase):
 #        [cert:mycert2] \
 #        destination={} \
 #        extraflags=--staging,-x \
-#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 #
 #        with self.subTest("check cert file is copied to destination 1"):
 #            self.assertTrue(os.path.isfile(os.path.join(testcertpath,testdomain,certname)))
@@ -184,7 +184,7 @@ class TestHandlerRspamd(unittest.TestCase):
 #            # 14 not 12, because csr files
 #
 #
-#        stdout = sp.check_output("python3 -m cryptdomainmgr --cleanup \
+#        stdout = runCmd("python3 -m cryptdomainmgr --cleanup \
 #                                 test_inwxcreds.conf --config-content \
 #        '\
 #        [cdm] \
@@ -203,7 +203,7 @@ class TestHandlerRspamd(unittest.TestCase):
 #        [cert:mycert2] \
 #        destination={} \
 #        extraflags=--staging,-x \
-#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 #
 #        with self.subTest("check current cert is not deleted 1 in source dir"):
 #            self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))

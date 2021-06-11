@@ -11,6 +11,7 @@ import unittest
 import subprocess as sp
 import os
 from test.test_config import testdh, dhfile
+from cryptdomainmgr.modules.common.cdmprochelper import runCmd
 
 
 
@@ -20,7 +21,7 @@ class TestHandlerOpenssl(unittest.TestCase):
             os.remove(dhfile)
         except:
             pass
-        stdout = sp.check_output("python3 -m cryptdomainmgr --prepare \
+        stdout = runCmd("python3 -m cryptdomainmgr --prepare \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -30,15 +31,14 @@ class TestHandlerOpenssl(unittest.TestCase):
         [dhparam:{}] \
         keysize=512 \
         filename={} \
-        ' 2>&1".format(testdh,dhfile), shell=True)
+        ' 2>&1".format(testdh,dhfile))
 
-        stdout = str(stdout, "utf-8")
         with self.subTest("check dhparam log output"):
             self.assertRegex(stdout, ".*Create dhparams.*{}.*".format(testdh))
         with self.subTest("check dhparam file exists"):
             self.assertFalse(os.path.isfile(dhfile))
 
-        stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
+        stdout = runCmd("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -48,9 +48,8 @@ class TestHandlerOpenssl(unittest.TestCase):
         [dhparam:{}] \
         keysize=512 \
         filename={} \
-        ' 2>&1".format(testdh,dhfile), shell=True)
+        ' 2>&1".format(testdh,dhfile))
 
-        stdout = str(stdout, "utf-8")
         with self.subTest("check dhparam log output"):
             self.assertRegex(stdout, ".*Apply dhparams.*{}.*".format(testdh))
         with self.subTest("check dhparam file exists"):

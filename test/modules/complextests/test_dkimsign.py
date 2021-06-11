@@ -16,6 +16,7 @@ from cryptography.hazmat.primitives import serialization
 import OpenSSL
 import getpass
 import time
+from cryptdomainmgr.modules.common.cdmprochelper import runCmd
 
 keybasename = "key"
 keysize = 2048
@@ -29,7 +30,7 @@ def numberOfFiles(path):
 
 class TestDKIMemailSigning(unittest.TestCase):
     def testDKIMemailSigningSimple(self):
-        stdout = sp.check_output("python3 -m cryptdomainmgr --prepare \
+        stdout = runCmd("python3 -m cryptdomainmgr --prepare \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -48,11 +49,11 @@ class TestDKIMemailSigning(unittest.TestCase):
         keylocation={} \
         [service:rspamd] \
         dkim=mydkim \
-        ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation))
 
 
 
-        stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
+        stdout = runCmd("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -71,14 +72,14 @@ class TestDKIMemailSigning(unittest.TestCase):
         keylocation={} \
         [service:rspamd] \
         dkim=mydkim \
-        ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation))
 
 
         time.sleep(10) # wait until rspamd reloads
 
         username = getpass.getuser()
 
-        stdout = sp.check_output("sendmail {}@localhost <<EOF\nsubject: test\ncdmtestrspamd\n\n.\n\nEOF\n 2>&1".format(username), shell=True)
+        stdout = runCmd("sendmail {}@localhost <<EOF\nsubject: test\ncdmtestrspamd\n\n.\n\nEOF\n 2>&1".format(username))
 
 
         time.sleep(10) # wait until email is received by the mailbox
@@ -95,7 +96,7 @@ class TestDKIMemailSigning(unittest.TestCase):
             self.assertIn(dkimSelector, mail)
 
 
-#        stdout = sp.check_output("python3 -m cryptdomainmgr --cleanup \
+#        stdout = runCmd("python3 -m cryptdomainmgr --cleanup \
 #                                 test_inwxcreds.conf --config-content \
 #        '\
 #        [cdm] \
@@ -111,14 +112,14 @@ class TestDKIMemailSigning(unittest.TestCase):
 #        [cert:mycert] \
 #        destination={} \
 #        extraflags=--staging,-x \
-#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath), shell=True)
+#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath))
 #
 #        with self.subTest("check current cert is not deleted"):
 #            self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
 #
 #
 #    def testHandlerDehydratedCreateMultiCert(self):
-#        stdout = sp.check_output("python3 -m cryptdomainmgr --prepare \
+#        stdout = runCmd("python3 -m cryptdomainmgr --prepare \
 #                                 test_inwxcreds.conf --config-content \
 #        '\
 #        [cdm] \
@@ -137,7 +138,7 @@ class TestDKIMemailSigning(unittest.TestCase):
 #        [cert:mycert2] \
 #        destination={} \
 #        extraflags=--staging,-x \
-#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 #
 #        with self.subTest("check cert file is created in tmp 1"):
 #            self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
@@ -149,7 +150,7 @@ class TestDKIMemailSigning(unittest.TestCase):
 #            self.assertEqual(14,numberOfFiles(os.path.join(tmpdir,"modules/cert","mycert2","certs",testdomain)))
 #            # 14 not 12, because csr files
 #
-#        stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
+#        stdout = runCmd("python3 -m cryptdomainmgr --rollover \
 #                                 test_inwxcreds.conf --config-content \
 #        '\
 #        [cdm] \
@@ -168,7 +169,7 @@ class TestDKIMemailSigning(unittest.TestCase):
 #        [cert:mycert2] \
 #        destination={} \
 #        extraflags=--staging,-x \
-#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 #
 #        with self.subTest("check cert file is copied to destination 1"):
 #            self.assertTrue(os.path.isfile(os.path.join(testcertpath,testdomain,certname)))
@@ -181,7 +182,7 @@ class TestDKIMemailSigning(unittest.TestCase):
 #            # 14 not 12, because csr files
 #
 #
-#        stdout = sp.check_output("python3 -m cryptdomainmgr --cleanup \
+#        stdout = runCmd("python3 -m cryptdomainmgr --cleanup \
 #                                 test_inwxcreds.conf --config-content \
 #        '\
 #        [cdm] \
@@ -200,7 +201,7 @@ class TestDKIMemailSigning(unittest.TestCase):
 #        [cert:mycert2] \
 #        destination={} \
 #        extraflags=--staging,-x \
-#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+#        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 #
 #        with self.subTest("check current cert is not deleted 1 in source dir"):
 #            self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))

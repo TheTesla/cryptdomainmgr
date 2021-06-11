@@ -48,7 +48,7 @@ class TestHandlerDehydrated(unittest.TestCase):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
 
 
-        stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
+        stdout = runCmd("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -64,13 +64,13 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath))
 
         with self.subTest("check cert file is copied to destination"):
             self.assertTrue(os.path.isfile(os.path.join(testcertpath,testdomain,certname)))
 
 
-        stdout = sp.check_output("python3 -m cryptdomainmgr --cleanup \
+        stdout = runCmd("python3 -m cryptdomainmgr --cleanup \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -86,14 +86,14 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert] \
         destination={} \
         extraflags=--staging,-x \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath))
 
         with self.subTest("check current cert is not deleted"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
 
 
     def testHandlerDehydratedCreateMultiCert(self):
-        stdout = sp.check_output("python3 -m cryptdomainmgr --prepare \
+        stdout = runCmd("python3 -m cryptdomainmgr --prepare \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -112,14 +112,14 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 
         with self.subTest("check cert file is created in tmp 1"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))
         with self.subTest("check cert file is created in tmp 2"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert2","certs",testdomain,certname)))
 
-        stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
+        stdout = runCmd("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -138,7 +138,7 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 
         with self.subTest("check cert file is copied to destination 1"):
             self.assertTrue(os.path.isfile(os.path.join(testcertpath,testdomain,certname)))
@@ -150,7 +150,7 @@ class TestHandlerDehydrated(unittest.TestCase):
             self.assertEqual(4,numberOfFiles(os.path.join(testcertpath+"2",testdomain)))
 
 
-        stdout = sp.check_output("python3 -m cryptdomainmgr --cleanup \
+        stdout = runCmd("python3 -m cryptdomainmgr --cleanup \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -169,7 +169,7 @@ class TestHandlerDehydrated(unittest.TestCase):
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 
         with self.subTest("check current cert is not deleted 1 in source dir"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/cert","mycert","certs",testdomain,certname)))

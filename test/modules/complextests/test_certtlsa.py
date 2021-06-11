@@ -13,11 +13,12 @@ import os
 from OpenSSL import crypto
 import hashlib
 from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail
+from cryptdomainmgr.modules.common.cdmprochelper import runCmd
 
 
 
 def tlsaFromCertFile(certFilename, certConstr = 3, keyOnly = 0, hashType = 1):
-    #certCont = sp.check_output(('cat', str(certFilename)))
+    #certCont = runCmd(('cat', str(certFilename)))
     with open(certFilename) as f:
         certCont = f.read()
     if 2 == int(certConstr) or 0 == int(certConstr):
@@ -34,16 +35,16 @@ def tlsaFromCertFile(certFilename, certConstr = 3, keyOnly = 0, hashType = 1):
         pubKeyObj = certObj.get_pubkey()
         ASN1 = crypto.dump_publickey(crypto.FILETYPE_ASN1, pubKeyObj)
     if 1 == int(hashType):
-        #output = sp.check_output(('openssl', 'sha256'), stdin=ps.stdout).split(b' ')[1].replace(b'\n',b'')
+        #output = runCmd(('openssl', 'sha256'), stdin=ps.stdout).split(b' ')[1].replace(b'\n',b'')
         output = hashlib.sha256(ASN1).hexdigest()
     elif 2 == int(hashType):
-        #output = sp.check_output(('openssl', 'sha512'), stdin=ps.stdout).split(b' ')[1].replace(b'\n',b'')
+        #output = runCmd(('openssl', 'sha512'), stdin=ps.stdout).split(b' ')[1].replace(b'\n',b'')
         output = hashlib.sha512(ASN1).hexdigest()
     return output.encode()
 
 class TestCertTLSA(unittest.TestCase):
     def testMultiCertTLSACreate(self):
-        stdout = sp.check_output("python3 -m cryptdomainmgr --prepare \
+        stdout = runCmd("python3 -m cryptdomainmgr --prepare \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -63,7 +64,7 @@ class TestCertTLSA(unittest.TestCase):
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 
 
         tlsa311mycert = tlsaFromCertFile(os.path.join(tmpdir,"modules/cert/mycert/certs",testdomain,"fullchain.pem"),3,1,1)
@@ -71,7 +72,6 @@ class TestCertTLSA(unittest.TestCase):
         tlsa201mycert = tlsaFromCertFile(os.path.join(tmpdir,"modules/cert/mycert/certs",testdomain,"fullchain.pem"),2,0,1)
         tlsa201mycert2 = tlsaFromCertFile(os.path.join(tmpdir,"modules/cert/mycert2/certs",testdomain,"fullchain.pem"),2,0,1)
 
-        stdout = str(stdout, "utf-8")
         with self.subTest("check add tlsa 3 1 1 mycert"):
             self.assertRegex(stdout, ".*add.*new.*_443._tcp.{}.*3 1 1 {}.*".format(testdomain,tlsa311mycert))
         with self.subTest("check add tlsa 3 1 1 mycert2"):
@@ -81,7 +81,7 @@ class TestCertTLSA(unittest.TestCase):
         with self.subTest("check add tlsa 2 0 1 mycert2"):
             self.assertRegex(stdout, ".*add.*_443._tcp.{}.*2 0 1 {}.*".format(testdomain,tlsa201mycert2))
 
-        stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
+        stdout = runCmd("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -101,7 +101,7 @@ class TestCertTLSA(unittest.TestCase):
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 
         #print(stdout)
 
@@ -111,7 +111,7 @@ class TestCertTLSA(unittest.TestCase):
             self.assertTrue(os.path.isfile(os.path.join(testcertpath+"2",testdomain,"fullchain.pem")))
 
 
-        stdout = sp.check_output("python3 -m cryptdomainmgr --cleanup \
+        stdout = runCmd("python3 -m cryptdomainmgr --cleanup \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -131,10 +131,10 @@ class TestCertTLSA(unittest.TestCase):
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 
 
-        stdout = sp.check_output("python3 -m cryptdomainmgr --prepare \
+        stdout = runCmd("python3 -m cryptdomainmgr --prepare \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -154,9 +154,9 @@ class TestCertTLSA(unittest.TestCase):
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 
-        stdout = sp.check_output("python3 -m cryptdomainmgr --rollover \
+        stdout = runCmd("python3 -m cryptdomainmgr --rollover \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -176,9 +176,9 @@ class TestCertTLSA(unittest.TestCase):
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 
-        stdout = sp.check_output("python3 -m cryptdomainmgr --cleanup \
+        stdout = runCmd("python3 -m cryptdomainmgr --cleanup \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -198,11 +198,10 @@ class TestCertTLSA(unittest.TestCase):
         [cert:mycert2] \
         destination={} \
         extraflags=--staging,-x \
-        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"), shell=True)
+        ' 2>&1".format(tmpdir,testdomain,testcertemail,testcertpath,testcertpath+"2"))
 
 
 
-        stdout = str(stdout, "utf-8")
         with self.subTest("check delete tlsa 3 1 1 mycert"):
             self.assertRegex(stdout, ".*delete.*_443._tcp.{}.*3 1 1 {}.*".format(testdomain,tlsa311mycert))
         with self.subTest("check delete tlsa 3 1 1 mycert2"):
