@@ -4,7 +4,7 @@
 import os
 
 # VERSION
-__version__ = "0.2.4-4"
+__version__ = "0.2.4-5"
 
 
 if __name__ == '__main__':
@@ -24,4 +24,3 @@ if __name__ == '__main__':
             initfile = '\n'.join(lines)
         with open(os.path.realpath(__file__), 'wt') as v:
             v.write(initfile)
-
