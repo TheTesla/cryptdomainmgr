@@ -4,11 +4,10 @@
 import os
 
 # VERSION
-__version__ = "0.2.4-7"
+__version__ = "0.2.4-8"
 
 
 if __name__ == '__main__':
-    print("------- __init__.py called directly")
     import git
     repo = git.Repo(search_parent_directories=False)
     version = '-'.join(repo.git.describe('--tags').split('-')[:2])
