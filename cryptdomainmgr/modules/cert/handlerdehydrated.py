@@ -65,16 +65,16 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
             rv = runCmd(' '.join(args), stderr=STDOUT, env=dict(os.environ, DOMAINACCESSTABLE=domainAccessTable, STATEDIR=statedir, WAITSEC="{}".format(3**i)))
             break
         except CalledProcessError as e:
-            if 'ERROR: Lock file' in e.output.decode():
+            if 'ERROR: Lock file' in e.output:
                 lockFilename = e.output.decode().split('ERROR: Lock file \'')[-1].split('\' present, aborting')[0]
                 log.warn('Lock file from imcomplete run found: {}'.format(lockFilename))
                 log.warn('  -> Removing')
                 os.remove(lockFilename)
-            elif 'Incorrect TXT record' in e.output.decode():
+            elif 'Incorrect TXT record' in e.output:
                 log.info('  -> Invalid DNS-01 challenge, maybe due to DNS caching interval. Trying to wait longer!')
                 i += 1
                 log.info('  -> Will wait {} s to give challenge time to propagate DNS cache.'.format(3**i))
-            elif 'NXDOMAIN' in e.output.decode():
+            elif 'NXDOMAIN' in e.output:
                 log.info('  -> Missing DNS-01 challenge, maybe due to DNS caching interval. Trying to wait longer!')
                 i += 1
                 log.info('  -> Will wait {} s to give challenge time to propagate DNS cache.'.format(3**i))

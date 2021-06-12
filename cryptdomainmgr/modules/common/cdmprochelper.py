@@ -28,8 +28,11 @@ def runCmdGen(cmd, stderr=sp.STDOUT, env=None):
 def runCmd(cmd, stderr=sp.STDOUT, env=None):
     log.info("RUN CMD: {}".format(cmd))
     stdout = ""
-    for stdoutLine in runCmdGen(cmd, stderr, env):
-        log.relog("    "+stdoutLine[:-1])
-        stdout += stdoutLine
+    try:
+        for stdoutLine in runCmdGen(cmd, stderr, env):
+            log.relog("    "+stdoutLine[:-1])
+            stdout += stdoutLine
+    except sp.CalledProcessError as e:
+        raise sp.CalledProcessError(e.returncode, e.cmd, stdout)
     return stdout
 
