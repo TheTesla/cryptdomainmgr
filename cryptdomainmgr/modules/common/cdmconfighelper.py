@@ -21,7 +21,7 @@ def applyDefault(config, defaultConfig={}):
     return newconfig
 
 def getStateDir(config, section=None, handler=None):
-    statedir = config['cdm']['statedir']
+    statedir = config['cdm']['DEFAULT']['statedir']
     statedir = os.path.join(statedir, 'modules')
     if section is not None:
         statedir = os.path.join(statedir, '{}'.format(section))

@@ -5,7 +5,7 @@
   * solve problem: changed cert parameters must force renew cert
 * function for systemctl reload to be modular for other non systemd versions (and SIGHUP based service reload)
 * generate dkim key by openssl
-* raise exctions when error
+* raise exceptions when error
 * more docker automatism: cert labels
 * docker (SIGHUP based service reload)
   * rspamd
@@ -15,6 +15,7 @@
 * daemon mode handling renew cycle timing
 * config includes
 * multiple direct argument configs
+* "become" option for sudo etc.
 
 
 # Tests

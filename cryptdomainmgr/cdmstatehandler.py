@@ -72,7 +72,7 @@ class StateHandler:
 
     # should be the output known before module run
     # exmaple: certificate = letsencrypt -> CAA[auto] = letsencrypt
-    def registerConfig(self, config): 
+    def registerConfig(self, config):
         self.config = config
 
     def registerSubstate(self, sectionName):
@@ -107,21 +107,21 @@ class StateHandler:
 
     def save(self, filename=None):
         if filename is None:
-            filename = os.path.join(self.config['statedir'], 'state.json')
+            filename = os.path.join(self.config['DEFAULT']['statedir'], 'state.json')
         makeDir(os.path.dirname(filename))
         with open(filename, 'w') as jsonfile:
             json.dump(self.toDict(), jsonfile)
 
     def delete(self, filename=None):
         if filename is None:
-            filename = os.path.join(self.config['statedir'], 'state.json')
+            filename = os.path.join(self.config['DEFAULT']['statedir'], 'state.json')
         if not os.path.isfile(filename):
             return
         os.remove(filename)
 
     def load(self, filename=None):
         if filename is None:
-            filename = os.path.join(self.config['statedir'], 'state.json')
+            filename = os.path.join(self.config['DEFAULT']['statedir'], 'state.json')
         if not os.path.isfile(filename):
             return
         with open(filename, 'r') as jsonfile:

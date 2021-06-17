@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- encoding: UTF8 -*-
 
 #######################################################################
@@ -17,6 +17,7 @@ from simpleloggerplus import simpleloggerplus as log
 
 def resolveAuto(config, serviceConfig, depends):
     if 'auto' in serviceConfig:
+        log.debug("This will never be called!")
         if depends not in config:
             return []
         dependKeys = config[depends]
