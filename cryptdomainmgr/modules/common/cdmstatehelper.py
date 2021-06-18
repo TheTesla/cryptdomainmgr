@@ -8,6 +8,7 @@
 #######################################################################
 
 
+# returns also True if section/module not in config
 def isReady(serviceConfig, state, sec):
     if type(sec) is list:
         for e in sec:
@@ -15,5 +16,7 @@ def isReady(serviceConfig, state, sec):
                 return False
         return True
     subState = state.getSubstate(sec)
+    if sec not in serviceConfig:
+        return True
     return 0 == len([0 for e in serviceConfig[sec] if not subState.getSubstate(e).isDone()])
 
