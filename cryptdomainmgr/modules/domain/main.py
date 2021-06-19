@@ -41,7 +41,7 @@ def prepare(config, state):
             continue
         log.info('Create resource records for section \"{}\"'.format(domainSecName))
         domainState.setOpStateWaiting()
-        if not isReady(domainConfig, state, ['cert', 'rspamd']):
+        if not isReady(domainConfig, state, ['cert', 'dkim']):
             return
         domainState.setOpStateRunning()
         log.debug(domainConfig)
