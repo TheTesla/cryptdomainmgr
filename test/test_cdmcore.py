@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- encoding: UTF8 -*-
 
 #######################################################################
@@ -8,7 +8,7 @@
 #######################################################################
 
 import unittest
-
+import copy
 
 from cryptdomainmgr.cdmcore import getNextPhase, getCurrentPhase, StateHandler, ConfigReader, runPhase, ManagedDomain
 
@@ -57,7 +57,12 @@ class TestCDMcore(unittest.TestCase):
         md.run(confContent="[cdm]\nstatedir=/tmp/test_cryptdomainmgr\n[test:mytest]", forcePhase="update")
         sh = md.sh
         with self.subTest("<config>"):
-            self.assertEqual({'statedir': '/tmp/test_cryptdomainmgr'}, sh.config)
+            res = copy.deepcopy(sh.config)
+            res['DEFAULT']['depends'] = set(res['DEFAULT']['depends'])
+            self.assertEqual({'DEFAULT': {'depends': {'dhparam', 'domain',
+                                                      'dkim', 'service',
+                                                      'cert'}, 'statedir':
+                                          '/tmp/test_cryptdomainmgr'}}, res)
         with self.subTest("<result> (first)"):
             self.assertEqual({'nextphase': 'prepare'}, sh.result)
         md = ManagedDomain()

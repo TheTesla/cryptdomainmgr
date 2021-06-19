@@ -87,23 +87,27 @@ class TestCDMstatehandler(unittest.TestCase):
         sssh22.setOpStateDone()
         sssh21.setOpStateWaiting()
         ssh2.setOpStateRunning()
-        sh.config = {'statedir': '/tmp/test_cdmstatehandler'}
+        sh.config = {'DEFAULT': {'statedir': '/tmp/test_cdmstatehandler'}}
         sh.save()
         ssh1.setOpStateDone()
         sh.save('/tmp/test_cdmstatehandler_2/state2.json')
         shLoad1 = StateHandler()
         shLoad1.load('/tmp/test_cdmstatehandler_2/state2.json')
         with self.subTest("set substates - load direkt"):
-            self.assertEqual({'opstate': 'uninitialized', 'result': {}, 'config': {'statedir': '/tmp/test_cdmstatehandler'},\
+            self.assertEqual({'opstate': 'uninitialized', 'result': {},
+                              'config': {'DEFAULT': {'statedir':
+                                         '/tmp/test_cdmstatehandler'}},\
             'substate': {'mysubstate_1': {'opstate': 'done', 'result': {}, 'config': {}, 'substate': {}},\
                          'mysubstate_2': {'opstate': 'running', 'result': {}, 'config': {}, \
                                           'substate': {'mysubstate_21': {'opstate': 'waiting', 'result': {}, 'config': {}, 'substate': {}}, \
                              'mysubstate_22': {'opstate': 'done', 'result': {}, 'config': {}, 'substate': {}}}}}}, shLoad1.toDict())
         shLoad2 = StateHandler()
-        shLoad2.config = {'statedir': '/tmp/test_cdmstatehandler'}
+        shLoad2.config = {'DEFAULT': {'statedir': '/tmp/test_cdmstatehandler'}}
         shLoad2.load()
         with self.subTest("set substates - load via config"):
-            self.assertEqual({'opstate': 'uninitialized', 'result': {}, 'config': {'statedir': '/tmp/test_cdmstatehandler'},\
+            self.assertEqual({'opstate': 'uninitialized', 'result': {},
+                              'config': {'DEFAULT': {'statedir':
+                                                     '/tmp/test_cdmstatehandler'}},\
             'substate': {'mysubstate_1': {'opstate': 'uninitialized', 'result': {}, 'config': {}, 'substate': {}},\
                          'mysubstate_2': {'opstate': 'running', 'result': {}, 'config': {}, \
                                           'substate': {'mysubstate_21': {'opstate': 'waiting', 'result': {}, 'config': {}, 'substate': {}}, \
