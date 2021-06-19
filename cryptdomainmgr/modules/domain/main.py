@@ -8,6 +8,7 @@
 #######################################################################
 
 from simpleloggerplus import simpleloggerplus as log
+from cryptdomainmgr.modules.common.cdmstatehelper import isReady
 
 
 def update(config, state):
@@ -39,6 +40,10 @@ def prepare(config, state):
         if domainState.isDone():
             continue
         log.info('Create resource records for section \"{}\"'.format(domainSecName))
+        domainState.setOpStateWaiting()
+        if not isReady(domainConfig, state, ['cert', 'rspamd']):
+            return
+        domainState.setOpStateRunning()
         log.debug(domainConfig)
         handlerNames = domainConfig['handler'].split('/')
         handler = __import__('cryptdomainmgr.modules.domain.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','domain'))

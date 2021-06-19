@@ -26,7 +26,7 @@ def interpreteValues(cr, args):
         if depend in args['content']:
             dependVals = args['content'][depend].replace(' ','').split(',')
             dependsResolved = resolveAuto(dependVals,dependSections)
-            args['config'][args['secname']][depend] = dependsResolved 
+            args['config'][args['secname']][depend] = dependsResolved
             if len(dependsResolved) > len(dependSections):
                 log.warn("Dependency in config entry does not exist!")
 

@@ -175,6 +175,14 @@ def interpreteConfig(cr, sh):
     for domain, content in domainconfig.items():
         for f in ['A', 'AAAA', 'DKIM', 'TLSA', 'MX', 'SRV', 'CAA', 'DMARC', 'SOA', 'SPF', 'Handler', 'Cert']:
             domainconfig[domain].update((globals()['interprete{}'.format(f)](content)))
+        for depend in ['cert', 'dkim']:
+            dependSections = set(cr.getRawConfigOf(depend).keys())
+            if depend in domainconfig[domain]:
+                doesNotExist = set(domainconfig[domain][depend]) - dependSections
+                for missing in doesNotExist:
+                    log.warn("Section {}:{} referenced in domain:{} does not exist!".format(depend,missing,domain))
+                domainconfig[domain][depend] = list(set(domainconfig[domain][depend]) - doesNotExist)
+
     log.debug(domainconfig)
     cr.updateConfig({'domain': domainconfig})
     return domainconfig
