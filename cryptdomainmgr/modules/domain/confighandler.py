@@ -175,13 +175,25 @@ def interpreteConfig(cr, sh):
     for domain, content in domainconfig.items():
         for f in ['A', 'AAAA', 'DKIM', 'TLSA', 'MX', 'SRV', 'CAA', 'DMARC', 'SOA', 'SPF', 'Handler', 'Cert']:
             domainconfig[domain].update((globals()['interprete{}'.format(f)](content)))
-        for depend in ['cert', 'dkim']:
-            dependSections = set(cr.getRawConfigOf(depend).keys())
-            if depend in domainconfig[domain]:
-                doesNotExist = set(domainconfig[domain][depend]) - dependSections
-                for missing in doesNotExist:
-                    log.warn("Section {}:{} referenced in domain:{} does not exist!".format(depend,missing,domain))
-                domainconfig[domain][depend] = list(set(domainconfig[domain][depend]) - doesNotExist)
+        depend = 'cert'
+        dependSections = set(cr.getRawConfigOf(depend).keys())
+        if depend in domainconfig[domain]:
+            dependEntry = set(domainconfig[domain][depend])
+            if 'auto' in dependEntry:
+                dependEntry = dependEntry - 'auto' + dependSections
+            doesNotExist = dependEntry - dependSections
+            for missing in doesNotExist:
+                log.warn("Section {}:{} referenced in domain:{} does not exist!".format(depend,missing,domain))
+            domainconfig[domain][depend] = list(set(domainconfig[domain][depend]) - doesNotExist)
+        addDKIMcont = set([e['content'] for e in domainconfig[domain]['dkimAggrAdd']])
+        dkimSections = set(cr.getRawConfigOf('dkim').keys())
+        doesNotExist = addDKIMcont - dkimSections
+        for missing in doesNotExist:
+            log.warn("Section dkim:{} referenced in domain:{} does not exist!".format(missing,domain))
+        for e in domainconfig[domain]['dkimAggrAdd']:
+            if e['content'] not in doesNotExist:
+                del e
+
 
     log.debug(domainconfig)
     cr.updateConfig({'domain': domainconfig})

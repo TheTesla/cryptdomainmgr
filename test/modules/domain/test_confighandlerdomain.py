@@ -194,9 +194,16 @@ class TestDomainconfighandler(unittest.TestCase):
 
     def testDomainDefaultSectionCertset(self):
         cr = ConfigReader()
-        cr.setContentList(['[domain]\ncert  = noocsp , withocsp'])
+        cr.setContentList(['[domain]\ncert  = noocsp , \
+                           withocsp\n[cert:noocsp]\ndummy=true\n[cert:withocsp]\ndummy=true'])
         procConfig(cr)
         self.assertEqual(['noocsp', 'withocsp'], cr.config['domain']['DEFAULT']['cert'])
+
+    def testDomainMissingCertset(self):
+        cr = ConfigReader()
+        cr.setContentList(['[domain]\ncert  = noocsp , withocsp'])
+        procConfig(cr)
+        self.assertEqual([], cr.config['domain']['DEFAULT']['cert'])
 
     def testDomainDefaultSectionHandlerset(self):
         cr = ConfigReader()
