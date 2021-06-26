@@ -29,6 +29,9 @@ def interpreteValues(cr, args):
             args['config'][args['secname']][depend] = dependsResolved
             if len(dependsResolved) > len(dependSections):
                 log.warn("Dependency in config entry does not exist!")
+            if 'requires' not in args['config'][args['secname']]:
+                args['config'][args['secname']]['requires'] = {}
+            args['config'][args['secname']]['requires'][depend] = dependsResolved
 
 
 

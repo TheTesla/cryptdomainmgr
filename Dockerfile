@@ -4,8 +4,6 @@ RUN apt update && apt install -y python3 python3-pip
 
 RUN apt update && apt install -y libcurl4-openssl-dev libssl-dev curl
 
-RUN apt update && apt install -y cron
-
 COPY . /cryptdomainmgr
 
 WORKDIR /cryptdomainmgr

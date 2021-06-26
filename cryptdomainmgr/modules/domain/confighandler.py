@@ -175,24 +175,29 @@ def interpreteConfig(cr, sh):
     for domain, content in domainconfig.items():
         for f in ['A', 'AAAA', 'DKIM', 'TLSA', 'MX', 'SRV', 'CAA', 'DMARC', 'SOA', 'SPF', 'Handler', 'Cert']:
             domainconfig[domain].update((globals()['interprete{}'.format(f)](content)))
-        depend = 'cert'
-        dependSections = set(cr.getRawConfigOf(depend).keys())
-        if depend in domainconfig[domain]:
-            dependEntry = set(domainconfig[domain][depend])
-            if 'auto' in dependEntry:
-                dependEntry = dependEntry - 'auto' + dependSections
-            doesNotExist = dependEntry - dependSections
-            for missing in doesNotExist:
-                log.warn("Section {}:{} referenced in domain:{} does not exist!".format(depend,missing,domain))
-            domainconfig[domain][depend] = list(set(domainconfig[domain][depend]) - doesNotExist)
+        certSections = set(cr.getRawConfigOf('cert').keys())
+        certEntry = set({})
+        certDoesNotExist = set({})
+        if 'cert' in domainconfig[domain]:
+            certEntry = set(domainconfig[domain]['cert'])
+            if 'auto' in certEntry:
+                certEntry = certEntry - 'auto' + certSections
+            certDoesNotExist = certEntry - certSections
+            for missing in certDoesNotExist:
+                log.warn("Section cert:{} referenced in domain:{} does not exist!".format(missing,domain))
+            domainconfig[domain]['cert'] = list(set(domainconfig[domain]['cert']) - certDoesNotExist)
         addDKIMcont = set([e['content'] for e in domainconfig[domain]['dkimAggrAdd']])
         dkimSections = set(cr.getRawConfigOf('dkim').keys())
-        doesNotExist = addDKIMcont - dkimSections
-        for missing in doesNotExist:
+        dkimDoesNotExist = addDKIMcont - dkimSections
+        for missing in dkimDoesNotExist:
             log.warn("Section dkim:{} referenced in domain:{} does not exist!".format(missing,domain))
         for e in domainconfig[domain]['dkimAggrAdd']:
-            if e['content'] not in doesNotExist:
+            if e['content'] not in dkimDoesNotExist:
                 del e
+        if 'requires' not in domainconfig[domain]:
+            domainconfig[domain]['requires'] = {}
+        domainconfig[domain]['requires']['dkim'] = addDKIMcont - dkimDoesNotExist
+        domainconfig[domain]['requires']['cert'] = certEntry - certDoesNotExist
 
 
     log.debug(domainconfig)

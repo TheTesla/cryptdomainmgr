@@ -31,7 +31,11 @@ def interpreteValues(args):
     args['config'][args['secname']]['depends'] = set(depends) if 0 < len(depends[0]) else {}
     for depend in depends:
         if depend in args['content']:
-            args['config'][args['secname']][depend] = resolveAuto(args['config'], args['content'][depend].replace(' ','').split(','), depend)
+            dpnd = resolveAuto(args['config'], args['content'][depend].replace(' ','').split(','), depend)
+            args['config'][args['secname']][depend] = dpnd
+            if 'requires' not in args['config'][args['secname']]:
+                args['config'][args['secname']]['requires'] = {}
+            args['config'][args['secname']]['requires'][depend] = set(dpnd)
 
 
 

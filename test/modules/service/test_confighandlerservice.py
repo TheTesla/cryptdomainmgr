@@ -35,14 +35,18 @@ class TestServiceconfighandler(unittest.TestCase):
         cr.setContentList(['[service:apache2]'])
         procConfig(cr)
         # maybe trash - ToDo: check if needed
-        self.assertEqual({'cert': [], 'dhparam': [], 'handler': 'apache2', 'container': 'false', 'depends': {'cert', 'dhparam'}}, cr.config['service']['apache2'])
+        self.assertEqual({'cert': [], 'dhparam': [], 'handler': 'apache2',
+                          'container': 'false', 'depends': {'cert', 'dhparam'},
+                          'requires': {'cert': set(), 'dhparam': set()}}, cr.config['service']['apache2'])
 
     def testServiceDefaultPostfixset(self):
         cr = ConfigReader()
         cr.setContentList(['[service:postfix]'])
         procConfig(cr)
         # maybe trash - ToDo: check if needed
-        self.assertEqual({'cert': [], 'dhparam': [], 'handler': 'postfix', 'container': 'false', 'depends': {'cert', 'dhparam'}}, cr.config['service']['postfix'])
+        self.assertEqual({'cert': [], 'dhparam': [], 'handler': 'postfix',
+                          'container': 'false', 'depends': {'cert', 'dhparam'},
+                          'requires': {'cert': set(), 'dhparam': set()}}, cr.config['service']['postfix'])
 
 
 if "__main__" == __name__:

@@ -27,7 +27,13 @@ class TestDomainconfighandler(unittest.TestCase):
         cr = ConfigReader()
         cr.setContentList(['[domain]'])
         procConfig(cr)
-        self.assertEqual({'ip4AggrAdd': [], 'ip4AggrDel': [], 'ip6AggrAdd': [], 'ip6AggrDel': [], 'dkimAggrAdd': [], 'dkimAggrDel': [], 'tlsaAggrAdd': [], 'tlsaAggrDel': [], 'mxAggrAdd': [], 'mxAggrDel': [], 'srvAggrAdd': [], 'srvAggrDel': [], 'caaAggrAdd': [], 'caaAggrDel': [], 'spfAggrAdd': set(), 'spfAggrDel': set()}, cr.config['domain']['DEFAULT'])
+        self.assertEqual({'ip4AggrAdd': [], 'ip4AggrDel': [], 'ip6AggrAdd': [],
+                          'ip6AggrDel': [], 'dkimAggrAdd': [], 'dkimAggrDel':
+                          [], 'tlsaAggrAdd': [], 'tlsaAggrDel': [],
+                          'mxAggrAdd': [], 'mxAggrDel': [], 'srvAggrAdd': [],
+                          'srvAggrDel': [], 'caaAggrAdd': [], 'caaAggrDel': [],
+                          'spfAggrAdd': set(), 'spfAggrDel': set(),
+                          'requires': {'dkim': set(), 'cert': set()}}, cr.config['domain']['DEFAULT'])
 
     def testDomainDefaultSectionIP4set(self):
         cr = ConfigReader()

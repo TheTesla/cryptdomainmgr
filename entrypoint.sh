@@ -1,7 +1,5 @@
 #!/bin/bash
 
-INTERVAL=86400
-
 set -e
 
 cd /cryptdomainmgr
@@ -14,36 +12,8 @@ echo "                                        "
 
 python3 -m cryptdomainmgr --update /etc/cryptdomainmgr/*
 
-echo "                                        "
-echo "                                        "
-echo "    Running cryptdomainmgr PREPARE      "
-echo "----------------------------------------"
-echo "                                        "
-
-python3 -m cryptdomainmgr --prepare /etc/cryptdomainmgr/*
-
-echo "                                        "
-echo "                                        "
-echo "    Running cryptdomainmgr ROLLOVER     "
-echo "----------------------------------------"
-echo "                                        "
-
-python3 -m cryptdomainmgr --rollover /etc/cryptdomainmgr/*
-
-echo "                                        "
-echo "                                        "
-echo "    Running cryptdomainmgr CLEANUP      "
-echo "----------------------------------------"
-echo "                                        "
-
-python3 -m cryptdomainmgr --cleanup /etc/cryptdomainmgr/*
-
-
 while [ True ]
 do
-
-  echo "Waiting $INTERVAL seconds."
-  sleep $INTERVAL
 
   echo "                                        "
   echo "                                        "
@@ -51,30 +21,23 @@ do
   echo "----------------------------------------"
   echo "                                        "
   
-  python3 -m cryptdomainmgr --prepare /etc/cryptdomainmgr/*
+  python3 -m cryptdomainmgr --prepare /etc/cryptdomainmgr/* --config-content "$1"
   
-
-  echo "Waiting $INTERVAL seconds."
-  sleep $INTERVAL
-
   echo "                                        "
   echo "                                        "
   echo "    Running cryptdomainmgr ROLLOVER     "
   echo "----------------------------------------"
   echo "                                        "
   
-  python3 -m cryptdomainmgr --rollover /etc/cryptdomainmgr/*
+  python3 -m cryptdomainmgr --rollover /etc/cryptdomainmgr/* --config-content "$1"
   
-  echo "Waiting $INTERVAL seconds."
-  sleep $INTERVAL
-
   echo "                                        "
   echo "                                        "
   echo "    Running cryptdomainmgr CLEANUP      "
   echo "----------------------------------------"
   echo "                                        "
   
-  python3 -m cryptdomainmgr --cleanup /etc/cryptdomainmgr/*
+  python3 -m cryptdomainmgr --cleanup /etc/cryptdomainmgr/* --config-content "$1"
 
 done
 
