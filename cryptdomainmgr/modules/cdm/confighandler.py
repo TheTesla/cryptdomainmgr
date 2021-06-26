@@ -39,7 +39,9 @@ def interpreteConfig(cr, sh):
     cnf =  processConfig(cr, 'cdm', preOp=None, postOp=lambda x:  interpreteValues(cr, x),
                          defaultConfig={'statedir': '/var/cryptdomainmgr',
                                         'depends': 'cert, domain, dkim, \
-                                        dhparam, service'})
+                                        dhparam, service', 'cert': 'auto',
+                                        'dkim': 'auto', 'dhparam': 'auto',
+                                        'domain': 'auto', 'service': 'auto'})
     return cnf
 
 
