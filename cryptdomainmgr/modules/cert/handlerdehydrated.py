@@ -66,7 +66,7 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
             break
         except CalledProcessError as e:
             if 'ERROR: Lock file' in e.output:
-                lockFilename = e.output.decode().split('ERROR: Lock file \'')[-1].split('\' present, aborting')[0]
+                lockFilename = e.output.split('ERROR: Lock file \'')[-1].split('\' present, aborting')[0]
                 log.warn('Lock file from imcomplete run found: {}'.format(lockFilename))
                 log.warn('  -> Removing')
                 os.remove(lockFilename)

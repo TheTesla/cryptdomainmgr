@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+echo "$1"
+
 set -e
 
 cd /cryptdomainmgr

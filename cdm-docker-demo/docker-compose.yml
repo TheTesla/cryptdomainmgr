@@ -11,7 +11,7 @@ services:
       - "./configuration/:/configuration/"
       - "../exampleconf/:/etc/cryptdomainmgr/"
     command:
-      - "[cdm]  postwait=5"
+      - "[cdm]    postwait=5"
 
 
   traefik:
