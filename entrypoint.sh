@@ -15,6 +15,33 @@ echo "                                        "
 
 python3 -m cryptdomainmgr --update /etc/cryptdomainmgr/*
 
+# dirty hack - --config-content or command in docker-compose may only contain
+#              postwait interval - first run without this configuration
+
+  echo "                                        "
+  echo "                                        "
+  echo "    Running cryptdomainmgr PREPARE      "
+  echo "----------------------------------------"
+  echo "                                        "
+  
+  python3 -m cryptdomainmgr --prepare /etc/cryptdomainmgr/*
+  
+  echo "                                        "
+  echo "                                        "
+  echo "    Running cryptdomainmgr ROLLOVER     "
+  echo "----------------------------------------"
+  echo "                                        "
+  
+  python3 -m cryptdomainmgr --rollover /etc/cryptdomainmgr/*
+  
+  echo "                                        "
+  echo "                                        "
+  echo "    Running cryptdomainmgr CLEANUP      "
+  echo "----------------------------------------"
+  echo "                                        "
+  
+  python3 -m cryptdomainmgr --cleanup /etc/cryptdomainmgr/*
+
 while [ True ]
 do
 
