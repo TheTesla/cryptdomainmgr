@@ -4,7 +4,7 @@ env:
   matrix:
   - PYTHONIOENCODING=utf-8
   global:
-    secure: C/NjS8tBgJznqhqnVwgXH1+wucJABEKYJ4cYjmlHC7i+Z7XstmZCV1xPeFvLI9fNsjbX7Sjaqr4lqXv+sWgiFC0YVsQGu3qplMsoEu7U7gf3OBEiaFN9j2lIfuy6FW5jVapWq49+TyNb2bF+RIXEz1bzT950ZFbRF+fA8z3KcHels2G2DexLuEDoIe08dh3zRO0d4oiOm1ruBQsSR01igaT0Qn3hg/cfElxMqUBaksNVJ/kO5zp9UBK9UbJgJad2GK15e0DEs4jCJpW6OfBlxKYGYU5h9WVXIr4eDtam2t6rLarc5taMXdGW1OhSJTnd9MLNwwm/nd8SV48jwKuXSM9c2Ab3MK0n4qvoaseRyPcLDpmLpMIu7IP5IqhA+5nDLO2VTM6451Uqgr8XKviTM/swrNeFIXiiv7GRlZLN+qFhF1Hob2SVUrb7xC6SgZ9mcgTvQATuHe1ncdhgEMGHHl0328Nfp2GvPoc6ojidTwpQ7+wuokEFIugv9cLcrNbjMd+HNRomc+9BDRY3fOfB84hpc5s2x0CoEAzAz4l81qxS0si5xR6/CqW1h6pxM8L4IhZeE7gsXClAEuVFHZJpMXbuyDT0+/cLKDpiBsqNqrQJdm5ne4O6+yrft9YYedA5KqfrH8djr22yjBpNIB7Kn7qVlWvzWo6dmwPEr1t3qws=
+    secure: edJqvUIrRlVqCgpg8ssjO2cm6oXlpYCUNGSoL5o0cvZg+EUTXb7rxQJDSg2gH8OxxE5GR9DMJSaRnsphDR+M+A3DvO34uUXdbo3KPTL2YjwkCPBJ6Ok8dMo+rfW/Ij9PuTABA85grupqyZVmp3AZLA5CQUo8XHT8iV6fM5jpYw494AtphsemAvsxvXxvGZCNrLQc7E2gkfJrCOXPHqgSjgM0vIDl6qSeEPOQO63D0I2ITvM4pEXreQYih5QeUyRLCt9+dGIY6U3Q8gZnTk+5/C3C34K1FDX/UV9pILYZtaw7JeD6heC9NQsq947M39fTysZGE5JUzvRpTbH6r+qYh0jlZq08jg1+vHSGphb1NarbH5PgkMd3OgExHNDmCQQ52the6BD1glRLZOSMAtCZktdc51BO9x0Hlo10+rtPN7jx54c2ljLrUfMlg4BR4X9d6A3kZjEoyGUtH4CK2OxKGuDBkHMdmPERDwZJV5RAFdwTxFGq3Nz+Y2jJ8PowLvUbEU5U97hHOYchemUhWYkdzkL0SUOFtT5tDzfx79peEuH0vkQf9FxIcVmLJwvq9hQnDyllEhW3bc+LwRs9K2oBZ2WIPWGRnHmCfqDdJCMWJuNYVZKvmjqwcYvMMyn/a1jLW1whGq9DANwstXZO0YAKe6QVTRdfTpIco9AnxxNvEgA=
 python:
 - '3.8'
 addons:
@@ -18,10 +18,6 @@ services:
 before_install:
 - openssl aes-256-cbc -K $encrypted_e70009473049_key -iv $encrypted_e70009473049_iv
   -in test_inwxcreds.conf.enc -out test_inwxcreds.conf -d
-  #- cat maincfpatch | sudo tee -a /etc/postfix/main.cf
-  #- sudo bash install_rspamd.sh
-  #- sudo systemctl restart postfix
-  #- sudo systemctl restart rspamd
 script:
 - echo "hello"
 stages:
@@ -29,8 +25,6 @@ stages:
 after_success:
 - echo "${DOCKER_PASSWORD:0:2}"
 - echo "$DOCKER_PASSWORD" | docker login -u entroserv --password-stdin
-  #- docker build -t entroserv/cryptdomainmgr .
-  #- docker push entroserv/cryptdomainmgr
 deploy:
   provider: pypi
   skip_existing: true
