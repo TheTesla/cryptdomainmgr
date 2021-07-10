@@ -4,9 +4,12 @@ env:
   matrix:
   - PYTHONIOENCODING=utf-8
   global:
-    secure: udBm3gFvBnZx8Xlc/0Ka9e487T8Ry/H0JSpd2adclB0jqaGWWcOMHv2AAuryHzsnL+tLG613J6+nISd72IJuxvxJl5ZHw+JjG5IC3Tq4KtyqaYHulbnlQvBaMWLuIJ34GG3+QxXpLBFTbEhOcCrJL/zuIfYNGL+hizYb1GHxYReTVMkEm7I42OPOofLzCj35910tfJTOz8sxuAQi/MGwmZzwaCpTi8133S1n/9a0Bc1kyNHm6W7lZVjEPHq0f6t88ZnsQ3bKfYNullGG+vS5n2GgsFWJNwca/++GNDizPICl+1/YkSjfkjHG7fdZfkHaW0OGntV4Fu6hJwzsK2YGBVUySCF5RdFo0U1YehC7UyFL+bH5fC3jR1Gyhb0LgMN2l2HaiG/jn7hl0VIQptDp5wgsTxnCnIdTR2hQQQK7cJ86oTejFSoLIXKjsOKyyxDOc4asasnoLXZzCddAvXpY6GYoenfJEpgpjxNRZOMp5VezPOTcgGE94/mxFGtnSZYoW4pTCkzAvPigOvJ0du5a/OdUMTu5Ioe71XQ9o2TlTTeOazwFIr9wC8PE0Tb2Zr5zXlIwKkoy0pdT8UY4jPmD5W0vXId7UWIWcqbR2P7p99fgSOCem+ljEhyWeFvaBabKvoCSzF1qMu2M+vt/JRrRvFLGE4qv3M92DPbA/5gr21g=
+    secure: EH5Y54XE/Zf1ln+nQN+Dczwv6u+/29ihLEBrr8wncPQ7aJtwB9DDCqXe3HpRDMzE9PGEMTZkjb33Y1l0afUPUA7twOeGueVllwRjhW4BHLc0DaWNLRoCDDCbrrVtbMyv/64yxnV/cmVyA1bVj0LNFVuW9xeGUdcgR5nVKIw9z5MfU3szJW66P8U8hpugZ8ONp7TaEl4DVBZMJjij9AehSCGY1ye6MPjanNtwXFmAMUqX7nWEZhcNrgSvK3X1ECK19tcjhIOKAwBhv6x2Mclc3gurkbniDE3qhfGVX/G3GWtkTxq4vZsrwtPoFz+hopYQCU7AFqM3U2Ex9DMSxlL3S7wcFz6PuRgAqHn66Wp+OPfWzONUkmp+lfiazZ8BJlewCkD49+3TU6glyWsvt+lMvCbpT4mImkYkxD9O766Bmw0SzTKTxR5DeZRUm37bQl08HVoeqD3Qc9Fk8w690CbsMZniQ82VSzn2hy+1cI3B+H3m2JwZABxBKQv+yyiCHSa9FqyM+AGvG13iwyra7vhOVUKO86zT9efQiGXviIkK+L6tJGaJGo+Hclek3cX9keKK2hgAxADWj0h02aVV2W4YsDEmDNn2lKEu5PicEYdpL+WNJTj72uAFWLGMCWuYBzmu7tKBg1R0IxOg8Agr2HMijqS+iyDWsuGvFD3DNYVSoIk=
 python:
 - '3.8'
+- '3.9'
+- 3.9-dev
+- nightly
 addons:
   apt:
     packages:
@@ -18,13 +21,18 @@ services:
 before_install:
 - openssl aes-256-cbc -K $encrypted_e70009473049_key -iv $encrypted_e70009473049_iv
   -in test_inwxcreds.conf.enc -out test_inwxcreds.conf -d
+- cat maincfpatch | sudo tee -a /etc/postfix/main.cf
+- sudo bash install_rspamd.sh
+- sudo systemctl restart postfix
+- sudo systemctl restart rspamd
 script:
-- echo "hello"
+- python3 -m unittest discover -v
 stages:
 - deploy
 after_success:
-- echo "${DOCKER_PASSWORD:0:5}"
 - echo "$DOCKER_PASSWORD" | docker login -u entroserv --password-stdin
+- docker build -t entroserv/cryptdomainmgr .
+- docker push entroserv/cryptdomainmgr
 deploy:
   provider: pypi
   skip_existing: true
