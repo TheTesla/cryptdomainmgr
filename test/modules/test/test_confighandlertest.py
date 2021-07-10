@@ -18,6 +18,8 @@ def procConfig(cr):
 
 
 class TestCDMconfighandler(unittest.TestCase):
+    maxDiff = None
+
     def testNoSection(self):
         cr = ConfigReader()
         cr.setContentList([''])

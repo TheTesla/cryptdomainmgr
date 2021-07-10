@@ -8,10 +8,24 @@
 #######################################################################
 
 from subprocess import check_output, CalledProcessError
+from simpleloggerplus import simpleloggerplus as log
 
 def serviceAction(serviceName, action):
-    return check_output(('sudo', 'systemctl', action, serviceName))
-
+    try:
+        return check_output(('sudo', 'systemctl', action, serviceName))
+    except Exception as e:
+        log.error(e)
+    try:
+        return check_output(('systemctl', action, serviceName))
+    except Exception as e:
+        log.error(e)
+    if 'reload' == action:
+        try:
+            return check_output(('killall', serviceName, '-s', 'SIGHUP'))
+        except Exception as e:
+            log.error(e)
+    log.error("reload failed")
+    raise("reload failed")
 
 def reloadService(serviceName):
     return serviceAction(serviceName, 'reload')

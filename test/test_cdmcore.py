@@ -12,6 +12,23 @@ import copy
 
 from cryptdomainmgr.cdmcore import getNextPhase, getCurrentPhase, StateHandler, ConfigReader, runPhase, ManagedDomain
 
+stateConfStart = {'DEFAULT': {'cert': [],
+               'depends': {'dhparam', 'cert', 'dkim', 'service', 'domain'},
+               'dhparam': [],
+               'dkim': [],
+               'domain': [],
+               'requires': {'cert': [],
+                            'dhparam': [],
+                            'dkim': [],
+                            'domain': [],
+                            'service': []},
+               'service': [],
+               'statedir': '/tmp/test_cryptdomainmgr'}}
+
+
+
+
+
 def procConfig(cr):
     cr.open()
     cr.interprete(None)
@@ -22,6 +39,7 @@ class StateTest:
         self.result = {"nextphase": "myphase"}
 
 class TestCDMcore(unittest.TestCase):
+    maxDiff = None
     def testGetNextPhase(self):
         self.assertEqual("rollover", getNextPhase("prepare"))
         self.assertEqual("cleanup", getNextPhase("rollover"))
@@ -54,15 +72,14 @@ class TestCDMcore(unittest.TestCase):
     def testManagedDomain(self):
         md = ManagedDomain()
         #md.readConfig(content="[cdm]\nstatedir={}\n[test:mytest]".format(tmpStateFile.name))
-        md.run(confContent="[cdm]\nstatedir=/tmp/test_cryptdomainmgr\n[test:mytest]", forcePhase="update")
+        cnf = "[cdm]\nstatedir=/tmp/test_cryptdomainmgr\n[test:mytest]"
+        md.run(confContent=cnf, forcePhase="cleanup")
+        md.run(confContent=cnf, forcePhase="update")
         sh = md.sh
         with self.subTest("<config>"):
             res = copy.deepcopy(sh.config)
             res['DEFAULT']['depends'] = set(res['DEFAULT']['depends'])
-            self.assertEqual({'DEFAULT': {'depends': {'dhparam', 'domain',
-                                                      'dkim', 'service',
-                                                      'cert'}, 'statedir':
-                                          '/tmp/test_cryptdomainmgr'}}, res)
+            self.assertEqual(stateConfStart, res)
         with self.subTest("<result> (first)"):
             self.assertEqual({'nextphase': 'prepare'}, sh.result)
         md = ManagedDomain()

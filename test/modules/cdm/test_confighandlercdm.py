@@ -14,8 +14,23 @@ import copy
 from cryptdomainmgr.cdmconfighandler import ConfigReader
 
 
-defaultConfig = {'cdm': {'DEFAULT': {'depends': {'dkim', 'service', 'cert',
-                                                 'dhparam', 'domain'}, 'statedir': '/var/cryptdomainmgr'}}}
+defaultConfig = {'cdm': {'DEFAULT': {'cert': [],
+                                     'depends': {'cert',
+                                                 'dhparam',
+                                                 'dkim',
+                                                 'domain',
+                                                 'service'},
+                                     'dhparam': [],
+                                     'dkim': [],
+                                     'domain': [],
+                                     'requires': {'cert': [],
+                                                  'dhparam': [],
+                                                  'dkim': [],
+                                                  'domain': [],
+                                                  'service': []},
+                                     'service': [],
+                                     'statedir': '/var/cryptdomainmgr'}}}
+
 
 def procConfig(cr):
     cr.open()
@@ -23,6 +38,8 @@ def procConfig(cr):
     return cr
 
 class TestCDMconfighandler(unittest.TestCase):
+    maxDiff = None
+
     def testNoSection(self):
         cr = ConfigReader()
         cr.setContentList([''])
