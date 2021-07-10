@@ -30,7 +30,7 @@ script:
 stages:
 - deploy
 after_success:
-- docker login -u entroserv -p $DOCKER_PASSWORD
+- docker login -u entroserv -p "$DOCKER_PASSWORD"
 - docker build -t entroserv/cryptdomainmgr .
 - docker push entroserv/cryptdomainmgr
 deploy:
