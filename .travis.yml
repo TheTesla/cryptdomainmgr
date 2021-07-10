@@ -18,19 +18,19 @@ services:
 before_install:
 - openssl aes-256-cbc -K $encrypted_e70009473049_key -iv $encrypted_e70009473049_iv
   -in test_inwxcreds.conf.enc -out test_inwxcreds.conf -d
-- cat maincfpatch | sudo tee -a /etc/postfix/main.cf
-- sudo bash install_rspamd.sh
-- sudo systemctl restart postfix
-- sudo systemctl restart rspamd
+  #- cat maincfpatch | sudo tee -a /etc/postfix/main.cf
+  #- sudo bash install_rspamd.sh
+  #- sudo systemctl restart postfix
+  #- sudo systemctl restart rspamd
 script:
 - echo "hello"
 stages:
 - deploy
 after_success:
-- echo "{DOCKER_PASSWORD:0:2}"
+- echo "${DOCKER_PASSWORD:0:2}"
 - echo "$DOCKER_PASSWORD" | docker login -u entroserv --password-stdin
-- docker build -t entroserv/cryptdomainmgr .
-- docker push entroserv/cryptdomainmgr
+  #- docker build -t entroserv/cryptdomainmgr .
+  #- docker push entroserv/cryptdomainmgr
 deploy:
   provider: pypi
   skip_existing: true
