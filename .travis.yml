@@ -4,7 +4,7 @@ env:
   matrix:
   - PYTHONIOENCODING=utf-8
   global:
-    secure: bXFJ3Nrh5JpWPGrrWb37elPcTZ1JPTquYjIFdyG4opP6L3yyqDxhhLC6vD/a/9EKzr8uRaIe2SZD7X0juuOcOcgZvo0K5U3f/2DCob8sTxlRxlSogCtz1qfRxbSDgGsf1olIXecKw3Q5Ch0KzoyGFiNHFEN4L6hFJ/2BCLh839uEkZCDOLuDx75MHxS5w6dq7zo9H66CIadwGwA/Jy6zih3P3lXVQhhHVQWlfZ+gQ+Id75TRv+c69d9wzXpPZFXfolVduhuBRIz24I+2HQbMI8pE4wQzP1MWu+QTQFDvASvS1qjfyUTSUqsewbZkUoIHDUut2Vy+6zPwU60ADOFLPP0H1TNYDIYofinhw4cp16H1Y8tq4peaKvTZFEvkbeAGj8yHg3bGqQExMUqdigaLex2D3+/TVMrL/uaO8SwNylu8oDMN5eO+8vpXJRp1SuoP7EXiEE/Ah5+SBl/LxjxT4Zltm/W3J0q7O8P5GuYysYdN0JGKuS+2lhDT0PG0uW8TSYfNIRf4rRahMKfOJN/BWdpl5Q+tP+haJrrpQbWg22VmWCDLMQMKyu4At/2UAHvGsBFVId+QKO8HAIPdnehDBv7WCchhLbkPkMlFxegZhsHPMMZ8cjXctqhsxBSSB6liNX44MchoyjWPYvpbzX7gjQtadXKloI/tLkUJVTr6En0=
+    secure: C/NjS8tBgJznqhqnVwgXH1+wucJABEKYJ4cYjmlHC7i+Z7XstmZCV1xPeFvLI9fNsjbX7Sjaqr4lqXv+sWgiFC0YVsQGu3qplMsoEu7U7gf3OBEiaFN9j2lIfuy6FW5jVapWq49+TyNb2bF+RIXEz1bzT950ZFbRF+fA8z3KcHels2G2DexLuEDoIe08dh3zRO0d4oiOm1ruBQsSR01igaT0Qn3hg/cfElxMqUBaksNVJ/kO5zp9UBK9UbJgJad2GK15e0DEs4jCJpW6OfBlxKYGYU5h9WVXIr4eDtam2t6rLarc5taMXdGW1OhSJTnd9MLNwwm/nd8SV48jwKuXSM9c2Ab3MK0n4qvoaseRyPcLDpmLpMIu7IP5IqhA+5nDLO2VTM6451Uqgr8XKviTM/swrNeFIXiiv7GRlZLN+qFhF1Hob2SVUrb7xC6SgZ9mcgTvQATuHe1ncdhgEMGHHl0328Nfp2GvPoc6ojidTwpQ7+wuokEFIugv9cLcrNbjMd+HNRomc+9BDRY3fOfB84hpc5s2x0CoEAzAz4l81qxS0si5xR6/CqW1h6pxM8L4IhZeE7gsXClAEuVFHZJpMXbuyDT0+/cLKDpiBsqNqrQJdm5ne4O6+yrft9YYedA5KqfrH8djr22yjBpNIB7Kn7qVlWvzWo6dmwPEr1t3qws=
 python:
 - '3.8'
 addons:
@@ -27,7 +27,7 @@ script:
 stages:
 - deploy
 after_success:
-- echo "$DOCKER_PASSWORD" #| docker login -u entroserv --password-stdin
+- echo "$DOCKER_PASSWORD" | docker login -u entroserv --password-stdin
 - docker build -t entroserv/cryptdomainmgr .
 - docker push entroserv/cryptdomainmgr
 deploy:
