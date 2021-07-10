@@ -32,7 +32,7 @@ stages:
 after_success:
 - docker login -u entroserv -p $DOCKER_PASSWORD
 - docker build -t entroserv/cryptdomainmgr .
-- docker push entroserv/crpytdomainmgr
+- docker push entroserv/cryptdomainmgr
 deploy:
   provider: pypi
   skip_existing: true
