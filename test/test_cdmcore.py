@@ -9,6 +9,7 @@
 
 import unittest
 import copy
+import os
 
 from cryptdomainmgr.cdmcore import getNextPhase, getCurrentPhase, StateHandler, ConfigReader, runPhase, ManagedDomain
 
@@ -70,10 +71,10 @@ class TestCDMcore(unittest.TestCase):
             self.assertEqual("done", sh.getSubstate('test').getSubstate('mytestname').opstate)
 
     def testManagedDomain(self):
+        os.remove("/tmp/test_cryptdomainmgr/state.json")
         md = ManagedDomain()
         #md.readConfig(content="[cdm]\nstatedir={}\n[test:mytest]".format(tmpStateFile.name))
         cnf = "[cdm]\nstatedir=/tmp/test_cryptdomainmgr\n[test:mytest]"
-        md.run(confContent=cnf, forcePhase="cleanup")
         md.run(confContent=cnf, forcePhase="update")
         sh = md.sh
         with self.subTest("<config>"):
