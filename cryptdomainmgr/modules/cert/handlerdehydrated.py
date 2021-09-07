@@ -58,7 +58,7 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
     log.debug(args)
     certState.setOpStateRunning()
 
-    i = 0
+    i = 2
     while True:
         try:
             log.info('Starting DNS-01 authentication')
