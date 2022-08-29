@@ -47,6 +47,7 @@ class TestHandlerRspamd(unittest.TestCase):
         keylocation={} \
         ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation))
 
+        sp.check_output(('sudo', 'chmod', '+r', os.path.join(tmpdir,"modules/dkim","mydkim","key","dkim.key")))
         with self.subTest("check dkim key file is created in tmp"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/dkim","mydkim","key","dkim.key")))
         with self.subTest("check dkim conf file is created in tmp"):

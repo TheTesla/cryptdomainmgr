@@ -51,7 +51,7 @@ def copyDKIM(dkimConfig, dkimState):
         log.error("Failed to copy file")
         log.error("  {} -> {}".format(str(src), str(dest)))
     try:
-        rv = check_output(('chown', '_rspamd:_rspamd', str(dest)))
+        rv = check_output(('sudo', 'chown', '_rspamd:_rspamd', str(dest)))
     except CalledProcessError as e:
         log.error("Failed to change ownership of {}".format(str(dest)))
 
