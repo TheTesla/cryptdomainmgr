@@ -46,7 +46,7 @@ def copyDKIM(dkimConfig, dkimState):
     except CalledProcessError as e:
         log.error("Failed to create directory path for {}".format(str(dest)))
     try:
-        rv = check_output(('cp', '-rfLT', str(src), str(dest)))
+        rv = check_output(('sudo', 'cp', '-rfLT', str(src), str(dest)))
     except CalledProcessError as e:
         log.error("Failed to copy file")
         log.error("  {} -> {}".format(str(src), str(dest)))

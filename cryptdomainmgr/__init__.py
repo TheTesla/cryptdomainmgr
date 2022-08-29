@@ -4,7 +4,7 @@
 import os
 
 # VERSION
-__version__ = "0.2.6-2"
+__version__ = "0.2.6-3"
 
 
 if __name__ == '__main__':
