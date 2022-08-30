@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/TheTesla/cryptdomainmgr.svg?branch=master)](https://travis-ci.com/TheTesla/cryptdomainmgr)
+[![Build Status](https://app.travis-ci.com/TheTesla/cryptdomainmgr.svg?branch=master)](https://app.travis-ci.com/TheTesla/cryptdomainmgr)
 
 # Crypto Domain Manager
 
@@ -101,9 +101,9 @@ hints:
 ## Next goals
 
 * improve documentation
-* docker support
+* docker support - partly done, ToDo: label handling needed, daemon mode without external shell stript needed
 * website
-* automated tests
+* automated tests - partly done
 * nsupdate for DNS updates
 
 Long term goals:
