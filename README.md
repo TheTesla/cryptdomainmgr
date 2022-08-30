@@ -101,7 +101,7 @@ hints:
 ## Next goals
 
 * improve documentation
-* docker support - partly done, label handling needed
+* docker support - partly done, ToDo: label handling needed, daemon mode without external shell stript needed
 * website
 * automated tests
 * nsupdate for DNS updates
