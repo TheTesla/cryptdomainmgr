@@ -40,7 +40,7 @@ def tlsaFromCertFile(certFilename, certConstr = 3, keyOnly = 0, hashType = 1):
     elif 2 == int(hashType):
         #output = runCmd(('openssl', 'sha512'), stdin=ps.stdout).split(b' ')[1].replace(b'\n',b'')
         output = hashlib.sha512(ASN1).hexdigest()
-    return output.encode()
+    return output
 
 class TestCertTLSA(unittest.TestCase):
     def testMultiCertTLSACreate(self):
