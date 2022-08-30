@@ -59,11 +59,13 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
     certState.setOpStateRunning()
 
     i = 2
+    j = 2
     while True:
         try:
             log.info('Starting DNS-01 authentication')
             rv = runCmd(' '.join(args), stderr=STDOUT, env=dict(os.environ, DOMAINACCESSTABLE=domainAccessTable, STATEDIR=statedir, WAITSEC="{}".format(3**i)))
             break
+        #except CalledProcessError as e:
         except CalledProcessError as e:
             if 'ERROR: Lock file' in e.output:
                 lockFilename = e.output.split('ERROR: Lock file \'')[-1].split('\' present, aborting')[0]
@@ -80,11 +82,18 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
                 log.info('  -> Will wait {} s to give challenge time to propagate DNS cache.'.format(3**i))
             elif 'too many certificates' in e.output:
                 log.info('  -> Too many certificates created recently. Trying to wait longer!')
-                i += 1
-                log.info('  -> Will wait {} s to give challenge time to propagate DNS cache.'.format(3**i))
+                j += 1
+                wts = 5**j
+                log.info('  -> Will wait {} s to satisfy API constraints.'.format(wts))
+                for t in range(0,wts,3600):
+                    iwts = min(wts-t,3600)
+                    log.info('   - {} remaining'.format(wts-t))
+                    time.sleep(iwts)
             else:
                 raise(e)
             if 9 == i:
+                raise(e)
+            if 9 == j:
                 raise(e)
 
     res = []
