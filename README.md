@@ -103,7 +103,7 @@ hints:
 * improve documentation
 * docker support - partly done, ToDo: label handling needed, daemon mode without external shell stript needed
 * website
-* automated tests
+* automated tests - partly done
 * nsupdate for DNS updates
 
 Long term goals:
