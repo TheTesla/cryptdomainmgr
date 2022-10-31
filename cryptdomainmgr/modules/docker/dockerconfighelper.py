@@ -6,13 +6,9 @@ import docker
 
 
 def dockerMyContainerID():
-    with open('/proc/self/cgroup', 'r') as f:
-        cgroup = {e.split(':')[0]:e.split(':') for e in f.read().splitlines()}
-        if 3 > len(cgroup['1']):
-            return ''
-        if 'docker' != cgroup['1'][2].split('/')[1]:
-            return ''
-        return cgroup['1'][2].split('/')[2]
+    with open('/proc/self/mountinfo', 'r') as f:
+        m = f.read()
+        return m.split('/docker/containers/')[1].split('/')[0]
 
 def dockerPathMap(targetContainer, targetDirectory, dockersock='', sourceContainer=''):
     if '' == sourceContainer:
