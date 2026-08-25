@@ -5,3 +5,4 @@ pyOpenSSL
 parse
 docker
 gitpython
+cryptography

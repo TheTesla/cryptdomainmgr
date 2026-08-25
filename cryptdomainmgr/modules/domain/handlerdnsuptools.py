@@ -10,6 +10,8 @@
 from dnsuptools import dnsuptools
 from simpleloggerplus import simpleloggerplus as log
 from OpenSSL import crypto
+from cryptography import x509
+
 
 def getAccessParams(domainConfig):
     if 'dnsuptools/inwx' == domainConfig['handler']:
@@ -96,9 +98,11 @@ def cleanup(domainConfig, domainState, domainSecName, state):
 def getCertSAN(filename):
     certFile = open(filename, 'rt').read()
     cert = crypto.load_certificate(crypto.FILETYPE_PEM, certFile)
-    san = [cert.get_extension(i).get_data().split(b'\x82')[1:] for i in range(cert.get_extension_count()) if b'subjectAltName' == cert.get_extension(i).get_short_name()][0]
-    san = [e[1:] for e in san]
-    return san
+    crypto_cert = cert.to_cryptography()
+    san = crypto_cert.extensions.get_extension_for_class(
+        x509.SubjectAlternativeName
+    ).value
+    return san.get_values_for_type(x509.DNSName)
 
 #def getFullchain(state, domainContent):
 #    certState = state.getSubstate('cert').getSubstate(domainContent['cert'][0])
@@ -302,8 +306,8 @@ def setTLSA(domainConfig, domainState, domainSecName, dnsup, state, add=True, de
             else:
                 log.info('deploying TLSA record for {} (certificate found)'.format(domainSecName))
                 sanList = getCertSAN(cert)
-                log.info('  -> found certificate: {} for: {}'.format(cert, b', '.join(sanList)))
-                if domainSecName.encode() not in sanList:
+                log.info('  -> found certificate: {} for: {}'.format(cert, ', '.join(sanList)))
+                if domainSecName not in sanList:
                     log.error('{} not in certificate {}'.format(domainSecName, cert))
                 tlsaAdd = [dict(e, filename=cert) for e in domainConfig['tlsaAggrAdd'] if 'op' in e if 'auto' == e['op']]
                 tlsaPres.extend(tlsaAdd)
