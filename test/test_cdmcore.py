@@ -71,7 +71,10 @@ class TestCDMcore(unittest.TestCase):
             self.assertEqual("done", sh.getSubstate('test').getSubstate('mytestname').opstate)
 
     def testManagedDomain(self):
-        os.remove("/tmp/test_cryptdomainmgr/state.json")
+        # test_main (alphabetically after cdmcore) creates this state file;
+        # tolerate a missing file when this suite runs standalone
+        if os.path.isfile("/tmp/test_cryptdomainmgr/state.json"):
+            os.remove("/tmp/test_cryptdomainmgr/state.json")
         md = ManagedDomain()
         #md.readConfig(content="[cdm]\nstatedir={}\n[test:mytest]".format(tmpStateFile.name))
         cnf = "[cdm]\nstatedir=/tmp/test_cryptdomainmgr\n[test:mytest]"

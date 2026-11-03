@@ -12,7 +12,7 @@ import subprocess as sp
 import os
 from OpenSSL import crypto
 import hashlib
-from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail
+from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail, INWXCREDSPRESENT, NOINWXCREDS
 from cryptdomainmgr.modules.common.cdmprochelper import runCmd
 
 
@@ -42,6 +42,7 @@ def tlsaFromCertFile(certFilename, certConstr = 3, keyOnly = 0, hashType = 1):
         output = hashlib.sha512(ASN1).hexdigest()
     return output
 
+@unittest.skipUnless(INWXCREDSPRESENT, NOINWXCREDS)
 class TestCertTLSA(unittest.TestCase):
     def testMultiCertTLSACreate(self):
         stdout = runCmd("python3 -m cryptdomainmgr --prepare \

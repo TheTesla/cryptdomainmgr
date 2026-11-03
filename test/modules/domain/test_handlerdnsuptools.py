@@ -9,10 +9,11 @@
 
 import unittest
 import subprocess as sp
-from test.test_config import testdomain, testns
+from test.test_config import testdomain, testns, INWXCREDSPRESENT, NOINWXCREDS
 from cryptdomainmgr.modules.common.cdmprochelper import runCmd
 
 
+@unittest.skipUnless(INWXCREDSPRESENT, NOINWXCREDS)
 class TestHandlerDNSUptools(unittest.TestCase):
     def testDNSUptoolsUpdateIP4(self):
         stdout = runCmd("python3 -m cryptdomainmgr --update \

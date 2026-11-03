@@ -10,11 +10,12 @@
 import unittest
 import subprocess as sp
 import os
-from test.test_config import testdh, dhfile
+from test.test_config import testdh, dhfile, INWXCREDSPRESENT, NOINWXCREDS
 from cryptdomainmgr.modules.common.cdmprochelper import runCmd
 
 
 
+@unittest.skipUnless(INWXCREDSPRESENT, NOINWXCREDS)
 class TestHandlerOpenssl(unittest.TestCase):
     def testHandlerOpensslDH512(self):
         try:

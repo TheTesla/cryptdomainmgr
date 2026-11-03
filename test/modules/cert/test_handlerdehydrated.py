@@ -11,7 +11,7 @@ import unittest
 import subprocess as sp
 import os
 from simpleloggerplus import simpleloggerplus as log
-from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail
+from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail, INWXCREDSPRESENT, NOINWXCREDS
 from cryptdomainmgr.modules.common.cdmprochelper import runCmd
 
 import sys
@@ -23,6 +23,7 @@ def numberOfFiles(path):
 
 
 
+@unittest.skipUnless(INWXCREDSPRESENT, NOINWXCREDS)
 class TestHandlerDehydrated(unittest.TestCase):
     def testHandlerDehydratedCreateCert(self):
         log.relog("test")

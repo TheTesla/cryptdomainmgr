@@ -11,7 +11,7 @@ import re
 import unittest
 import subprocess as sp
 import os
-from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail
+from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail, INWXCREDSPRESENT, NOINWXCREDS
 from cryptography.hazmat.primitives import serialization
 from cryptdomainmgr.modules.common.cdmprochelper import runCmd
 import OpenSSL
@@ -26,6 +26,7 @@ signingConfDestFile = os.path.join(tmpdir,"etc/rspamd/local.d/dkim_signing.conf"
 def numberOfFiles(path):
     return len([name for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))])
 
+@unittest.skipUnless(INWXCREDSPRESENT, NOINWXCREDS)
 class TestHandlerRspamd(unittest.TestCase):
     def testHandlerRspamdCreateDKIMkey(self):
         stdout = runCmd("python3 -m cryptdomainmgr --prepare \

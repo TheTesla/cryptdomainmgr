@@ -1,4 +1,4 @@
-[![Build Status](https://app.travis-ci.com/TheTesla/cryptdomainmgr.svg?branch=master)](https://app.travis-ci.com/TheTesla/cryptdomainmgr)
+[![tests](https://github.com/TheTesla/cryptdomainmgr/actions/workflows/tests.yml/badge.svg)](https://github.com/TheTesla/cryptdomainmgr/actions/workflows/tests.yml)
 
 # Crypto Domain Manager
 
