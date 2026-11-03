@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "cryptdomainmgr"
+version = "0.2.8"
+description = "Software managing certificate, dkim and domain updates automagically."
+authors = ["Stefan Helmert <stefan.helmert@t-online.de>"]
+license = "AGPL-3.0-only"
+readme = "README.md"
+homepage = "https://www.entroserv.de/offene-software/cryptdomainmgr"
+repository = "https://github.com/TheTesla/cryptdomainmgr"
+keywords = ["acme", "letsencrypt", "dkim", "tlsa", "dns", "certificate"]
+packages = [{ include = "cryptdomainmgr" }]
+include = [
+    { path = "cryptdomainmgr/modules/cert/dehydrated/*", format = ["sdist", "wheel"] },
+    { path = "cryptdomainmgr/modules/cert/hook.sh", format = ["sdist", "wheel"] },
+    { path = "cryptdomainmgr/modules/dkim/dkim_signing_template.conf", format = ["sdist", "wheel"] },
+]
+classifiers = [
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Operating System :: OS Independent",
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+dnsuptools = "*"
+jinja2 = "*"
+simpleloggerplus = "*"
+pyopenssl = "*"
+parse = "*"
+docker = "*"
+gitpython = "*"
+cryptography = "*"
+acme = "*"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

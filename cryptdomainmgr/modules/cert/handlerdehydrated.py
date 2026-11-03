@@ -45,6 +45,12 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
     confFile.write('CONTACT_EMAIL={}\n'.format(str(email)))
     confFile.write('KEYSIZE={}\n'.format(int(keysize)))
     confFile.write('CERTDIR={}\n'.format(os.path.join(statedir, 'certs')))
+    if 'caroot' in certConfig:
+        confFile.write('CURL_OPTS="--cacert {}"\n'.format(str(certConfig['caroot'])))
+    if 'accountdir' in certConfig:
+        confFile.write('ACCOUNTDIR={}\n'.format(str(certConfig['accountdir'])))
+    if 'lockfile' in certConfig:
+        confFile.write('LOCKFILE={}\n'.format(str(certConfig['lockfile'])))
     confFile.write('\n')
     confFile.close()
 
@@ -60,10 +66,16 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
 
     i = 2
     j = 2
+    # build the bash associative array literal for the hook from the
+    # domainAccessTable dict ({domain: {k: v}}); literal \n keep the
+    # hook.sh echo -e expansion working
+    domainAccessTableStr = ''.join(
+        ' ["{}"]="{}"'.format(d, '\n'.join('{}={}'.format(k, v) for k, v in params.items()).replace('\n', '\\n'))
+        for d, params in domainAccessTable.items())
     while True:
         try:
             log.info('Starting DNS-01 authentication')
-            rv = runCmd(' '.join(args), stderr=STDOUT, env=dict(os.environ, DOMAINACCESSTABLE=domainAccessTable, STATEDIR=statedir, WAITSEC="{}".format(3**i)))
+            rv = runCmd(' '.join(args), stderr=STDOUT, env=dict(os.environ, DOMAINACCESSTABLE='({} )'.format(domainAccessTableStr), STATEDIR=statedir, WAITSEC="{}".format(3**i)))
             break
         #except CalledProcessError as e:
         except CalledProcessError as e:

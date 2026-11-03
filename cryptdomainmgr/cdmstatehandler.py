@@ -9,6 +9,7 @@
 
 import json
 import os
+from simpleloggerplus import simpleloggerplus as log
 from .modules.common.cdmfilehelper import makeDir
 
 def getDictDefault(dictVar, key, defaultVal):
@@ -113,6 +114,7 @@ class StateHandler:
             json.dump(self.toDict(), jsonfile)
 
     def delete(self, filename=None):
+        log.debug('deleting state file {}'.format(filename))
         if filename is None:
             filename = os.path.join(self.config['DEFAULT']['statedir'], 'state.json')
         if not os.path.isfile(filename):

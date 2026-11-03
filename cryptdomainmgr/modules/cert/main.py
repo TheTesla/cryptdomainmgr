@@ -15,12 +15,12 @@ from cryptdomainmgr.modules.common.cdmconfighelper import getStateDir
 from cryptdomainmgr.modules.common.cdmfilehelper import makeDir
 
 def createDomainAccessTable(config, domains):
-    domainAccessTableStr = ""
+    domainAccessTable = {}
     for d in domains:
         domainConfig = config['domain'][d]
         paramKeys = domainConfig['accessparams']
-        domainAccessTableStr += ' ["{}"]="'.format(d) + '\\n'.join(["{}={}".format(k, domainConfig[k]) for k in paramKeys])+'"'
-    return '({} )'.format(domainAccessTableStr)
+        domainAccessTable[d] = {k: domainConfig[k] for k in paramKeys}
+    return domainAccessTable
 
 
 def prepare(config, state):

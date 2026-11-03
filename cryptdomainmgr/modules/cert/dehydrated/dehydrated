@@ -407,9 +407,15 @@ init_system() {
       ACCOUNT_ID="$(cat "${ACCOUNT_KEY_JSON}" | get_json_int_value id)"
       ACCOUNT_URL="${CA_REG}/${ACCOUNT_ID}"
     else
-      if [[ -e "${ACCOUNT_ID_JSON}" ]]; then
+      if [[ -e "${ACCOUNT_ID_JSON}" ]] && [[ "${CA_ACCOUNT}" != "${CA_NEW_ACCOUNT}" ]]; then
+        # CA follows the LetsEncrypt new-acct/acct URL pattern: the account
+        # URL can be reconstructed from the directory information
         ACCOUNT_ID="$(cat "${ACCOUNT_ID_JSON}" | get_json_string_value id)"
+        ACCOUNT_URL="${CA_ACCOUNT}/${ACCOUNT_ID}"
       else
+        # Otherwise (e.g. pebble with /sign-me-up and /my-account/ paths) the
+        # account URL has to be taken from the Location header of an
+        # onlyReturnExisting request
         echo "+ Fetching account ID..."
         ACCOUNT_URL="$(signed_request "${CA_NEW_ACCOUNT}" '{"onlyReturnExisting": true}' 4>&1 | grep -i ^Location: | awk '{print $2}' | tr -d '\r\n')"
         ACCOUNT_ID="${ACCOUNT_URL##*/}"
@@ -418,7 +424,6 @@ init_system() {
         fi
         echo '{"id": "'"${ACCOUNT_ID}"'"}' > "${ACCOUNT_ID_JSON}"
       fi
-      ACCOUNT_URL="${CA_ACCOUNT}/${ACCOUNT_ID}"
     fi
   else
     echo "Fetching missing account information from CA..."
@@ -699,7 +704,11 @@ sign_csr() {
     challenge_identifiers="[${challenge_identifiers%, }]"
 
     echo " + Requesting new certificate order from CA..."
-    result="$(signed_request "${CA_NEW_ORDER}" '{"identifiers": '"${challenge_identifiers}"'}')"
+    # capture the response Location header (order URL) as well, needed for
+    # polling asynchronous CAs which do not return the certificate URL in
+    # the finalize response (e.g. pebble)
+    result="$(signed_request "${CA_NEW_ORDER}" '{"identifiers": '"${challenge_identifiers}"'}' 4>&1)"
+    orderLocation="$(printf '%s\n' "${result}" | { grep -i ^Location: | awk '{print $2}' | tr -d '\r\n'; } || true)"
 
     order_authorizations="$(echo ${result} | get_json_array_value authorizations)"
     finalize="$(echo "${result}" | get_json_string_value finalize)"
@@ -809,12 +818,15 @@ sign_csr() {
     if [[ ${API} -eq 1 ]]; then
       result="$(signed_request "${challenge_uris[${idx}]}" '{"resource": "challenge", "keyAuthorization": "'"${keyauths[${idx}]}"'"}' | clean_json)"
     else
-      result="$(signed_request "${challenge_uris[${idx}]}" '{"keyAuthorization": "'"${keyauths[${idx}]}"'"}' | clean_json)"
+      # RFC 8555: the challenge response body must be an empty JSON object
+      result="$(signed_request "${challenge_uris[${idx}]}" '{}' | clean_json)"
     fi
 
     reqstatus="$(printf '%s\n' "${result}" | get_json_string_value status)"
 
-    while [[ "${reqstatus}" = "pending" ]]; do
+    # poll while pending or processing (RFC 8555 allows both, e.g. pebble
+    # returns "processing" while the async validation is running)
+    while [[ "${reqstatus}" = "pending" ]] || [[ "${reqstatus}" = "processing" ]]; do
       sleep 1
       if [[ "${API}" -eq 2 ]]; then
         result="$(signed_request "${challenge_uris[${idx}]}" "")"
@@ -867,7 +879,27 @@ sign_csr() {
     crt64="$(signed_request "${CA_NEW_CERT}" '{"resource": "new-cert", "csr": "'"${csr64}"'"}' | "${OPENSSL}" base64 -e)"
     crt="$( printf -- '-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----\n' "${crt64}" )"
   else
-    result="$(signed_request "${finalize}" '{"csr": "'"${csr64}"'"}' | clean_json | get_json_string_value certificate)"
+    # RFC 8555: the finalize response may return the order in "processing"
+    # status without a certificate URL (e.g. pebble issues asynchronously).
+    # In that case poll the order URL (from the response Location header)
+    # until the certificate URL appears.
+    finalizeRv="$(signed_request "${finalize}" '{"csr": "'"${csr64}"'"}' 4>&1)"
+    result="$(printf '%s' "${finalizeRv}" | clean_json | get_json_string_value certificate)"
+    if [[ -z "${result}" ]]; then
+      # no certificate URL in the finalize response: poll the order URL
+      # (Location header of the newOrder response, fallback: finalize
+      # response) until the certificate URL appears
+      orderURL="${orderLocation}"
+      if [[ -z "${orderURL}" ]]; then
+        orderURL="$(printf '%s\n' "${finalizeRv}" | { grep -i ^Location: | awk '{print $2}' | tr -d '\r\n'; } || true)"
+      fi
+      local tries=0
+      while [[ -z "${result}" ]] && [[ ${tries} -lt 30 ]] && [[ -n "${orderURL}" ]]; do
+        sleep 1
+        result="$(signed_request "${orderURL}" "" | clean_json | get_json_string_value certificate)"
+        tries=$((tries+1))
+      done
+    fi
     crt="$(signed_request "${result}" "")"
   fi
 
