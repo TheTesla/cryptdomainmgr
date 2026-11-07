@@ -143,7 +143,7 @@ def prepare(certConfig, certState, statedir, domainList, domainAccessTable):
                     order, deadline=datetime.now() + timedelta(seconds=ACME_RETRY_DEADLINE_SECONDS))
                 break
             except errors.ValidationError as e:
-                if 4 <= i:
+                if 5 <= i:
                     raise
                 i += 1
                 log.warn('dns-01 validation failed, maybe due to DNS caching interval: {}'.format(e))

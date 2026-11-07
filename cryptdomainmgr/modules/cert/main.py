@@ -23,6 +23,22 @@ def createDomainAccessTable(config, domains):
     return domainAccessTable
 
 
+def getCertHandler(certConfig):
+    """Resolve the cert handler module for the configured handler name.
+
+    Falls back to the acme handler when the configured handler does not
+    exist (e.g. configurations for handlers removed from the project)."""
+    handlerNames = certConfig['handler'].split('/')
+    try:
+        return __import__('cryptdomainmgr.modules.cert.handler' + str(handlerNames[0]),
+                          fromlist=('cryptdomainmgr', 'modules', 'cert'))
+    except ImportError:
+        log.warn('cert handler "{}" not available, falling back to the acme handler'.format(handlerNames[0]))
+        certConfig['handler'] = 'acme'
+        return __import__('cryptdomainmgr.modules.cert.handleracme',
+                          fromlist=('cryptdomainmgr', 'modules', 'cert'))
+
+
 def prepare(config, state):
     subState = state.getSubstate('cert')
     for certSecName, certConfig in config['cert'].items():
@@ -38,8 +54,7 @@ def prepare(config, state):
         log.info('  -> {}'.format(', '.join(domains)))
         log.debug(certConfig)
         domainAccessTable = createDomainAccessTable(config, domains)
-        handlerNames = certConfig['handler'].split('/')
-        handler = __import__('cryptdomainmgr.modules.cert.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','cert'))
+        handler = getCertHandler(certConfig)
         statedir = getStateDir(config, 'cert', certSecName)
         handler.prepare(certConfig, certState, statedir, domains, domainAccessTable)
 

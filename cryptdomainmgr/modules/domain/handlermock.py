@@ -108,6 +108,10 @@ def getAccessParams(domainConfig):
 def mkDNSup(domainConfig):
     dnsup = dnsuptools.DNSUpTools()
     dnsup.setHandler(MockDNSHandler(getStoreFilename(domainConfig)))
+    if 'acme' in domainConfig and domainConfig['acme']:
+        # short TTL for acme challenge records, see handlerdnsuptools
+        # (300 is the minimum TTL the INWX API accepts)
+        dnsup.defaultTTL = 300
     return dnsup
 
 

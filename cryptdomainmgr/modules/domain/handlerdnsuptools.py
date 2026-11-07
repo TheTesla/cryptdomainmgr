@@ -25,6 +25,12 @@ def update(domainConfig, domainState, domainSecName):
     dnsup.setHandler(handlers[1])
     dnsup.handler.setUserDict({'default': domainConfig['user'], domainSecName: domainConfig['user']})
     dnsup.handler.setPasswdDict({'default': domainConfig['passwd'], domainSecName: domainConfig['passwd']})
+    if 'acme' in domainConfig and domainConfig['acme']:
+        # short TTL for acme challenge records: when multiple certificates
+        # share one domain, resolvers would otherwise serve a cached old
+        # challenge token (zone default TTL) and validation fails.
+        # 300 is the minimum TTL the INWX API accepts (RECORD_TTL_RANGE).
+        dnsup.defaultTTL = 300
 
     domainState.setOpStateRunning()
 

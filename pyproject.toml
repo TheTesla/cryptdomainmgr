@@ -10,8 +10,6 @@ repository = "https://github.com/TheTesla/cryptdomainmgr"
 keywords = ["acme", "letsencrypt", "dkim", "tlsa", "dns", "certificate"]
 packages = [{ include = "cryptdomainmgr" }]
 include = [
-    { path = "cryptdomainmgr/modules/cert/dehydrated/*", format = ["sdist", "wheel"] },
-    { path = "cryptdomainmgr/modules/cert/hook.sh", format = ["sdist", "wheel"] },
     { path = "cryptdomainmgr/modules/dkim/dkim_signing_template.conf", format = ["sdist", "wheel"] },
 ]
 classifiers = [

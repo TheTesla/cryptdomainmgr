@@ -1,3 +1,0 @@
-[submodule "dehydrated"]
-	path = cryptdomainmgr/modules/cert/dehydrated
-	url = https://github.com/lukas2511/dehydrated.git

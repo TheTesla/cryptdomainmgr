@@ -33,7 +33,13 @@ def readHandlerDefault(args):
     if 'handler' in args['content']:
         log.debug('handler in content')
         handlerNames = args['content']['handler'].split('/')
-        handler = __import__('cryptdomainmgr.modules.{}.handler{}'.format(str(args['module']), handlerNames[0]), fromlist=('cryptdomainmgr', 'modules', str(args['module'])))
+        try:
+            handler = __import__('cryptdomainmgr.modules.{}.handler{}'.format(str(args['module']), handlerNames[0]), fromlist=('cryptdomainmgr', 'modules', str(args['module'])))
+        except ImportError:
+            # unknown handler: no handler defaults available, the module
+            # specific dispatch applies its fallback (e.g. cert -> acme)
+            log.warn('handler "{}" of module "{}" not available, no handler defaults applied'.format(handlerNames[0], args['module']))
+            return
         args['config'][args['secname']].update(handler.defaultConfig)
 
 def processConfig(configReader, module, postOp=None, preOp=readHandlerDefault, defaultConfig={}):

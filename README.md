@@ -53,8 +53,8 @@ Updating keys, certifcates and other needs 3 steps to prevent gaps in availabill
 ## Needed Plugins and Dependencies
 
 * **dnsuptools**: to interface with DNS API -- updating DNS entries
-* **dehydrated**: to get new certificate (included with cryptdomainmgr)
-* **rspamd**: to create (and use) DKIM keys
+* **acme**: certificate issuance via the ACME protocol (certbot's acme library); the former bundled dehydrated was removed, legacy `handler=dehydrated/...` configurations are automatically served by the acme handler
+* **rspamd**: to sign mails with DKIM keys (key generation also works without it via the openssl dkim handler)
 
 ## Installation
 

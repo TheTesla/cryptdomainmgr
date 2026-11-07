@@ -3,6 +3,9 @@ name: tests
 on:
   push:
   pull_request:
+  # the live-staging job below only runs on manual dispatch and needs
+  # the repository secret CDM_INWX_CREDS (content of test_inwxcreds.conf)
+  workflow_dispatch:
 
 jobs:
   unittests:
@@ -57,3 +60,36 @@ jobs:
         env:
           PEBBLE_BIN: /home/runner/go/bin/pebble
         run: python -m unittest test.modules.cert.test_cert_pebble -v
+
+  live-staging:
+    # runs manually (workflow_dispatch) only and only after the offline
+    # jobs passed; needs the repo secret CDM_INWX_CREDS with the content
+    # of test_inwxcreds.conf. Keep usage rare (letsencrypt staging rate
+    # limits): the pebble e2e job covers the acme flow offline.
+    if: github.event_name == 'workflow_dispatch'
+    needs: [unittests, pebble-e2e]
+    runs-on: ubuntu-latest
+    name: live letsencrypt staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev
+      - name: Install python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Restore INWX credentials and run staging tests
+        env:
+          CDM_INWX_CREDS: ${{ secrets.CDM_INWX_CREDS }}
+        run: |
+          if [ -z "$CDM_INWX_CREDS" ]; then
+            echo "secret CDM_INWX_CREDS not set, skipping live staging tests"
+            exit 0
+          fi
+          printf '%s' "$CDM_INWX_CREDS" > test_inwxcreds.conf
+          CDM_LIVE_STAGING=1 python -m unittest test.modules.complextests.test_certtlsa -v

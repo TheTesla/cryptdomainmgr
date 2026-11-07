@@ -132,9 +132,7 @@ class TestCertPebble(unittest.TestCase):
             "[domain]", "handler=mock", "mockstore=" + mockstore,
             "[domain:" + testdomain + "]"] + domainEntries + [
             "[cert]", "handler=" + handler, "email=" + testcertemail, "keysize=4096",
-            "ca=" + self.acmeURL + "/dir", "caroot=" + self.caFile,
-            "accountdir=" + os.path.join(tmpdir, "accounts"),
-            "lockfile=" + os.path.join(tmpdir, "dehydrated.lock")] + certEntries)
+            "ca=" + self.acmeURL + "/dir", "caroot=" + self.caFile] + certEntries)
         return "python3 -m cryptdomainmgr --{} --config-content '{}' 2>&1".format(phase, content)
 
     def runHandler(self, handler, subtestPrefix):
@@ -160,8 +158,13 @@ class TestCertPebble(unittest.TestCase):
         with self.subTest(subtestPrefix + ": check current cert is not deleted"):
             self.assertTrue(os.path.isfile(certFile))
 
-    def testHandlerDehydratedPebbleCreateCert(self):
-        self.runHandler("dehydrated/pebble", "dehydrated")
-
     def testHandlerAcmePebbleCreateCert(self):
         self.runHandler("acme", "acme")
+
+    def testUnknownHandlerFallsBackToAcme(self):
+        # the bundled dehydrated was removed: configurations with unknown
+        # handler names are served by the acme handler
+        self.runHandler("dehydrated/pebble", "fallback(dehydrated)")
+
+    def testUnknownHandlerNameFallsBackToAcme(self):
+        self.runHandler("nonexistenthandler", "fallback(nonexistenthandler)")
