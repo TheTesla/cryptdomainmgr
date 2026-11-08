@@ -10,7 +10,7 @@ repository = "https://github.com/TheTesla/cryptdomainmgr"
 keywords = ["acme", "letsencrypt", "dkim", "tlsa", "dns", "certificate", "X509"]
 packages = [{ include = "cryptdomainmgr" }]
 include = [
-    { path = "cryptdomainmgr/modules/dkim/dkim_signing_template.conf", format = ["sdist", "wheel"] },
+    { path = "cryptdomainmgr/modules/service/dkim_signing_template.conf", format = ["sdist", "wheel"] },
 ]
 classifiers = [
     "License :: OSI Approved :: GNU Affero General Public License v3",

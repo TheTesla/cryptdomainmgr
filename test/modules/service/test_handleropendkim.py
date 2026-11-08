@@ -39,7 +39,6 @@ class TestServiceHandlerOpendkim(unittest.TestCase):
             "[dkim]", "handler=openssl", "keysize=2048",
             "[dkim:mydkim]", "keybasename=key", "keyname=dkimfile.key",
             "keylocation=" + tmpdirOpendkim + "/dkim",
-            "signingconfdestinationfile=" + tmpdirOpendkim + "/etc/rspamd/local.d/dkim_signing.conf",
             "[service:opendkim]", "handler=opendkim", "dkim=mydkim", "reload=false",
             "keytablefile=" + tmpdirOpendkim + "/etc/opendkim/KeyTable",
             "signingtablefile=" + tmpdirOpendkim + "/etc/opendkim/SigningTable"])

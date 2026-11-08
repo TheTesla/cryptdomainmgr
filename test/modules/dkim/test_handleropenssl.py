@@ -36,7 +36,6 @@ class TestHandlerOpensslDKIM(unittest.TestCase):
             "[domain:" + testdomain + "]", "dkim.mydkim=auto",
             "[dkim]", "handler=openssl",
             "[dkim:mydkim]", "keysize=2048",
-            "signingconfdestinationfile=" + tmpdirDkim + "/etc/rspamd/local.d/dkim_signing.conf",
             "keybasename=key", "keyname=dkimfile.key", "keylocation=" + tmpdirDkim + "/dkim"])
         stdout = runCmd("python3 -m cryptdomainmgr --prepare --config-content '{}' 2>&1".format(conf))
 
@@ -45,8 +44,6 @@ class TestHandlerOpensslDKIM(unittest.TestCase):
             self.assertTrue(os.path.isfile(keyFile))
         with self.subTest("check key file has correct permissions"):
             self.assertEqual(0o600, os.stat(keyFile).st_mode & 0o777)
-        with self.subTest("check signing conf is created"):
-            self.assertTrue(os.path.isfile(os.path.join(tmpdirDkim, "modules", "dkim", "mydkim", "conf", "dkim.conf")))
         with self.subTest("check DNS TXT record published"):
             # the record content is the base64 DER SubjectPublicKeyInfo
             with open(keyFile, 'rb') as f:
@@ -57,13 +54,11 @@ class TestHandlerOpensslDKIM(unittest.TestCase):
             self.assertRegex(stdout, r".*add \(new\) DKIM for .*\.{}.*v=DKIM1.*k=rsa.*p={}".format(
                 testdomain, re.escape(expectedP)))
 
-        # rollover: key and signing conf deployed to configured locations
+        # rollover: key deployed to the configured location
         runCmd("python3 -m cryptdomainmgr --rollover --config-content '{}' 2>&1".format(conf))
 
         with self.subTest("check key deployed to keylocation"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdirDkim, "dkim", "dkimfile.key")))
-        with self.subTest("check signing conf deployed"):
-            self.assertTrue(os.path.isfile(os.path.join(tmpdirDkim, "etc", "rspamd", "local.d", "dkim_signing.conf")))
         with self.subTest("check deployed key matches generated key"):
             self.assertTrue(os.path.isfile(keyFile))
             with open(keyFile, 'rb') as fSrc, open(os.path.join(tmpdirDkim, "dkim", "dkimfile.key"), 'rb') as fDst:

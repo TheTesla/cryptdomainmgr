@@ -34,7 +34,8 @@ class TestDKIMconfighandler(unittest.TestCase):
         cr = ConfigReader()
         cr.setContentList(['[dkim:maindkim]\nhandler = rspamd \nkeysize = 4096  '])
         procConfig(cr)
-        self.assertEqual({'keysize': '4096', 'handler': 'rspamd', 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'keyname': 'dkim.key', 'signingconfdestinationfile': '/etc/rspamd/local.d/dkim_signing.conf', 'signingconftemplatefile': '{}/cryptdomainmgr/modules/dkim/dkim_signing_template.conf'.format(os.getcwd())}, cr.config['dkim']['maindkim'])
+        # the signing config rendering moved to the rspamd SERVICE handler
+        self.assertEqual({'keysize': '4096', 'handler': 'rspamd', 'keybasename': 'key', 'keylocation': '/var/lib/rspamd/dkim', 'keyname': 'dkim.key'}, cr.config['dkim']['maindkim'])
 
 
 if "__main__" == __name__:

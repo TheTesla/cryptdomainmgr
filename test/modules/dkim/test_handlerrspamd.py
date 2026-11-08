@@ -19,7 +19,7 @@ keybasename = "key"
 keysize = 2048
 keyname = "dkimfile.key"
 keylocation = "/tmp/test_cryptdomainmgr/dkim"
-signingConfDestFile = os.path.join(tmpdir,"etc/rspamd/local.d/dkim_signing.conf")
+signingConfDestFile = "/tmp/test_cryptdomainmgr/etc/rspamd/local.d/dkim_signing.conf"
 
 
 def numberOfFiles(path):
@@ -40,22 +40,26 @@ class TestHandlerRspamd(unittest.TestCase):
         [dkim] \
         handler=rspamd \
         [dkim:mydkim] \
-        signingconfdestinationfile={} \
         keybasename={} \
         keysize={} \
         keyname={} \
         keylocation={} \
-        ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation))
+        [service:rspamd] \
+        handler=rspamd \
+        dkim=mydkim \
+        reload=false \
+        signingconfdestinationfile={} \
+        ' 2>&1".format(tmpdir,testdomain,keybasename,keysize,keyname,keylocation,signingConfDestFile))
 
         sp.check_output(('sudo', 'chmod', '+r', os.path.join(tmpdir,"modules/dkim","mydkim","key","dkim.key")))
         with self.subTest("check dkim key file is created in tmp"):
             self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/dkim","mydkim","key","dkim.key")))
-        with self.subTest("check dkim conf file is created in tmp"):
-            self.assertTrue(os.path.isfile(os.path.join(tmpdir,"modules/dkim","mydkim","conf","dkim.conf")))
 
-        with open(os.path.join(tmpdir,"modules/dkim","mydkim","conf","dkim.conf"), 'r') as f:
-            confStr = f.read()
-        dkimSelector =  confStr.split("selector")[1].split("=")[1].split("\"")[1]
+        # the selector comes from the published DNS record - the signing
+        # conf is rendered by the rspamd SERVICE handler at rollover
+        selectorMatch = re.search(r"add \(new\) DKIM for (key_\d+)\._domainkey\.", stdout)
+        self.assertIsNotNone(selectorMatch)
+        dkimSelector = selectorMatch.group(1)
 
         with open(os.path.join(tmpdir,"modules/dkim","mydkim","key","dkim.key"),'r') as f:
             privKeyStr = f.read()
@@ -85,16 +89,20 @@ class TestHandlerRspamd(unittest.TestCase):
         [dkim] \
         handler=rspamd \
         [dkim:mydkim] \
-        signingconfdestinationfile={} \
         keybasename={} \
         keysize={} \
         keyname={} \
         keylocation={} \
-        ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation))
+        [service:rspamd] \
+        handler=rspamd \
+        dkim=mydkim \
+        reload=false \
+        signingconfdestinationfile={} \
+        ' 2>&1".format(tmpdir,testdomain,keybasename,keysize,keyname,keylocation,signingConfDestFile))
 
         with self.subTest("check dkim key file is copied to destination"):
             self.assertTrue(os.path.isfile(os.path.join(keylocation,keyname)))
-        with self.subTest("check dkim conf file is copied to destination"):
+        with self.subTest("check rspamd signing conf rendered by service handler"):
             self.assertTrue(os.path.isfile(signingConfDestFile))
 
 

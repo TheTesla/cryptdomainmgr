@@ -21,7 +21,7 @@ keybasename = "key"
 keysize = 2048
 keyname = "dkimfile.key"
 keylocation = "/tmp/test_cryptdomainmgr/dkim"
-signingConfDestFile = "/etc/rspamd/local.d/dkim_signing.conf"
+signingConfDestFile = "/tmp/test_cryptdomainmgr/etc/rspamd/local.d/dkim_signing.conf"
 
 
 def numberOfFiles(path):
@@ -30,7 +30,7 @@ def numberOfFiles(path):
 @unittest.skipUnless(INWXCREDSPRESENT, NOINWXCREDS)
 class TestDKIMemailSigning(unittest.TestCase):
     def testDKIMemailSigningSimple(self):
-        stdout = runCmd("python3 -m cryptdomainmgr --prepare \
+        prepareStdout = runCmd("python3 -m cryptdomainmgr --prepare \
                                  test_inwxcreds.conf --config-content \
         '\
         [cdm] \
@@ -42,14 +42,15 @@ class TestDKIMemailSigning(unittest.TestCase):
         [dkim] \
         handler=rspamd \
         [dkim:mydkim] \
-        signingconfdestinationfile={} \
         keybasename={} \
         keysize={} \
         keyname={} \
         keylocation={} \
         [service:rspamd] \
+        handler=rspamd \
         dkim=mydkim \
-        ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation))
+        signingconfdestinationfile={} \
+        ' 2>&1".format(tmpdir,testdomain,keybasename,keysize,keyname,keylocation,signingConfDestFile))
 
 
 
@@ -65,14 +66,15 @@ class TestDKIMemailSigning(unittest.TestCase):
         [dkim] \
         handler=rspamd \
         [dkim:mydkim] \
-        signingconfdestinationfile={} \
         keybasename={} \
         keysize={} \
         keyname={} \
         keylocation={} \
         [service:rspamd] \
+        handler=rspamd \
         dkim=mydkim \
-        ' 2>&1".format(tmpdir,testdomain,signingConfDestFile,keybasename,keysize,keyname,keylocation))
+        signingconfdestinationfile={} \
+        ' 2>&1".format(tmpdir,testdomain,keybasename,keysize,keyname,keylocation,signingConfDestFile))
 
 
         time.sleep(10) # wait until rspamd reloads
@@ -88,9 +90,11 @@ class TestDKIMemailSigning(unittest.TestCase):
             mail = f.read()
 
 
-        with open(os.path.join(tmpdir,"modules/dkim","mydkim","conf","dkim.conf"), 'r') as f:
-            confStr = f.read()
-        dkimSelector =  confStr.split("selector")[1].split("=")[1].split("\"")[1]
+        # the selector comes from the published DNS record (the signing
+        # conf is rendered by the rspamd service handler at rollover)
+        selectorMatch = re.search(r"add \(new\) DKIM for (key_\d+)\._domainkey\.", prepareStdout)
+        self.assertIsNotNone(selectorMatch)
+        dkimSelector = selectorMatch.group(1)
 
         with self.subTest("check if dkim selector in mails"):
             self.assertIn(dkimSelector, mail)
