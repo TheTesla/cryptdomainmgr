@@ -10,37 +10,31 @@
 import unittest
 import subprocess as sp
 import os
-from OpenSSL import crypto
-import hashlib
+from cryptography import x509
+from cryptography.hazmat.primitives import serialization, hashes
 from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail, INWXCREDSPRESENT, NOINWXCREDS, RUN_LIVE_STAGING, NOLIVESTAGING
 from cryptdomainmgr.modules.common.cdmprochelper import runCmd
 
 
 
 def tlsaFromCertFile(certFilename, certConstr = 3, keyOnly = 0, hashType = 1):
-    #certCont = runCmd(('cat', str(certFilename)))
     with open(certFilename) as f:
         certCont = f.read()
     if 2 == int(certConstr) or 0 == int(certConstr):
         certCont = certCont.split('-----END CERTIFICATE-----')[1]
         certCont += '-----END CERTIFICATE-----'
-    #ps = sp.Popen(('echo', '-e', certCont), stdout=sp.PIPE)
-    certObj = crypto.load_certificate(crypto.FILETYPE_PEM, certCont)
+    certObj = x509.load_pem_x509_certificate(certCont.encode())
     if 0 == int(keyOnly):
-        #ps = sp.Popen(('openssl', 'x509', '-outform', 'DER'), stdout=sp.PIPE, stdin=ps.stdout)
-        ASN1 = crypto.dump_certificate(crypto.FILETYPE_ASN1, certObj)
+        ASN1 = certObj.public_bytes(serialization.Encoding.DER)
     else:
-        #ps = sp.Popen(('openssl', 'x509', '-pubkey', '-noout'), stdout=sp.PIPE, stdin=ps.stdout)
-        #ps = sp.Popen(('openssl', 'pkey', '-pubin', '-outform', 'DER'), stdin=ps.stdout, stdout=sp.PIPE)
-        pubKeyObj = certObj.get_pubkey()
-        ASN1 = crypto.dump_publickey(crypto.FILETYPE_ASN1, pubKeyObj)
+        ASN1 = certObj.public_key().public_bytes(serialization.Encoding.DER,
+                                                 serialization.PublicFormat.SubjectPublicKeyInfo)
     if 1 == int(hashType):
-        #output = runCmd(('openssl', 'sha256'), stdin=ps.stdout).split(b' ')[1].replace(b'\n',b'')
-        output = hashlib.sha256(ASN1).hexdigest()
-    elif 2 == int(hashType):
-        #output = runCmd(('openssl', 'sha512'), stdin=ps.stdout).split(b' ')[1].replace(b'\n',b'')
-        output = hashlib.sha512(ASN1).hexdigest()
-    return output
+        digest = hashes.Hash(hashes.SHA256())
+    else:
+        digest = hashes.Hash(hashes.SHA512())
+    digest.update(ASN1)
+    return digest.finalize().hex()
 
 @unittest.skipUnless(INWXCREDSPRESENT and RUN_LIVE_STAGING, NOINWXCREDS if not INWXCREDSPRESENT else NOLIVESTAGING)
 class TestCertTLSA(unittest.TestCase):

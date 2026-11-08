@@ -7,7 +7,7 @@ license = "AGPL-3.0-only"
 readme = "README.md"
 homepage = "https://www.entroserv.de/offene-software/cryptdomainmgr"
 repository = "https://github.com/TheTesla/cryptdomainmgr"
-keywords = ["acme", "letsencrypt", "dkim", "tlsa", "dns", "certificate"]
+keywords = ["acme", "letsencrypt", "dkim", "tlsa", "dns", "certificate", "X509"]
 packages = [{ include = "cryptdomainmgr" }]
 include = [
     { path = "cryptdomainmgr/modules/dkim/dkim_signing_template.conf", format = ["sdist", "wheel"] },
@@ -19,10 +19,11 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
+# pyopenssl is installed transitively via acme, the project code itself
+# only uses cryptography
 dnsuptools = "*"
 jinja2 = "*"
 simpleloggerplus = "*"
-pyopenssl = "*"
 parse = "*"
 docker = "*"
 gitpython = "*"

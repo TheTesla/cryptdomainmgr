@@ -1,7 +1,8 @@
+# NOTE: pyopenssl is NOT a direct dependency anymore (all code uses
+# cryptography), it is installed transitively by the acme package.
 dnsuptools
 Jinja2
 simpleloggerplus
-pyOpenSSL
 parse
 docker
 gitpython

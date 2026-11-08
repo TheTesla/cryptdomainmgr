@@ -13,7 +13,6 @@ import subprocess as sp
 import os
 from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail, INWXCREDSPRESENT, NOINWXCREDS
 from cryptography.hazmat.primitives import serialization
-import OpenSSL
 import getpass
 import time
 from cryptdomainmgr.modules.common.cdmprochelper import runCmd

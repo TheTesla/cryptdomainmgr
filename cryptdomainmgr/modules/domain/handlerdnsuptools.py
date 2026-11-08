@@ -9,7 +9,6 @@
 
 from dnsuptools import dnsuptools
 from simpleloggerplus import simpleloggerplus as log
-from OpenSSL import crypto
 from cryptography import x509
 
 
@@ -102,12 +101,10 @@ def cleanup(domainConfig, domainState, domainSecName, state):
     return
 
 def getCertSAN(filename):
-    certFile = open(filename, 'rt').read()
-    cert = crypto.load_certificate(crypto.FILETYPE_PEM, certFile)
-    crypto_cert = cert.to_cryptography()
-    san = crypto_cert.extensions.get_extension_for_class(
-        x509.SubjectAlternativeName
-    ).value
+    with open(filename, 'rt') as f:
+        certFile = f.read()
+    cert = x509.load_pem_x509_certificate(certFile.encode())
+    san = cert.extensions.get_extension_for_class(x509.SubjectAlternativeName).value
     return san.get_values_for_type(x509.DNSName)
 
 #def getFullchain(state, domainContent):

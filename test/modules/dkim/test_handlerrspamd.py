@@ -14,7 +14,6 @@ import os
 from test.test_config import testdomain, testns, tmpdir, testcertpath, testcertemail, INWXCREDSPRESENT, NOINWXCREDS
 from cryptography.hazmat.primitives import serialization
 from cryptdomainmgr.modules.common.cdmprochelper import runCmd
-import OpenSSL
 
 keybasename = "key"
 keysize = 2048
@@ -60,9 +59,8 @@ class TestHandlerRspamd(unittest.TestCase):
 
         with open(os.path.join(tmpdir,"modules/dkim","mydkim","key","dkim.key"),'r') as f:
             privKeyStr = f.read()
-        privKey = OpenSSL.crypto.load_privatekey(OpenSSL.crypto.FILETYPE_PEM, privKeyStr)
-        privKeyCrypto = privKey.to_cryptography_key()
-        pubKey = privKeyCrypto.public_key()
+        privKey = serialization.load_pem_private_key(privKeyStr.encode(), password=None)
+        pubKey = privKey.public_key()
         pubKeyStr = pubKey.public_bytes(serialization.Encoding.PEM,serialization.PublicFormat.SubjectPublicKeyInfo)
         pubKeyStrContent = pubKeyStr.decode('utf8').replace('\n','').split('-----BEGIN PUBLIC KEY-----')[1].split('-----END PUBLIC KEY-----')[0]
         dkimpubkey = re.escape(pubKeyStrContent)
