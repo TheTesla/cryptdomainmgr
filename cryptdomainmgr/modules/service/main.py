@@ -7,7 +7,17 @@
 #
 #######################################################################
 
+import inspect
 from simpleloggerplus import simpleloggerplus as log
+
+# handlers may accept an optional 4th argument with the complete config
+# (needed by e.g. handleropendkim to resolve the domain references of a
+# dkim section); old 3-argument handlers keep working
+def callHandler(handler, phaseName, config, serviceConfig, serviceState, state):
+    args = [serviceConfig, serviceState, state]
+    if 3 < len(inspect.signature(getattr(handler, phaseName)).parameters):
+        args.append(config)
+    getattr(handler, phaseName)(*args)
 
 def prepare(config, state):
     subState = state.getSubstate('service')
@@ -23,7 +33,7 @@ def prepare(config, state):
         log.debug(serviceConfig)
         handlerNames = serviceConfig['handler'].split('/')
         handler = __import__('cryptdomainmgr.modules.service.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','service'))
-        handler.prepare(serviceConfig, serviceState, state)
+        callHandler(handler, 'prepare', config, serviceConfig, serviceState, state)
 
 def rollover(config, state):
     subState = state.getSubstate('service')
@@ -39,7 +49,7 @@ def rollover(config, state):
         log.debug(serviceConfig)
         handlerNames = serviceConfig['handler'].split('/')
         handler = __import__('cryptdomainmgr.modules.service.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','service'))
-        handler.rollover(serviceConfig, serviceState, state)
+        callHandler(handler, 'rollover', config, serviceConfig, serviceState, state)
 
 def cleanup(config, state):
     subState = state.getSubstate('service')
@@ -55,6 +65,4 @@ def cleanup(config, state):
         log.debug(serviceConfig)
         handlerNames = serviceConfig['handler'].split('/')
         handler = __import__('cryptdomainmgr.modules.service.handler'+str(handlerNames[0]), fromlist=('cryptdomainmgr', 'modules','service'))
-        handler.cleanup(serviceConfig, serviceState, state)
-
-
+        callHandler(handler, 'cleanup', config, serviceConfig, serviceState, state)
