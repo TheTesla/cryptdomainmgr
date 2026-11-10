@@ -11,7 +11,7 @@ import unittest
 import copy
 import os
 
-from cryptdomainmgr.cdmcore import getNextPhase, getCurrentPhase, StateHandler, ConfigReader, runPhase, ManagedDomain
+from cryptdomainmgr.cdmcore import getNextPhase, getCurrentPhase, StateHandler, ConfigReader, runPhase, ManagedDomain, stateSummaryLines
 
 stateConfStart = {'DEFAULT': {'cert': [],
                'depends': {'dhparam', 'cert', 'dkim', 'service', 'domain'},
@@ -54,6 +54,28 @@ class TestCDMcore(unittest.TestCase):
         self.assertEqual("forcedphase", getCurrentPhase(s, "forcedphase"))
         del s.result["nextphase"]
         self.assertEqual("prepare", getCurrentPhase(s))
+
+    def testStateSummaryLines(self):
+        sh = StateHandler()
+        sh.getSubstate('cert')
+        certState = sh.getSubstate('cert').getSubstate('mycert')
+        certState.setOpStateDone()
+        certState.registerResult({'selector': 'key_123'})
+        dkimState = sh.getSubstate('dkim').getSubstate('mydkim')
+        dkimState.setOpStateRunning()
+
+        # compact summary: opstates only (modules at 1 indent level,
+        # sections nested below them at 2)
+        lines = stateSummaryLines(sh)
+        self.assertIn('  cert = uninitialized', lines)
+        self.assertIn('    cert/mycert = done', lines)
+        self.assertIn('    dkim/mydkim = running', lines)
+        self.assertEqual(4, len(lines))
+        self.assertTrue(all('result=' not in l for l in lines))
+
+        # failure summary: results included
+        lines = stateSummaryLines(sh, includeResults=True)
+        self.assertIn('    cert/mycert = done, result={\'selector\': \'key_123\'}', lines)
 
     def testRunPhase(self):
         sh = StateHandler()

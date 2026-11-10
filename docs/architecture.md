@@ -33,6 +33,10 @@ The state machine (`cdmstatehandler.py`) tracks per-section operation states (`u
 
 The state file (`<statedir>/state.json`) persists results (certificate file paths, DKIM selectors, key hashes) between phases.
 
+## Run summary
+
+Every run ends with a summary log line: on success a compact overview (phase, duration, opstate per module/section). On failure the summary additionally contains the full exception traceback and the complete state tree including section results (certificate paths, selectors) – everything needed to diagnose the failure without re-running in debug mode.
+
 ## Module responsibilities
 
 The layering is strict:

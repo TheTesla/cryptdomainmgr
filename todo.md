@@ -18,6 +18,8 @@
 
 # done (2026)
 
+* ~~multi-level config section inheritance~~ -> `inherit=` key, arbitrary levels, group sections skipped by phases
+* ~~run summary with failure debug output~~ -> compact summary on success, traceback + state tree on failure
 * ~~replace dehydrated by python based ACME framework~~ -> acme handler (certbot's acme library), dehydrated removed
 * ~~generate dkim key by openssl~~ -> openssl dkim handler (cryptography library)
 * ~~DKIM signing config rendering in the service handlers~~ -> rspamd/opendkim service handlers

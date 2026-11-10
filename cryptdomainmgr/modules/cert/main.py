@@ -50,7 +50,12 @@ def prepare(config, state):
         if certState.isDone():
             continue
         domains = [k for k,v in config['domain'].items() if 'cert' in v and certSecName in v['cert']]
-        log.info('Create certificate for section \"{}\"'.format(certSecName))
+        if 0 == len(domains):
+            # no domain references this section (e.g. an inheritance group
+            # section used only as an inherit= parent): nothing to issue
+            certState.setOpStateDone()
+            continue
+        log.info('Create certificate for section "{}"'.format(certSecName))
         log.info('  -> {}'.format(', '.join(domains)))
         log.debug(certConfig)
         domainAccessTable = createDomainAccessTable(config, domains)
@@ -68,7 +73,13 @@ def rollover(config, state):
         certState = subState.getSubstate(certSecName)
         if certState.isDone():
             continue
-        log.info('Apply certificate for section \"{}\"'.format(certSecName))
+        domains = [k for k,v in config['domain'].items() if 'cert' in v and certSecName in v['cert']]
+        if 0 == len(domains):
+            # inheritance group section without its own certificate: no
+            # result to deploy
+            certState.setOpStateDone()
+            continue
+        log.info('Apply certificate for section "{}"'.format(certSecName))
         copyCert(certConfig, certState)
         certState.setOpStateDone()
 
@@ -82,7 +93,13 @@ def cleanup(config, state):
         certState = subState.getSubstate(certSecName)
         if certState.isDone():
             continue
-        log.info('Cleanup certificate for section \"{}\"'.format(certSecName))
+        domains = [k for k,v in config['domain'].items() if 'cert' in v and certSecName in v['cert']]
+        if 0 == len(domains):
+            # inheritance group section without its own certificate: no
+            # result files to clean up
+            certState.setOpStateDone()
+            continue
+        log.info('Cleanup certificate for section "{}"'.format(certSecName))
         delOldCert(certConfig, certState)
         certState.setOpStateDone()
 

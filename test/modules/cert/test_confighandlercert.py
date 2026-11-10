@@ -51,6 +51,29 @@ class TestCertconfighandler(unittest.TestCase):
         self.assertEqual('acme', cr.config['cert']['DEFAULT']['handler'])
         self.assertEqual('', cr.config['cert']['DEFAULT']['caa'])
 
+    def testCertInheritanceChain(self):
+        # [cert] -> [cert:mail] (group) -> [cert:mail-smtp] (concrete cert)
+        cr = ConfigReader()
+        cr.setContentList(['[cert]\nhandler = acme \nemail = cdm@cdm.example \n'
+                           '[cert:mail]\ninherit = cert \nkeysize = 2048 \n'
+                           '[cert:mail-smtp]\ninherit = cert:mail \ndestination = /etc/mail-smtp \n'])
+        procConfig(cr)
+        mailSmtp = cr.config['cert']['mail-smtp']
+        self.assertEqual('acme', mailSmtp['handler'])              # from [cert], 2 levels up
+        self.assertEqual('cdm@cdm.example', mailSmtp['email'])     # from [cert]
+        self.assertEqual(2048, mailSmtp['keysize'])                # from [cert:mail]
+        self.assertEqual('/etc/mail-smtp', mailSmtp['destination'])  # own
+        self.assertNotIn('inherit', mailSmtp)
+        # the group section resolves for itself as well
+        self.assertEqual(2048, cr.config['cert']['mail']['keysize'])
+        self.assertEqual('cdm@cdm.example', cr.config['cert']['mail']['email'])
+
+    def testCertInheritanceMissingParentRaises(self):
+        cr = ConfigReader()
+        cr.setContentList(['[cert:mail]\ninherit = cert:nowhere'])
+        with self.assertRaises(KeyError):
+            procConfig(cr)
+
 
 if "__main__" == __name__:
     unittest.main()

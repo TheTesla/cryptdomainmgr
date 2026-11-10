@@ -171,7 +171,7 @@ def interpreteSetRR(content, rrType, defaultList = ['*']):
 
 def interpreteConfig(cr, sh):
     domainconfigOrig = cr.getRawConfigOf('domain', True)
-    domainconfig = applyDefault(domainconfigOrig) # must be here because following section depends on default values
+    domainconfig = applyDefault(domainconfigOrig, moduleName='domain') # must be here because following section depends on default values
     for domain, content in domainconfig.items():
         for f in ['A', 'AAAA', 'DKIM', 'TLSA', 'MX', 'SRV', 'CAA', 'DMARC', 'SOA', 'SPF', 'Handler', 'Cert']:
             domainconfig[domain].update((globals()['interprete{}'.format(f)](content)))

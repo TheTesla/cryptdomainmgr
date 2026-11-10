@@ -13,7 +13,7 @@ def interpreteConfig(cr, sh):
     defaultTESTConfig = {'defaultx': '23', 'defaulty': '42'}
     testConfig = cr.getRawConfigOf('test')
     # apply general config defaults and the default section
-    testConfig = applyDefault(testConfig, defaultTESTConfig) # must be here because following section depends on default values
+    testConfig = applyDefault(testConfig, defaultTESTConfig, moduleName='test') # must be here because following section depends on default values
     cr.updateConfig({'test': testConfig})
     return testConfig
 

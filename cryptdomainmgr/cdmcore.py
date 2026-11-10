@@ -7,6 +7,8 @@
 #
 #######################################################################
 
+import time
+import traceback
 from cryptdomainmgr.cdmconfighandler import ConfigReader
 from cryptdomainmgr.cdmstatehandler import StateHandler
 #from cryptdomainmgr.modules.common.cdmconfighelper import getStateDir
@@ -45,17 +47,33 @@ class ManagedDomain:
         self.sh.registerConfig(self.cr.config['cdm'])
 
     def run(self, confFile=None, forcePhase='next', confContent=''):
-        if confFile is not None or 0 < len(confContent):
-            self.readConfig(confFile, confContent)
-        self.sh.load()
-        self.sh.delete() # --next starts with prepare, if failed
-        self.sh.resetOpStateRecursive()
-        currentPhase = getCurrentPhase(self.sh, forcePhase)
-        log.info('Running phase: {}'.format(currentPhase))
-        runPhase(self.cr, self.sh, currentPhase)
-        nextphase = getNextPhase(currentPhase)
-        self.sh.registerResult({'nextphase': nextphase})
-        self.sh.save()
+        currentPhase = 'unknown'
+        startTime = time.time()
+        try:
+            if confFile is not None or 0 < len(confContent):
+                self.readConfig(confFile, confContent)
+            self.sh.load()
+            self.sh.delete() # --next starts with prepare, if failed
+            self.sh.resetOpStateRecursive()
+            currentPhase = getCurrentPhase(self.sh, forcePhase)
+            log.info('Running phase: {}'.format(currentPhase))
+            runPhase(self.cr, self.sh, currentPhase)
+            nextphase = getNextPhase(currentPhase)
+            self.sh.registerResult({'nextphase': nextphase})
+            self.sh.save()
+        except Exception:
+            # failure summary with all debug information: exception with
+            # traceback and the full state tree including results
+            log.error('\n'.join(
+                ['Run FAILED: phase={}, duration={:.1f}s'.format(currentPhase, time.time() - startTime),
+                 'Exception traceback:',
+                 traceback.format_exc(),
+                 'Detailed state at failure:'] + stateSummaryLines(self.sh, includeResults=True)))
+            raise
+        # compact success summary: phase, duration, section opstates
+        log.info('\n'.join(
+            ['Run summary: phase={} finished successfully, duration={:.1f}s'.format(currentPhase, time.time() - startTime),
+             '  Sections:'] + stateSummaryLines(self.sh)))
 
 
 def runPhase(cr, sh, phase):
@@ -68,6 +86,26 @@ def runPhase(cr, sh, phase):
             f = getattr(v, phase)
             f(cr.config, sh)
     sh.setOpStateDone()
+
+
+def stateSummaryLines(sh, includeResults=False):
+    """One line per module/section with its opstate, e.g. 'cert/mycert = done'.
+
+    With includeResults the section results (certificate paths, DKIM
+    selectors, ...) are appended - used in the failure summary."""
+    lines = []
+
+    def walk(state, path, depth):
+        line = '{}{} = {}'.format('  ' * (depth + 1), path, state.opstate)
+        if includeResults and 0 < len(state.result):
+            line += ', result={}'.format(state.result)
+        lines.append(line)
+        for k, v in state.substate.items():
+            walk(v, path + '/' + k, depth + 1)
+
+    for modName, modState in sh.substate.items():
+        walk(modState, modName, 0)
+    return lines
 
 
 
