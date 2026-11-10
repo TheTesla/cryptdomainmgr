@@ -6,8 +6,9 @@ Common config keys:
 
 | key | default | description |
 |---|---|---|
-| `dkim` | `auto` | references the `[dkim:<name>]` section to consume |
+| `dkim` / `cert` | `auto` | references the `[dkim:<name>]` / `[cert:<name>]` section(s) to consume; also drives the `isReady` dependency |
 | `reload` | `true` | reload the service after config deployment; set `false` when the service runs on another host or in a container |
+| `certdestination` | – (disabled) | apache2/dovecot/postfix: pull the staged certificates of the referenced `cert=` sections into this directory at rollover (layout: `<certdestination>/<san>/`, same as the cert module deployment), before the reload |
 
 ## opendkim
 
@@ -28,6 +29,22 @@ Generated entries (per domain):
 ```
 
 The KeyTable references the **deployed** key location (`keylocation`/`keyname` from the dkim section), not the staging path – make sure the opendkim user can read it.
+
+## Certificate pull for apache2 / dovecot / postfix
+
+The systemd service handlers only reload the service – the certificates are normally deployed once by the cert module rollover (per `[cert:x] destination`) and referenced from the service's own config. Alternatively a service can pull the certificates itself into a service-specific directory:
+
+```ini
+[cert:mail]
+# no destination needed for this certificate when only pulled services use it
+
+[service:postfix]
+handler=postfix
+cert=mail
+certdestination=/etc/postfix/ssl
+```
+
+At rollover (after the cert section is done – the `cert=` reference also drives the dependency wait) the staged cert/chain/fullchain/key files of every SAN are copied to `certdestination/<san>/` and the service is reloaded. Multiple cert sections can be referenced comma-separated; sections without a referenced cert section behave exactly as before.
 
 ## rspamd
 

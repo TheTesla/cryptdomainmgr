@@ -10,8 +10,9 @@
 from simpleloggerplus import simpleloggerplus as log
 from subprocess import check_output, CalledProcessError
 from cryptdomainmgr.modules.common.cdmstatehelper import isReady
+from cryptdomainmgr.modules.common.cdmcertpull import pullCerts
 
-defaultConfig = {'depends': 'dhparam, cert', 'cert': 'auto', 'dhparam': 'auto'}
+defaultConfig = {'depends': 'dhparam, cert', 'cert': 'auto', 'dhparam': 'auto', 'certdestination': ''}
 
 def prepare(serviceConfig, serviceState, state):
     serviceState.setOpStateDone()
@@ -21,6 +22,7 @@ def rollover(serviceConfig, serviceState, state):
     if not isReady(serviceConfig, state, ['dhparam', 'cert']):
         return
     serviceState.setOpStateRunning()
+    pullCerts(serviceConfig, state)
     log.info('  -> Apache2 reload')
     try:
         rv = check_output(('sudo', 'systemctl', 'start', 'apache2'))
