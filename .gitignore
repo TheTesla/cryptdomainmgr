@@ -113,3 +113,6 @@ cdm-docker-demo/configuration
 travis.log
 *.swp
 .venv/
+
+# mkdocs output
+site/

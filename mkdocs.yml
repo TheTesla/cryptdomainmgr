@@ -1,0 +1,36 @@
+site_name: cryptdomainmgr
+site_description: Automatic certificate, DKIM and DNS record management
+repo_url: https://github.com/TheTesla/cryptdomainmgr
+repo_name: TheTesla/cryptdomainmgr
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - navigation.sections
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Handlers:
+      - Certificates (ACME): handlers/cert.md
+      - DKIM keys: handlers/dkim.md
+      - Signing services: handlers/services.md
+      - DNS records: handlers/dns.md
+  - Configuration: config.md
+  - Architecture: architecture.md
+  - Testing: testing.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.details
+  - tables
